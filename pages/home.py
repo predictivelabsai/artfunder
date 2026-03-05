@@ -99,7 +99,7 @@ def home_page():
             Div(
                 Div(
                     H3('Artists & Galleries', cls='text-accent mb-4 text-lg font-bold'),
-                    P('Leading artists and galleries consign works through ArtFunder for broader collector access '
+                    P('Leading artists and galleries consign works through Kanvas.ai for broader collector access '
                       'and upfront capital. Fair market valuations by independent appraisers.',
                       cls='text-gray-500 text-sm leading-relaxed'),
                     A('Consign artwork \u2192', href='/artists',
@@ -107,7 +107,7 @@ def home_page():
                     cls='bg-white rounded-xl p-8 shadow-sm border-l-4 border-accent'
                 ),
                 Div(
-                    H3('ArtFunder', cls='text-primary mb-4 text-lg font-bold'),
+                    H3('Kanvas.ai', cls='text-primary mb-4 text-lg font-bold'),
                     P('We handle authentication, insurance, secure storage, and the full investment lifecycle \u2014 '
                       'from acquisition and fractional offering to eventual sale and profit distribution.',
                       cls='text-gray-500 text-sm leading-relaxed'),
@@ -135,7 +135,7 @@ def home_page():
                 Div(
                     H2('Asset-Backed Investments',
                        cls='font-display text-3xl mb-4'),
-                    P('Every ArtFunder offering is backed by a physical artwork, professionally appraised, '
+                    P('Every Kanvas.ai offering is backed by a physical artwork, professionally appraised, '
                       'insured, and stored in museum-grade, climate-controlled facilities.',
                       cls='text-lg mb-6'),
                     P('Art has historically shown low correlation to equities and bonds, making it an excellent '

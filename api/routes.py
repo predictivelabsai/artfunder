@@ -110,4 +110,4 @@ def api_stats():
 # Health check
 @ar('/api/health')
 def api_health():
-    return JSONResponse({'status': 'ok', 'service': 'artfunder'})
+    return JSONResponse({'status': 'ok', 'service': 'kanvas'})

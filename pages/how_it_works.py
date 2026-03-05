@@ -4,7 +4,7 @@ from fasthtml.common import *
 def how_it_works_page():
     hero = Section(
         Div(
-            H1('How ArtFunder Works', cls='font-display text-4xl font-extrabold text-white mb-4'),
+            H1('How Kanvas.ai Works', cls='font-display text-4xl font-extrabold text-white mb-4'),
             P('A transparent, secure process connecting art collectors and investors through fractional ownership of museum-quality artworks.',
               cls='text-lg text-white/90 max-w-2xl'),
             cls='max-w-7xl mx-auto relative z-10'

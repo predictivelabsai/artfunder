@@ -1,13 +1,13 @@
-# ArtFunder - Fine Art Investment Platform
+# Kanvas.ai - Fine Art Investment Platform
 
 ## Project Overview
-ArtFunder is a fine art-backed investment platform built entirely with FastHTML + SQLAlchemy + PostgreSQL. It connects artists and galleries seeking capital with investors looking for art-backed returns through fractional ownership.
+Kanvas.ai is a fine art-backed investment platform built entirely with FastHTML + SQLAlchemy + PostgreSQL. It connects artists and galleries seeking capital with investors looking for art-backed returns through fractional ownership.
 
 ## Tech Stack
 - **Framework**: FastHTML (Python) - server-rendered hypermedia application
 - **CSS**: Tailwind CSS via CDN
 - **Database**: PostgreSQL with SQLAlchemy ORM
-- **Schema**: `artfunder` schema in PostgreSQL
+- **Schema**: `kanvas` schema in PostgreSQL
 - **Deployment**: Docker + Docker Compose (Coolify-ready)
 - **Server**: Uvicorn (via FastHTML's `serve()`)
 
@@ -35,7 +35,7 @@ ArtFunder is a fine art-backed investment platform built entirely with FastHTML 
 
 ## Project Structure
 ```
-artfunder/
+kanvas/
 ├── main.py              # FastHTML app entry point
 ├── models.py            # SQLAlchemy models
 ├── db.py                # Database connection & session management
@@ -62,9 +62,9 @@ artfunder/
 
 ## Database
 - Connection: `DB_URL` environment variable
-- Schema: `artfunder` in PostgreSQL
+- Schema: `kanvas` in PostgreSQL
 - ORM: SQLAlchemy with declarative models
-- All tables prefixed with schema: `artfunder.table_name`
+- All tables prefixed with schema: `kanvas.table_name`
 
 ## Key Domain Concepts
 - **Artworks**: Fine art pieces available for fractional investment

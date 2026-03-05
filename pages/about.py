@@ -4,7 +4,7 @@ from fasthtml.common import *
 def about_page():
     hero = Section(
         Div(
-            H1('About ArtFunder', cls='font-display text-4xl font-extrabold text-white mb-4'),
+            H1('About Kanvas.ai', cls='font-display text-4xl font-extrabold text-white mb-4'),
             P('We are democratizing art investment \u2014 making fine art ownership '
               'accessible, transparent, and rewarding for everyone.',
               cls='text-lg text-white/90 max-w-2xl'),
@@ -18,7 +18,7 @@ def about_page():
             Div(
                 Div(
                     H2('Our Mission', cls='font-display text-3xl mb-6'),
-                    P('ArtFunder was founded with a simple belief: art investment should not be '
+                    P('Kanvas.ai was founded with a simple belief: art investment should not be '
                       'reserved for billionaires and institutions. By leveraging technology and fractional ownership, '
                       'we connect everyday investors with museum-quality artworks, creating '
                       'value for both investors and the art community.',
@@ -116,7 +116,7 @@ def about_page():
 
     cta = Section(
         Div(
-            H2('Join the ArtFunder Community', cls='font-display text-3xl mb-4'),
+            H2('Join the Kanvas.ai Community', cls='font-display text-3xl mb-4'),
             P('Whether you are an investor looking to build an art portfolio or an artist seeking new collectors, we are here to help.',
               cls='text-lg text-white/90 max-w-xl mx-auto mb-8'),
             Div(

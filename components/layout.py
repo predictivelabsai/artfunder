@@ -53,7 +53,7 @@ def NavBar(active='home'):
 
     return Nav(
         Div(
-            A('Art', Span('Funder', cls='text-accent'), href='/',
+            A('Kanvas', Span('.ai', cls='text-accent'), href='/',
               cls='font-display text-2xl font-bold text-white no-underline tracking-wide'),
             Button('\u2630',
                    cls='md:hidden bg-transparent border-none text-white text-2xl cursor-pointer',
@@ -77,7 +77,7 @@ def PageFooter():
         Div(
             Div(
                 Div(
-                    H3('Art', Span('Funder', cls='text-accent'),
+                    H3('Kanvas', Span('.ai', cls='text-accent'),
                        cls='font-display text-white text-xl mb-4 tracking-wide'),
                     P('Fine art investment made accessible. We connect investors with expertly curated artworks, '
                       'delivering transparent returns backed by tangible, appreciating assets.',
@@ -114,7 +114,7 @@ def PageFooter():
                 cls='max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12'
             ),
             Div(
-                P('\u00a9 2026 ArtFunder. All rights reserved. Investing involves risk and can result in loss of capital.'),
+                P('\u00a9 2026 Kanvas.ai. All rights reserved. Investing involves risk and can result in loss of capital.'),
                 P('All investments are backed by physical artworks held in secure, climate-controlled storage.'),
                 cls='max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-sm gap-4'
             ),
@@ -123,7 +123,7 @@ def PageFooter():
     )
 
 
-def Page(content, active='home', title='ArtFunder'):
+def Page(content, active='home', title='Kanvas.ai'):
     return (
         Title(f'{title} - Fine Art Investment Platform'),
         NavBar(active),

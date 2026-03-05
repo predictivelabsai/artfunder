@@ -16,7 +16,7 @@ def investors_page():
     benefits = Section(
         Div(
             Div(
-                H2('Why Invest With ArtFunder', cls='font-display text-3xl font-bold text-gray-900 mb-4'),
+                H2('Why Invest With Kanvas.ai', cls='font-display text-3xl font-bold text-gray-900 mb-4'),
                 P('Tangible, appreciating assets with institutional-grade security.', cls='text-base text-gray-500 max-w-xl mx-auto'),
                 cls='text-center mb-12'
             ),

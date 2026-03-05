@@ -23,7 +23,7 @@ from models import User
 # Initialize app with styles
 app, rt = fast_app(
     hdrs=(app_styles(),),
-    secret_key='artfunder-test-app-2026',
+    secret_key='kanvas-test-app-2026',
 )
 
 # Register routers
@@ -246,7 +246,7 @@ def faq():
             Section(
                 Div(
                     H1('Frequently Asked Questions', cls='font-display text-4xl font-extrabold text-white mb-4'),
-                    P('Find answers to common questions about ArtFunder.', cls='text-lg text-white/90'),
+                    P('Find answers to common questions about Kanvas.ai.', cls='text-lg text-white/90'),
                     cls='max-w-7xl mx-auto relative z-10'
                 ),
                 cls='art-gradient py-16 px-8'
@@ -269,10 +269,10 @@ async def startup():
         # Create default admin if not exists
         db = SessionLocal()
         try:
-            admin = db.query(User).filter(User.email == 'admin@artfunder.com').first()
+            admin = db.query(User).filter(User.email == 'admin@kanvas.ai').first()
             if not admin:
                 admin = User(
-                    email='admin@artfunder.com',
+                    email='admin@kanvas.ai',
                     password_hash=hash_password('admin123'),
                     first_name='Admin',
                     last_name='User',

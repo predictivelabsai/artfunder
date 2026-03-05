@@ -1,4 +1,4 @@
-# Multi-stage build for ArtFunder (FastHTML)
+# Multi-stage build for Kanvas.ai (FastHTML)
 FROM python:3.11-slim AS builder
 
 ENV PYTHONUNBUFFERED=1 \

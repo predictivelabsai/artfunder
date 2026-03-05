@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 DB_URL = os.environ["DB_URL"]
-SCHEMA = "artfunder"
+SCHEMA = "kanvas"
 
 engine = create_engine(DB_URL, pool_pre_ping=True, pool_size=5, max_overflow=10)
 

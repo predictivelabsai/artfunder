@@ -20,7 +20,7 @@ def artists_page():
     benefits = Section(
         Div(
             Div(
-                H2('Why Consign With ArtFunder', cls='font-display text-3xl font-bold text-gray-900 mb-4'),
+                H2('Why Consign With Kanvas.ai', cls='font-display text-3xl font-bold text-gray-900 mb-4'),
                 P('We help artists and galleries unlock the value of their collections.', cls='text-base text-gray-500 max-w-xl mx-auto'),
                 cls='text-center mb-12'
             ),

@@ -39,10 +39,10 @@ def admin_sidebar(active=''):
 
 def admin_layout(content, active='dashboard'):
     return (
-        Title('ArtFunder Admin'),
+        Title('Kanvas.ai Admin'),
         Nav(
             Div(
-                A('Art', Span('Funder', cls='text-accent'), ' Admin', href='/admin',
+                A('Kanvas', Span('.ai', cls='text-accent'), ' Admin', href='/admin',
                   cls='font-display text-xl font-bold text-white no-underline tracking-wide'),
                 Div(
                     A('View Site', href='/', cls='text-gray-400 no-underline text-sm mr-6'),

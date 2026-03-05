@@ -28,10 +28,10 @@ def seed():
             return
 
         # Create admin if not exists
-        admin = db.query(User).filter(User.email == 'admin@artfunder.com').first()
+        admin = db.query(User).filter(User.email == 'admin@kanvas.ai').first()
         if not admin:
             admin = User(
-                email='admin@artfunder.com',
+                email='admin@kanvas.ai',
                 password_hash=hash_password('admin123'),
                 first_name='Admin', last_name='User',
                 role='admin', is_verified=True, is_active=True, is_staff=True,
@@ -41,10 +41,10 @@ def seed():
             db.refresh(admin)
 
         # Create sample artist user
-        artist_user = db.query(User).filter(User.email == 'gallery@artfunder.com').first()
+        artist_user = db.query(User).filter(User.email == 'gallery@kanvas.ai').first()
         if not artist_user:
             artist_user = User(
-                email='gallery@artfunder.com',
+                email='gallery@kanvas.ai',
                 password_hash=hash_password('gallery123'),
                 first_name='Chelsea', last_name='Gallery',
                 role='artist', is_verified=True, is_active=True,
@@ -54,10 +54,10 @@ def seed():
             db.refresh(artist_user)
 
         # Create sample investor
-        investor = db.query(User).filter(User.email == 'investor@artfunder.com').first()
+        investor = db.query(User).filter(User.email == 'investor@kanvas.ai').first()
         if not investor:
             investor = User(
-                email='investor@artfunder.com',
+                email='investor@kanvas.ai',
                 password_hash=hash_password('investor123'),
                 first_name='James', last_name='Collector',
                 role='investor', is_verified=True, is_active=True,
@@ -288,7 +288,7 @@ def seed():
 
         # Seed some FAQs
         faqs = [
-            ('What is ArtFunder?', 'ArtFunder is a fine art investment platform that allows you to buy fractional shares of museum-quality artworks. We handle authentication, storage, insurance, and eventual sale of the artworks.'),
+            ('What is Kanvas.ai?', 'Kanvas.ai is a fine art investment platform that allows you to buy fractional shares of museum-quality artworks. We handle authentication, storage, insurance, and eventual sale of the artworks.'),
             ('How does fractional art ownership work?', 'We acquire blue-chip artworks, securitize them into shares, and offer fractional ownership to our investors. When an artwork is sold, investors receive their proportional share of the proceeds.'),
             ('What is the minimum investment?', 'The minimum investment varies by offering but typically starts at $500. Some higher-value works may have higher minimums.'),
             ('How are artworks valued?', 'All artworks are independently appraised by certified appraisers using auction records, private sale comparables, and current market conditions. Valuations are updated periodically.'),
