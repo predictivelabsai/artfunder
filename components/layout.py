@@ -46,6 +46,7 @@ def NavBar(active='home', sess=None):
         ('contact', '/contact', 'Contact'),
     ]
     nav_items_right = [
+        ('art-index', 'https://artindex.kanvas.ai/', 'Art Index'),
         ('how-it-works', '/how-it-works', 'How It Works'),
     ]
 
