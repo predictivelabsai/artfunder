@@ -4,6 +4,8 @@ from fasthtml.common import *
 def app_styles():
     """Tailwind CDN with clean light blue gallery aesthetic."""
     return (
+        # Favicon
+        Link(rel='icon', href='/static/favicon.ico', type='image/x-icon'),
         # Google Fonts
         Link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&display=swap'),
         # Tailwind CDN
