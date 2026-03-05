@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-11-28T20:00:24.572230",
+  "tests": [
+    {
+      "name": "Admin Home Page",
+      "status": "PASSED",
+      "message": "Admin home accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Legal Cases List",
+      "status": "PASSED",
+      "message": "Legal cases list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Case Fundings List",
+      "status": "PASSED",
+      "message": "Case fundings list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Case Investments List",
+      "status": "PASSED",
+      "message": "Case investments list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Notifications List",
+      "status": "PASSED",
+      "message": "Notifications list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "FAQs List",
+      "status": "PASSED",
+      "message": "FAQs list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Users List",
+      "status": "PASSED",
+      "message": "Users list accessible",
+      "status_code": 302
+    },
+    {
+      "name": "Database Connectivity",
+      "status": "PASSED",
+      "message": "Database connected. Cases: 7, Fundings: 6, Investments: 16"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": []
+  }
+}

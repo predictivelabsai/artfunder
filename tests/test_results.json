@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-11-28T19:57:27.947949",
+  "tests": [
+    {
+      "name": "User Creation",
+      "status": "PASSED",
+      "message": "User created: test@example.com"
+    },
+    {
+      "name": "Legal Case Creation",
+      "status": "PASSED",
+      "message": "Case created: TEST-001"
+    },
+    {
+      "name": "Case Funding Creation",
+      "status": "FAILED",
+      "message": "UNIQUE constraint failed: accounts_user.username"
+    },
+    {
+      "name": "Case Investment Creation",
+      "status": "PASSED",
+      "message": "Investment created: 50000"
+    },
+    {
+      "name": "Notification Creation",
+      "status": "PASSED",
+      "message": "Notification created: Test Notification"
+    },
+    {
+      "name": "FAQ Creation",
+      "status": "PASSED",
+      "message": "FAQ created: What is this platform?"
+    },
+    {
+      "name": "Admin Interface Access",
+      "status": "PASSED",
+      "message": "Admin interface accessible: 302"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 6,
+    "failed": 1,
+    "errors": [
+      "UNIQUE constraint failed: accounts_user.username"
+    ]
+  }
+}

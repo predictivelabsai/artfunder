@@ -1,9 +1,12 @@
 """Seed the database with sample artworks and investment opportunities."""
 import os
+import sys
 import hashlib
 from datetime import date, datetime
 from decimal import Decimal
 
+# Allow running from tasks/ directory
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 os.environ.setdefault("DB_URL", os.environ.get("DB_URL", ""))
 
 from db import init_db, SessionLocal

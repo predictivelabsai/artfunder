@@ -1,3 +1,9 @@
+# Screenshots (Playwright/reference)
+screenshots/
+
+# Playwright MCP
+.playwright-mcp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
