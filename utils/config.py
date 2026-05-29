@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     # xAI Grok (default LLM)
     xai_api_key: str = Field(default="", alias="XAI_API_KEY")
     xai_base_url: str = Field(default="https://api.x.ai/v1", alias="XAI_BASE_URL")
-    grok_model: str = Field(default="grok-4.1-fast-reasoning", alias="GROK_MODEL")
-    xai_agent_model: str = Field(default="grok-4.1-fast-reasoning", alias="XAI_AGENT_MODEL")
+    grok_model: str = Field(default="grok-4-1-fast-reasoning", alias="GROK_MODEL")
+    xai_agent_model: str = Field(default="", alias="XAI_AGENT_MODEL")
 
     # OpenAI (optional fallback)
     openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")

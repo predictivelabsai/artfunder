@@ -34,8 +34,10 @@ def build_llm(model: str | None = None, temperature: float = 0.0, **kw) -> ChatO
 
 
 def build_agent_llm(temperature: float = 0.0, **kw) -> ChatOpenAI:
-    """LLM for LangGraph ReAct agents — uses the agent model."""
-    return build_llm(model=settings().xai_agent_model, temperature=temperature, **kw)
+    """LLM for LangGraph ReAct agents — falls back to GROK_MODEL if XAI_AGENT_MODEL is not set."""
+    s = settings()
+    model = s.xai_agent_model or s.grok_model
+    return build_llm(model=model, temperature=temperature, **kw)
 
 
 @lru_cache(maxsize=1)
