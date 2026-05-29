@@ -1,23 +1,13 @@
-"""Plotly chart generation tools -- return __ARTIFACT__ payloads."""
+"""Chart tools — return short summaries for the LLM, reference prebuilt market map."""
 
 from __future__ import annotations
 
-import json
 import logging
 
-import pandas as pd
-import plotly.express as px
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
-
-CHART_LAYOUT = dict(
-    paper_bgcolor="#FFFFFF", plot_bgcolor="#F5F5F5",
-    font=dict(family="Inter, system-ui", color="#1A1A1A"),
-    margin=dict(l=40, r=20, t=50, b=40),
-    title=dict(font=dict(size=15)),
-)
 
 
 def _get_db():
@@ -42,36 +32,27 @@ def _treemap(**kw) -> str:
                    SUM(end_price) as total_sales,
                    AVG(CASE WHEN start_price > 0
                        THEN (end_price - start_price)::float / start_price * 100
-                       ELSE 0 END) as overbid_pct
+                       ELSE 0 END)::int as overbid_pct
             FROM kanvas.auction_lots
             {where}
             GROUP BY author, tech, category
             HAVING SUM(end_price) > 0
+            ORDER BY total_sales DESC
+            LIMIT 15
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, params)]
         if not rows:
             return "No auction data available for treemap."
 
-        df = pd.DataFrame(rows)
-        import numpy as np
-        midpoint = np.average(df["overbid_pct"], weights=df["total_sales"]) if len(df) > 0 else 0
+        top = rows[:10]
+        summary_lines = [f"- {r['author'].strip()}: EUR {int(r['total_sales']):,} total sales, {int(r['overbid_pct'])}% avg overbid ({r['tech']})" for r in top]
+        summary = "\n".join(summary_lines)
 
-        fig = px.treemap(
-            df, path=["category", "tech", "author"],
-            values="total_sales", color="overbid_pct",
-            color_continuous_scale="RdBu",
-            color_continuous_midpoint=midpoint,
-            title=args.title,
+        return (
+            f"Treemap chart '{args.title}' is available at /app/market-map with {len(rows)} artist groups.\n\n"
+            f"Top 10 artists by total sales:\n{summary}\n\n"
+            f"Direct the user to /app/market-map for the interactive treemap visualization."
         )
-        fig.update_layout(**CHART_LAYOUT)
-        fig.update_layout(margin=dict(t=30, l=0, r=0, b=0))
-
-        artifact = {
-            "kind": "chart",
-            "title": args.title,
-            "figure": json.loads(fig.to_json()),
-        }
-        return "__ARTIFACT__" + json.dumps(artifact)
     finally:
         db.close()
 
@@ -110,31 +91,25 @@ def _price_trend(**kw) -> str:
         if not rows:
             return "No data available for price trend chart."
 
-        df = pd.DataFrame(rows)
-        fig = px.area(
-            df, x="year", y="avg_price", color="category",
-            title=args.title, markers=True,
-        )
-        fig.update_layout(**CHART_LAYOUT)
+        summary_lines = [f"- {r['year']} {r['category']}: EUR {int(r['avg_price']):,} avg ({int(r['lots'])} lots)" for r in rows[:12]]
+        summary = "\n".join(summary_lines)
 
-        artifact = {
-            "kind": "chart",
-            "title": args.title,
-            "figure": json.loads(fig.to_json()),
-        }
-        return "__ARTIFACT__" + json.dumps(artifact)
+        return (
+            f"Price trend data for '{args.title}':\n{summary}\n\n"
+            f"The interactive chart is available at /app/market-map."
+        )
     finally:
         db.close()
 
 
 treemap_chart = StructuredTool.from_function(
     func=_treemap, name="treemap_chart",
-    description="Generate a treemap of artist sales colored by overbid percentage. Groups by category, technique, and artist.",
+    description="Look up artist sales data grouped by category, technique, and artist. Returns top sellers with overbid percentages. The full interactive treemap is at /app/market-map.",
     args_schema=TreemapArgs,
 )
 
 price_trend_chart = StructuredTool.from_function(
     func=_price_trend, name="price_trend_chart",
-    description="Generate an area chart showing price trends over time, optionally filtered by artist or category.",
+    description="Look up price trends over time, optionally filtered by artist or category. The full interactive chart is at /app/market-map.",
     args_schema=PriceTrendArgs,
 )

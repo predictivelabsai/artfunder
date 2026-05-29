@@ -45,7 +45,7 @@ def NavBar(active='home', sess=None):
         ('about', '/about', 'About'),
     ]
     nav_items_right = [
-        ('art-index', 'https://artindex.kanvas.ai/', 'Art Index'),
+        ('art-index', '/app/market-map', 'Art Index'),
         ('contact', '/contact', 'Contact'),
     ]
 
@@ -118,7 +118,7 @@ def PageFooter():
                 Div(
                     H4('Resources', cls='text-black text-sm uppercase tracking-wider mb-4'),
                     Ul(
-                        Li(A('Art Index', href='https://artindex.kanvas.ai/', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
+                        Li(A('Art Index', href='/app/market-map', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('About', href='/about', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('Contact', href='/contact', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         cls='list-none'

@@ -56,6 +56,6 @@ def chat_page(user_email=None, sessions=None, current_sid="",
         center_pane(messages=messages, current_agent_slug=current_agent_slug),
         right_pane(),
         Script(src="/static/chat.js"),
-        cls="bg-white text-ink font-sans antialiased app pane-closed",
+        cls="bg-white text-ink font-sans antialiased app",
     )
     return Html(_head("Art Advisor"), body)

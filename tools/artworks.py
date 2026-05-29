@@ -54,13 +54,11 @@ def _search_artworks(**kw) -> str:
         if not rows:
             return "No artworks found matching the criteria."
 
-        artifact = {
-            "kind": "table",
-            "title": f"Artworks ({len(rows)} results)",
-            "columns": ["id", "title", "artist", "category", "medium", "year", "estimated_value", "status"],
-            "rows": rows,
-        }
-        return "__ARTIFACT__" + json.dumps(artifact)
+        lines = [f"Artworks ({len(rows)} results):\n"]
+        for r in rows:
+            val = f"EUR {r['estimated_value']:,.0f}" if r.get("estimated_value") else "N/A"
+            lines.append(f"- #{r['id']} {r['title']} by {r['artist']} — {r.get('medium', '')} ({r.get('year', '')}) — {val} [{r.get('status', '')}]")
+        return "\n".join(lines)
     finally:
         db.close()
 

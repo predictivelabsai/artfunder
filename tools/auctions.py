@@ -61,16 +61,15 @@ def _search_lots(**kw) -> str:
         if not rows:
             return "No auction lots found matching the criteria."
 
+        lines = [f"Auction Lots ({len(rows)} results):\n"]
         for r in rows:
-            r.pop("created_at", None)
-
-        artifact = {
-            "kind": "table",
-            "title": f"Auction Lots ({len(rows)} results)",
-            "columns": ["id", "auction_date", "author", "start_price", "end_price", "year", "tech", "category", "auction_provider"],
-            "rows": rows,
-        }
-        return "__ARTIFACT__" + json.dumps(artifact, default=str)
+            author = (r.get("author") or "").strip()
+            end_p = r.get("end_price", 0)
+            start_p = r.get("start_price", 0)
+            tech = r.get("tech") or ""
+            year = r.get("year") or ""
+            lines.append(f"- {author}: EUR {int(end_p):,} (start EUR {int(start_p):,}) — {tech}, {year}")
+        return "\n".join(lines[:25])
     finally:
         db.close()
 

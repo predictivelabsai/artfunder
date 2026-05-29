@@ -45,7 +45,7 @@ def home_page():
                     P('Real-time auction analytics, price trend visualizations, and sector heat maps. '
                       'Track Estonian and international art markets with interactive Plotly charts.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    A('View analytics', href='/app/analytics',
+                    A('View market map', href='/app/market-map',
                       cls='block mt-4 no-underline font-semibold text-sm text-black'),
                     cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),

@@ -12,3 +12,4 @@ pandas
 numpy
 httpx
 pydantic-settings
+feedparser

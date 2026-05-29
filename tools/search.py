@@ -62,15 +62,13 @@ def _web_search(**kw) -> str:
         return "Search unavailable -- no EXA_API_KEY configured or provider failed."
 
     items = data["results"]
-    subtitle = f"{data['provider']} -- {len(items)} results"
-
-    artifact = {
-        "kind": "citations",
-        "title": f"Web search: {args.query[:70]}",
-        "subtitle": subtitle,
-        "items": items,
-    }
-    return "__ARTIFACT__" + json.dumps(artifact)
+    lines = [f"Web search: {args.query} ({len(items)} results)\n"]
+    for it in items:
+        title = it.get("title") or "Untitled"
+        url = it.get("url") or ""
+        snippet = (it.get("snippet") or "")[:200]
+        lines.append(f"- **{title}**\n  {url}\n  {snippet}\n")
+    return "\n".join(lines)
 
 
 web_search = StructuredTool.from_function(

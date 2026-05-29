@@ -9,6 +9,7 @@ from fasthtml.common import (
     Ul, Li, Script, NotStr,
 )
 from agents.registry import CATEGORIES, AGENTS, AGENTS_BY_SLUG
+from utils.version import __version__, __version_date__
 
 
 def signin_overlay():
@@ -99,11 +100,17 @@ def left_pane(user_email=None, sessions=None, current_sid=""):
             cls="agents-section",
         ),
         Div(
+            A("Market Map", href="/app/market-map", cls="workspace-link"),
             A("Analytics", href="/app/analytics", cls="workspace-link"),
-            A("Art Index", href="https://artindex.kanvas.ai/", cls="workspace-link", target="_blank"),
+            A("Art Index", href="/app/market-map", cls="workspace-link"),
             cls="workspace-section",
         ),
         Div(auth_section, cls="auth-section"),
+        Div(
+            Span(f"v{__version__}", cls="text-[10px] text-gray-300"),
+            Span(f"{__version_date__}", cls="text-[10px] text-gray-300"),
+            cls="flex items-center justify-between px-3 py-2 border-t border-gray-100",
+        ),
         cls="left-pane",
     )
 
@@ -184,19 +191,41 @@ def center_pane(messages=None, current_agent_slug=None):
 
 
 def right_pane():
+    from tools.news import fetch_art_news
+    news_items = []
+    try:
+        news_items = fetch_art_news(max_items=10)
+    except Exception:
+        pass
+
+    news_els = []
+    for item in news_items:
+        news_els.append(
+            Div(
+                A(item.get("title", "Untitled"), href=item.get("url", "#"), target="_blank",
+                  cls="text-sm font-medium text-black no-underline hover:underline leading-snug block"),
+                Div(
+                    Span(item.get("source", ""), cls="text-[10px] font-medium text-gray-400"),
+                    Span(item.get("published", "")[:10], cls="text-[10px] text-gray-300") if item.get("published") else "",
+                    cls="flex gap-2 mt-1",
+                ),
+                P(item.get("snippet", ""), cls="text-xs text-gray-400 mt-1 leading-relaxed line-clamp-2") if item.get("snippet") else "",
+                cls="py-3 border-b border-gray-50",
+            )
+        )
+
     return Div(
         Div(
-            H4("Canvas", cls="artifact-title"),
-            Span("", id="artifact-subtitle", cls="artifact-subtitle"),
+            H4("Art News", cls="artifact-title"),
+            Span("Estonian & Baltic art market", id="artifact-subtitle", cls="artifact-subtitle"),
             cls="artifact-header",
         ),
         Div(
-            P("Artifacts from your conversation will appear here -- charts, tables, search results.",
-              cls="text-sm text-gray-400"),
+            *news_els if news_els else [P("Loading art news...", cls="text-sm text-gray-400")],
             id="artifact-empty",
-            cls="artifact-empty",
+            cls="px-4 py-2 overflow-y-auto flex-1",
         ),
         Div(id="artifact-body", cls="artifact-body", style="display:none"),
         id="right-pane",
-        cls="right-pane",
+        cls="right-pane open",
     )

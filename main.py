@@ -37,8 +37,10 @@ api_router.to_app(app)
 # Register chat routes
 from chat.routes import register_chat_routes
 from chat.analytics import register_analytics_routes
+from chat.market_map import register_market_map_routes
 register_chat_routes(rt)
 register_analytics_routes(rt)
+register_market_map_routes(rt)
 
 
 # --- Auth helpers ---
