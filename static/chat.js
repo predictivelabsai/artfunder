@@ -437,6 +437,35 @@
 
     document.querySelectorAll(".msg-bubble").forEach(b => enhanceTables(b));
 
+    /* ── News polling ─────────────────────────────────────────── */
+    (function startNewsPolling() {
+        const intervalEl = document.getElementById("news-interval");
+        const seconds = intervalEl ? parseInt(intervalEl.textContent, 10) : 1800;
+        if (!seconds || seconds < 60) return;
+
+        setInterval(async () => {
+            try {
+                const r = await fetch("/api/news");
+                if (!r.ok) return;
+                const data = await r.json();
+                const container = document.getElementById("artifact-empty");
+                if (!container || !data.items || !data.items.length) return;
+
+                container.innerHTML = data.items.map(it => `
+                    <div class="py-3 border-b border-gray-50">
+                        <a href="${it.url || '#'}" target="_blank"
+                           class="text-sm font-medium text-black no-underline hover:underline leading-snug block">${it.title || 'Untitled'}</a>
+                        <div class="flex gap-2 mt-1">
+                            <span class="text-[10px] font-medium text-gray-400">${it.source || ''}</span>
+                            ${it.published ? `<span class="text-[10px] text-gray-300">${it.published.slice(0,10)}</span>` : ''}
+                        </div>
+                        ${it.snippet ? `<p class="text-xs text-gray-400 mt-1 leading-relaxed line-clamp-2">${it.snippet}</p>` : ''}
+                    </div>
+                `).join('');
+            } catch (e) { /* silent */ }
+        }, seconds * 1000);
+    })();
+
     window.sendMessage = sendMessage;
     window.renderMarkdownLite = renderMarkdownLite;
     window.enhanceTables = enhanceTables;

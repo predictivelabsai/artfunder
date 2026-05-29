@@ -260,6 +260,13 @@ def register_chat_routes(rt):
 
         return StreamingResponse(event_stream(), media_type="text/event-stream")
 
+    @rt("/api/news")
+    def api_news():
+        from tools.news import fetch_art_news
+        from utils.config import get_news_interval
+        items = fetch_art_news(max_items=10)
+        return JSONResponse({"items": items, "interval": get_news_interval()})
+
     @rt("/app/auth/signin", methods=["POST"])
     async def signin(request: Request):
         form = await request.form()

@@ -49,12 +49,14 @@ def _head(title: str = "Kanvas.ai") -> Head:
 
 def chat_page(user_email=None, sessions=None, current_sid="",
               messages=None, current_agent_slug=None, readonly=False):
+    from utils.config import get_news_interval
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
         left_pane(user_email=user_email, sessions=sessions, current_sid=current_sid),
         center_pane(messages=messages, current_agent_slug=current_agent_slug),
         right_pane(),
+        Script(str(get_news_interval()), id="news-interval", type="application/json"),
         Script(src="/static/chat.js"),
         cls="bg-white text-ink font-sans antialiased app",
     )

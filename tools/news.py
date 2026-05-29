@@ -1,16 +1,22 @@
-"""Art news feed — fetches from Estonian art media via RSS + Exa fallback."""
+"""Art news feed — fetches from Estonian art media via RSS + Exa fallback.
+
+Results are cached server-side for NEWS_INTERVAL_SECONDS (default 1800 = 30 min).
+"""
 
 from __future__ import annotations
 
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 from typing import Optional
 
 import httpx
-from utils.config import settings
+from utils.config import settings, get_news_interval
 
 log = logging.getLogger(__name__)
+
+_cache: dict = {"items": [], "ts": 0}
 
 ART_SOURCES = [
     {"name": "Sirp", "domain": "sirp.ee", "rss_url": "https://sirp.ee/feed/", "lang": "et"},
@@ -80,11 +86,10 @@ def _fetch_exa_news(max_items: int = 8) -> list[dict]:
     return items[:max_items]
 
 
-def fetch_art_news(max_items: int = 12) -> list[dict]:
+def _fetch_fresh(max_items: int = 12) -> list[dict]:
     """Fetch art news from RSS feeds first, Exa as supplement."""
     all_items = []
 
-    # Try RSS feeds
     try:
         import feedparser  # noqa: F401
         for source in ART_SOURCES:
@@ -92,12 +97,10 @@ def fetch_art_news(max_items: int = 12) -> list[dict]:
     except ImportError:
         log.debug("feedparser not installed, skipping RSS")
 
-    # Supplement with Exa if we don't have enough
     if len(all_items) < max_items:
         exa_items = _fetch_exa_news(max_items=max_items - len(all_items))
         all_items.extend(exa_items)
 
-    # Deduplicate by URL
     seen = set()
     unique = []
     for item in all_items:
@@ -107,3 +110,17 @@ def fetch_art_news(max_items: int = 12) -> list[dict]:
             unique.append(item)
 
     return unique[:max_items]
+
+
+def fetch_art_news(max_items: int = 12) -> list[dict]:
+    """Return cached news, refreshing when the interval expires."""
+    interval = get_news_interval()
+    now = time.time()
+    if _cache["items"] and (now - _cache["ts"]) < interval:
+        return _cache["items"][:max_items]
+
+    items = _fetch_fresh(max_items)
+    _cache["items"] = items
+    _cache["ts"] = now
+    log.info("News cache refreshed (%d items, interval=%ds)", len(items), interval)
+    return items[:max_items]

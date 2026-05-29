@@ -35,7 +35,28 @@ class Settings(BaseSettings):
     # Feature flags
     login_enabled: bool = Field(default=True, alias="LOGIN")
 
+    # News refresh interval (env fallback; params.yaml is primary)
+    news_interval_seconds: int = Field(default=1800, alias="NEWS_INTERVAL_SECONDS")
+
 
 @lru_cache(maxsize=1)
 def settings() -> Settings:
     return Settings()
+
+
+def get_news_interval() -> int:
+    """Return news refresh interval in seconds.
+    Primary: config/params.yaml  Fallback: NEWS_INTERVAL_SECONDS env var / default 1800.
+    """
+    import yaml
+    from pathlib import Path
+
+    params_path = Path(__file__).resolve().parents[1] / "config" / "params.yaml"
+    if params_path.exists():
+        try:
+            data = yaml.safe_load(params_path.read_text())
+            if data and "news_interval_seconds" in data:
+                return int(data["news_interval_seconds"])
+        except Exception:
+            pass
+    return settings().news_interval_seconds
