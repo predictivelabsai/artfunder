@@ -27,6 +27,13 @@ def about_page():
                       'backed by physical, appreciating assets, while giving artists and galleries access to a '
                       'pan-European community of collectors and upfront capital for their works.',
                       cls='text-base leading-relaxed text-gray-500'),
+                    P(
+                        'We are backed by ',
+                        A('Tezos Foundation', href='https://tezos.foundation/', target='_blank',
+                          cls='font-semibold text-black no-underline hover:underline'),
+                        '.',
+                        cls='text-base leading-relaxed text-gray-500 mt-6'
+                    ),
                 ),
                 Div(
                     Div(
