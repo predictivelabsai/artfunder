@@ -13,3 +13,5 @@ numpy
 httpx
 pydantic-settings
 feedparser
+playwright
+pyyaml

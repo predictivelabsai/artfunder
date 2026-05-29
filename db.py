@@ -79,7 +79,22 @@ def _init_chat_tables():
             created_at TIMESTAMPTZ DEFAULT NOW()
         )""",
     ]
+    migrations = [
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS title VARCHAR(500)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS lot_number INTEGER",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS dimensions_raw VARCHAR(100)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS bid_count INTEGER",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS auction_name VARCHAR(255)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS image_url VARCHAR(500)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS source_url VARCHAR(500)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS sold BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE kanvas.auction_lots ALTER COLUMN start_price SET DEFAULT 0",
+        "ALTER TABLE kanvas.auction_lots ALTER COLUMN end_price SET DEFAULT 0",
+        "CREATE INDEX IF NOT EXISTS idx_auction_lots_source_url ON kanvas.auction_lots(source_url)",
+    ]
     with engine.connect() as conn:
         for stmt in ddl:
+            conn.execute(text(stmt))
+        for stmt in migrations:
             conn.execute(text(stmt))
         conn.commit()

@@ -285,19 +285,27 @@ CREATE TABLE IF NOT EXISTS kanvas.chat_messages (
 );
 CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON kanvas.chat_messages(session_id);
 
--- Auction lots (Estonian auction data from artindex)
+-- Auction lots (Estonian auction data from 5 auction houses)
 CREATE TABLE IF NOT EXISTS kanvas.auction_lots (
     id SERIAL PRIMARY KEY,
     auction_date BIGINT NOT NULL,
     author VARCHAR(255) NOT NULL,
-    start_price BIGINT NOT NULL,
-    end_price BIGINT NOT NULL,
+    start_price BIGINT NOT NULL DEFAULT 0,
+    end_price BIGINT NOT NULL DEFAULT 0,
     year BIGINT,
     decade BIGINT,
     tech VARCHAR(255),
     category VARCHAR(100),
     dimension DOUBLE PRECISION,
     auction_provider VARCHAR(100) NOT NULL,
+    title VARCHAR(500),
+    lot_number INTEGER,
+    dimensions_raw VARCHAR(100),
+    bid_count INTEGER,
+    auction_name VARCHAR(255),
+    image_url VARCHAR(500),
+    source_url VARCHAR(500),
+    sold BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_auction_lots_provider ON kanvas.auction_lots(auction_provider);
