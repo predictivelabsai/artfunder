@@ -29,6 +29,7 @@ app, rt = fast_app(
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/docs", StaticFiles(directory="docs"), name="docs")
 
 # Register routers
 admin_router.to_app(app)

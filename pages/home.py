@@ -24,6 +24,14 @@ def home_page():
                 ),
                 cls='max-w-7xl mx-auto'
             ),
+            A(
+                Img(src='/docs/kanvas.gif',
+                    alt='Kanvas.ai product tour — advisory chat, market map, analytics',
+                    cls='block w-full h-auto rounded-2xl border border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)]',
+                    loading='lazy'),
+                href='/app',
+                cls='block max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden hover:opacity-95 transition-opacity',
+            ),
         ),
         cls='bg-white py-24 px-8'
     )

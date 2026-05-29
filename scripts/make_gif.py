@@ -16,13 +16,12 @@ OUT_GIF = ROOT / "docs" / "kanvas.gif"
 
 # App-focused tour — skips landing pages (the GIF lives on the landing page).
 FRAMES = [
-    ("05-chat-empty.png",          1800),
-    ("06-chat-artist.png",         3200),
-    ("07-chat-market.png",         3200),
-    ("08-chat-advise.png",         3200),
-    ("09-analytics-empty.png",     1800),
-    ("10-analytics-artists.png",   3200),
-    ("11-analytics-category.png",  3200),
+    ("01-home-full.png",           2500),
+    ("05-chat-empty.png",          2000),
+    ("05-chat-with-news.png",      3000),
+    ("07-chat-market.png",         3000),
+    ("07-chat-market-treemap.png", 3000),
+    ("12-market-map.png",          3000),
 ]
 
 TARGET_W = 1200
