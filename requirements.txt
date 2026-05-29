@@ -4,3 +4,11 @@ psycopg2-binary
 python-dotenv
 uvicorn
 python-multipart
+langchain-core
+langchain-openai
+langgraph
+plotly
+pandas
+numpy
+httpx
+pydantic-settings

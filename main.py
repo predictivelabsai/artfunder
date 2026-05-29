@@ -1,6 +1,7 @@
 import os
 from fasthtml.common import *
 from starlette.responses import RedirectResponse
+from starlette.staticfiles import StaticFiles
 import hashlib
 
 # Components & pages
@@ -26,9 +27,18 @@ app, rt = fast_app(
     secret_key='kanvas-test-app-2026',
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Register routers
 admin_router.to_app(app)
 api_router.to_app(app)
+
+# Register chat routes
+from chat.routes import register_chat_routes
+from chat.analytics import register_analytics_routes
+register_chat_routes(rt)
+register_analytics_routes(rt)
 
 
 # --- Auth helpers ---
@@ -53,7 +63,7 @@ def how_it_works(sess):
 
 @rt
 def investors(sess):
-    return Page(investors_page(), active='investors', title='Investors', sess=sess)
+    return Page(investors_page(), active='investors', title='Collection', sess=sess)
 
 @rt
 def artists(sess):
@@ -89,12 +99,12 @@ def login_form(error=None, email=''):
                             Input(type='password', name='password', placeholder='Your password', required=True, cls=INPUT_CLS),
                         ),
                         Button('Sign In', type='submit',
-                               cls='w-full mt-2 px-6 py-2.5 rounded-full font-semibold text-sm bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer border-none'),
+                               cls='w-full mt-2 px-6 py-2.5 rounded-full font-semibold text-sm bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer border-none'),
                         method='post', action='/login',
                         cls='bg-white p-8 rounded-lg shadow-sm max-w-md mx-auto'
                     ),
                     Div(
-                        P("Don't have an account? ", A('Register', href='/register', cls='text-accent no-underline'),
+                        P("Don't have an account? ", A('Register', href='/register', cls='text-black no-underline font-semibold'),
                           cls='text-center mt-6 text-gray-500 text-sm'),
                     ),
                 ),
@@ -107,10 +117,16 @@ def login_form(error=None, email=''):
 
 @rt('/login', methods=['GET'])
 def login_get():
+    from utils.config import settings
+    if not settings().login_enabled:
+        return RedirectResponse('/app', status_code=303)
     return login_form()
 
 @rt('/login', methods=['POST'])
 async def login_post(req, sess):
+    from utils.config import settings
+    if not settings().login_enabled:
+        return RedirectResponse('/app', status_code=303)
     form = await req.form()
     email = form.get('email', '')
     password = form.get('password', '')
@@ -134,6 +150,9 @@ async def login_post(req, sess):
 
 @rt('/register', methods=['GET'])
 def register():
+    from utils.config import settings
+    if not settings().login_enabled:
+        return RedirectResponse('/app', status_code=303)
     return Page(
         Section(
             Div(
@@ -150,17 +169,17 @@ def register():
                     Div(
                         Label('I am a', cls='block mb-1 font-semibold text-sm text-gray-900'),
                         Select(
-                            Option('Investor', value='investor'),
+                            Option('Collector / Investor', value='investor'),
                             Option('Artist / Gallery', value='artist'),
                             name='role', cls=INPUT_CLS
                         ),
                     ),
                     Button('Create Account', type='submit',
-                           cls='w-full mt-2 px-6 py-2.5 rounded-full font-semibold text-sm bg-primary text-white hover:bg-primary-dark transition-colors cursor-pointer border-none'),
+                           cls='w-full mt-2 px-6 py-2.5 rounded-full font-semibold text-sm bg-black text-white hover:bg-gray-800 transition-colors cursor-pointer border-none'),
                     method='post', action='/register',
                     cls='bg-white p-8 rounded-lg shadow-sm max-w-md mx-auto'
                 ),
-                P('Already have an account? ', A('Login', href='/login', cls='text-accent no-underline'),
+                P('Already have an account? ', A('Login', href='/login', cls='text-black no-underline font-semibold'),
                   cls='text-center mt-6 text-gray-500 text-sm'),
                 cls='max-w-7xl mx-auto'
             ),
@@ -172,6 +191,9 @@ def register():
 
 @rt('/register', methods=['POST'])
 async def register_post(req, sess):
+    from utils.config import settings
+    if not settings().login_enabled:
+        return RedirectResponse('/app', status_code=303)
     form = await req.form()
     email = form.get('email', '')
     password = form.get('password', '')
@@ -188,7 +210,7 @@ async def register_post(req, sess):
                     Div('An account with this email already exists.',
                         cls='bg-red-50 text-red-800 border border-red-200 px-4 py-3 rounded-lg mb-4 text-sm'),
                     H2('Create Account', cls='font-display text-3xl text-center mb-6'),
-                    P(A('Login instead', href='/login', cls='text-accent no-underline'), cls='text-center'),
+                    P(A('Login instead', href='/login', cls='text-black no-underline font-semibold'), cls='text-center'),
                     cls='max-w-7xl mx-auto'
                 ), cls='py-20 px-8'),
                 active='', title='Register'
@@ -245,15 +267,15 @@ def faq(sess):
         Div(
             Section(
                 Div(
-                    H1('Frequently Asked Questions', cls='font-display text-4xl font-extrabold text-white mb-4'),
-                    P('Find answers to common questions about Kanvas.ai.', cls='text-lg text-white/90'),
+                    H1('Frequently Asked Questions', cls='font-display text-4xl font-extrabold text-black mb-4'),
+                    P('Find answers to common questions about Kanvas.ai.', cls='text-lg text-gray-500'),
                     cls='max-w-7xl mx-auto relative z-10'
                 ),
-                cls='art-gradient py-16 px-8'
+                cls='bg-white py-16 px-8'
             ),
             Section(
                 Div(*faq_items, cls='max-w-3xl mx-auto space-y-6'),
-                cls='py-20 px-8 bg-gallery-cream'
+                cls='py-20 px-8 bg-gray-50'
             ),
         ),
         active='', title='FAQ', sess=sess
@@ -266,7 +288,6 @@ def faq(sess):
 async def startup():
     try:
         init_db()
-        # Create default admin if not exists
         db = SessionLocal()
         try:
             admin = db.query(User).filter(User.email == 'admin@kanvas.ai').first()

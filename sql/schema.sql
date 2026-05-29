@@ -254,6 +254,56 @@ CREATE TABLE IF NOT EXISTS kanvas.auto_invest (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Chat users (lightweight, separate from investment users)
+CREATE TABLE IF NOT EXISTS kanvas.chat_users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Chat sessions
+CREATE TABLE IF NOT EXISTS kanvas.chat_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES kanvas.chat_users(id),
+    title VARCHAR(255) DEFAULT 'New chat',
+    agent_slug VARCHAR(100),
+    share_token VARCHAR(64),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_user ON kanvas.chat_sessions(user_id);
+
+-- Chat messages
+CREATE TABLE IF NOT EXISTS kanvas.chat_messages (
+    id SERIAL PRIMARY KEY,
+    session_id INTEGER REFERENCES kanvas.chat_sessions(id),
+    role VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    agent_slug VARCHAR(100),
+    tool_calls JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON kanvas.chat_messages(session_id);
+
+-- Auction lots (Estonian auction data from artindex)
+CREATE TABLE IF NOT EXISTS kanvas.auction_lots (
+    id SERIAL PRIMARY KEY,
+    auction_date BIGINT NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    start_price BIGINT NOT NULL,
+    end_price BIGINT NOT NULL,
+    year BIGINT,
+    decade BIGINT,
+    tech VARCHAR(255),
+    category VARCHAR(100),
+    dimension DOUBLE PRECISION,
+    auction_provider VARCHAR(100) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_auction_lots_provider ON kanvas.auction_lots(auction_provider);
+CREATE INDEX IF NOT EXISTS idx_auction_lots_author ON kanvas.auction_lots(author);
+CREATE INDEX IF NOT EXISTS idx_auction_lots_date ON kanvas.auction_lots(auction_date);
+
 -- Seed admin user (password: admin123 - change in production)
 -- Password hash is sha256 of 'admin123'
 INSERT INTO kanvas.users (email, password_hash, first_name, last_name, role, is_verified, is_active, is_staff)

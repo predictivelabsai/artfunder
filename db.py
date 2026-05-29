@@ -1,6 +1,9 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+load_dotenv()
 
 DB_URL = os.environ["DB_URL"]
 SCHEMA = "kanvas"
@@ -32,3 +35,51 @@ def init_db():
         conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
         conn.commit()
     Base.metadata.create_all(bind=engine)
+    _init_chat_tables()
+
+
+def _init_chat_tables():
+    """Create chat and auction tables if they don't exist."""
+    ddl = [
+        """CREATE TABLE IF NOT EXISTS kanvas.chat_users (
+            id SERIAL PRIMARY KEY,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS kanvas.chat_sessions (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES kanvas.chat_users(id),
+            title VARCHAR(255) DEFAULT 'New chat',
+            agent_slug VARCHAR(100),
+            share_token VARCHAR(64),
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS kanvas.chat_messages (
+            id SERIAL PRIMARY KEY,
+            session_id INTEGER REFERENCES kanvas.chat_sessions(id),
+            role VARCHAR(20) NOT NULL,
+            content TEXT NOT NULL,
+            agent_slug VARCHAR(100),
+            tool_calls JSONB,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS kanvas.auction_lots (
+            id SERIAL PRIMARY KEY,
+            auction_date BIGINT NOT NULL,
+            author VARCHAR(255) NOT NULL,
+            start_price BIGINT NOT NULL,
+            end_price BIGINT NOT NULL,
+            year BIGINT,
+            decade BIGINT,
+            tech VARCHAR(255),
+            category VARCHAR(100),
+            dimension DOUBLE PRECISION,
+            auction_provider VARCHAR(100) NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
+    ]
+    with engine.connect() as conn:
+        for stmt in ddl:
+            conn.execute(text(stmt))
+        conn.commit()

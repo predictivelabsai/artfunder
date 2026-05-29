@@ -2,175 +2,203 @@ from fasthtml.common import *
 
 
 def home_page():
+    from utils.config import settings
+    login_enabled = settings().login_enabled
+
     hero = Section(
         Div(
             Div(
-                H1('Invest in Blue-Chip Art for Long-Term Returns',
-                   cls='font-display text-4xl md:text-5xl font-bold leading-tight max-w-3xl mb-6 text-white'),
-                P('A members-only platform connecting European investors with expertly curated fine art. '
-                  'Own fractional shares of museum-quality works by the world\'s most sought-after artists.',
-                  cls='text-lg max-w-2xl text-white/90 mb-8 leading-relaxed'),
+                H1('Your AI Art Advisor.',
+                   cls='font-display text-5xl md:text-6xl font-bold leading-tight max-w-3xl mb-2 text-black'),
+                P('Track, value, and grow your collection.',
+                  cls='font-display text-3xl md:text-4xl text-gray-400 mb-8'),
+                P('AI-powered art advisory combining market intelligence, auction analytics, '
+                  'and collection management. From artist research to acquisition strategy.',
+                  cls='text-base max-w-xl text-gray-500 mb-10 leading-relaxed'),
                 Div(
-                    Span('\u2713 Asset-backed security',
-                         cls='flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm text-white'),
-                    Span('\u2713 14.1% avg. net return',
-                         cls='flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm text-white'),
-                    Span('\u2713 From \u20ac500 minimum',
-                         cls='flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm text-white'),
-                    cls='flex gap-4 mb-8 flex-wrap'
-                ),
-                Div(
-                    A('Start Investing', href='/investors',
-                      cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-white text-primary hover:bg-blue-50 transition-colors'),
-                    A('Consign Artwork', href='/artists',
-                      cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-white border-2 border-white/30 hover:border-white hover:text-white transition-colors'),
+                    A('Start Advisory Session', href='/app',
+                      cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-black text-white hover:bg-gray-800 transition-colors'),
+                    A('Explore Collection', href='/investors',
+                      cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-black border border-gray-300 hover:border-black transition-colors'),
                     cls='flex gap-4 flex-wrap'
                 ),
-                cls='max-w-7xl mx-auto relative z-10'
+                cls='max-w-7xl mx-auto'
             ),
         ),
-        cls='art-gradient py-24 px-8 relative overflow-hidden'
+        cls='bg-white py-24 px-8'
     )
 
-    stats = Section(
-        Div(
-            Div(H3('14.1%', cls='text-3xl font-extrabold text-primary mb-1'), P('Avg. Net Return', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('\u20ac48M', cls='text-3xl font-extrabold text-primary mb-1'), P('Investor Distributions', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('\u20ac285M', cls='text-3xl font-extrabold text-primary mb-1'), P('Art Under Management', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('12,400+', cls='text-3xl font-extrabold text-primary mb-1'), P('Investors', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('180+', cls='text-3xl font-extrabold text-primary mb-1'), P('Artworks Funded', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('18', cls='text-3xl font-extrabold text-primary mb-1'), P('Countries', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-            cls='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-8'
-        ),
-        cls='bg-white border-b border-gray-200 py-8 px-8'
-    )
-
-    products = Section(
+    features = Section(
         Div(
             Div(
-                H2('Find Your Perfect Investment Strategy',
-                   cls='font-display text-3xl font-bold text-gray-900 mb-4'),
-                P('Whether you prefer hand-picked masterpieces or automated diversification, we have the right approach.',
-                  cls='text-base text-gray-500 max-w-xl mx-auto'),
-                cls='text-center mb-12'
-            ),
-            Div(
                 Div(
-                    H3('Auto Invest', cls='text-lg font-bold text-gray-900 mb-3'),
-                    P('Set your investment preferences once. Our algorithm diversifies across art categories, periods, and price points for optimal portfolio balance.',
+                    H3('Advisory', cls='text-lg font-bold text-black mb-3'),
+                    P('AI-powered recommendations from 8 specialist agents. Research artists, '
+                      'compare market performance, and get acquisition advice tailored to your goals.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    A('Learn more \u2192', href='/how-it-works',
-                      cls='block mt-4 no-underline font-semibold text-sm text-primary'),
-                    cls='bg-white rounded-lg p-8 border border-gray-200 hover:-translate-y-1 hover:shadow-md transition-all'
+                    A('Start a conversation', href='/app',
+                      cls='block mt-4 no-underline font-semibold text-sm text-black'),
+                    cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
                 Div(
-                    H3('Curated Selection', cls='text-lg font-bold text-gray-900 mb-3'),
-                    P('Hand-pick every artwork. Browse our gallery of vetted pieces with full provenance, condition reports, and market analysis.',
+                    H3('Market Intelligence', cls='text-lg font-bold text-black mb-3'),
+                    P('Real-time auction analytics, price trend visualizations, and sector heat maps. '
+                      'Track Estonian and international art markets with interactive Plotly charts.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    A('View open offerings \u2192', href='/investors',
-                      cls='block mt-4 no-underline font-semibold text-sm text-primary'),
-                    cls='bg-white rounded-lg p-8 border border-gray-200 hover:-translate-y-1 hover:shadow-md transition-all'
+                    A('View analytics', href='/app/analytics',
+                      cls='block mt-4 no-underline font-semibold text-sm text-black'),
+                    cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
                 Div(
-                    H3('Secondary Market', cls='text-lg font-bold text-gray-900 mb-3'),
-                    P('Trade your shares anytime. Buy or sell fractional positions on our secondary market for added portfolio liquidity.',
+                    H3('Collection Management', cls='text-lg font-bold text-black mb-3'),
+                    P('Track your portfolio, manage fractional ownership positions, and monitor '
+                      'artwork valuations. Diversification analysis and rebalancing suggestions.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    cls='bg-white rounded-lg p-8 border border-gray-200 hover:-translate-y-1 hover:shadow-md transition-all'
+                    A('View collection', href='/investors',
+                      cls='block mt-4 no-underline font-semibold text-sm text-black'),
+                    cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
-                cls='grid grid-cols-1 md:grid-cols-3 gap-8'
+                cls='grid grid-cols-1 md:grid-cols-3 gap-6'
             ),
             cls='max-w-7xl mx-auto'
         ),
-        cls='py-20 px-8 bg-blue-50'
+        cls='py-16 px-8 bg-white'
     )
 
     how_it_works = Section(
         Div(
             Div(
-                H2('How Does It Work?', cls='font-display text-3xl font-bold text-white mb-4'),
-                P('We acquire, securitize, and manage museum-quality artworks on behalf of our investors.',
-                  cls='text-base text-blue-100 max-w-xl mx-auto'),
-                cls='text-center mb-12'
+                H2('How It Works', cls='font-display text-3xl font-bold text-black mb-4'),
+                P('Three steps to smarter art collecting.',
+                  cls='text-base text-gray-500 max-w-xl'),
+                cls='mb-12'
             ),
             Div(
                 Div(
-                    H3('Artists & Galleries', cls='text-accent mb-4 text-lg font-bold'),
-                    P('Leading artists and galleries consign works through Kanvas.ai for broader collector access '
-                      'and upfront capital. Fair market valuations by independent appraisers.',
+                    Span('01', cls='text-4xl font-bold text-gray-200 block mb-4'),
+                    H3('Ask', cls='text-lg font-bold text-black mb-3'),
+                    P('Ask any question about an artist, artwork, market trend, or collection strategy. '
+                      'Our AI routes your query to the right specialist agent.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    A('Consign artwork \u2192', href='/artists',
-                      cls='block mt-4 text-accent no-underline font-semibold text-sm'),
-                    cls='bg-white rounded-lg p-8 border-l-4 border-accent'
+                    cls='p-6'
                 ),
                 Div(
-                    H3('Kanvas.ai', cls='text-primary mb-4 text-lg font-bold'),
-                    P('We handle authentication, insurance, secure storage, and the full investment lifecycle \u2014 '
-                      'from acquisition and fractional offering to eventual sale and profit distribution.',
+                    Span('02', cls='text-4xl font-bold text-gray-200 block mb-4'),
+                    H3('Analyze', cls='text-lg font-bold text-black mb-3'),
+                    P('The agent searches auction databases, scrapes market data, and generates '
+                      'visualizations. Results stream in real-time with full transparency.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    cls='bg-white rounded-lg p-8 border-l-4 border-primary'
+                    cls='p-6'
                 ),
                 Div(
-                    H3('Investors', cls='text-primary-light mb-4 text-lg font-bold'),
-                    P('Join thousands of investors building diversified art portfolios. Earn returns when artworks '
-                      'appreciate and are sold. Track your holdings in real-time.',
+                    Span('03', cls='text-4xl font-bold text-gray-200 block mb-4'),
+                    H3('Act', cls='text-lg font-bold text-black mb-3'),
+                    P('Get actionable recommendations: buy, hold, or diversify. Track acquisitions '
+                      'in your portfolio with ongoing valuation updates.',
                       cls='text-gray-500 text-sm leading-relaxed'),
-                    A('Start investing \u2192', href='/investors',
-                      cls='block mt-4 text-white no-underline font-semibold text-sm'),
-                    cls='bg-white rounded-lg p-8 border-l-4 border-blue-300'
+                    cls='p-6'
                 ),
-                cls='grid grid-cols-1 md:grid-cols-3 gap-8'
+                cls='grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-gray-100 pt-8'
             ),
             cls='max-w-7xl mx-auto'
         ),
-        cls='bg-primary-dark text-white py-20 px-8'
+        cls='py-20 px-8 bg-gray-50'
     )
 
-    security = Section(
+    agents_preview = Section(
         Div(
             Div(
+                H2('8 Specialist Agents', cls='font-display text-3xl font-bold text-black mb-4'),
+                P('Each trained for a specific aspect of art advisory.',
+                  cls='text-base text-gray-500 max-w-xl'),
+                cls='mb-12'
+            ),
+            Div(
                 Div(
-                    H2('Asset-Backed Investments',
-                       cls='font-display text-3xl mb-4'),
-                    P('Every Kanvas.ai offering is backed by a physical artwork, professionally appraised, '
-                      'insured, and stored in museum-grade, climate-controlled facilities.',
-                      cls='text-lg mb-6'),
-                    P('Art has historically shown low correlation to equities and bonds, making it an excellent '
-                      'portfolio diversifier. Blue-chip art has appreciated at 13.8% annually over the past 25 years.',
-                      cls='text-gray-500 mb-8'),
-                    A('Learn about our process', href='/how-it-works',
-                      cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-primary text-white hover:bg-primary-dark transition-colors'),
+                    H4('Artist Lookup', cls='text-sm font-bold text-black mb-1'),
+                    P('Biography, exhibitions, and auction history via web search.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
                 ),
                 Div(
-                    Div(
-                        Div(H3('100%', cls='text-3xl font-extrabold text-primary mb-1'), P('Artworks insured & authenticated', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-                        Div(H3('180+', cls='text-3xl font-extrabold text-primary mb-1'), P('Artworks successfully funded', cls='text-xs text-gray-500 uppercase tracking-wider'), cls='text-center'),
-                        cls='grid grid-cols-2 gap-8'
-                    ),
-                    cls='bg-white p-8 rounded-lg border border-gray-200'
+                    H4('Artist Compare', cls='text-sm font-bold text-black mb-1'),
+                    P('Side-by-side comparison by market performance and style.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
                 ),
-                cls='grid grid-cols-1 md:grid-cols-2 gap-16 items-center'
+                Div(
+                    H4('Market Analyst', cls='text-sm font-bold text-black mb-1'),
+                    P('Auction trends, price movements, and sector analytics.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                Div(
+                    H4('Auction Tracker', cls='text-sm font-bold text-black mb-1'),
+                    P('Track lots and results from Estonian auction houses.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                Div(
+                    H4('Acquisition Advisor', cls='text-sm font-bold text-black mb-1'),
+                    P('Recommendations based on goals, budget, and preferences.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                Div(
+                    H4('Portfolio Analyst', cls='text-sm font-bold text-black mb-1'),
+                    P('Diversification analysis and rebalancing suggestions.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                Div(
+                    H4('Valuator', cls='text-sm font-bold text-black mb-1'),
+                    P('Fair value estimation from comparable sales and market data.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                Div(
+                    H4('Provenance Checker', cls='text-sm font-bold text-black mb-1'),
+                    P('Ownership history and authenticity research.',
+                      cls='text-xs text-gray-500'),
+                    cls='p-4 border border-gray-100 rounded-lg'
+                ),
+                cls='grid grid-cols-2 md:grid-cols-4 gap-4'
             ),
             cls='max-w-7xl mx-auto'
         ),
-        cls='py-20 px-8 bg-blue-50'
+        cls='py-20 px-8 bg-white'
+    )
+
+    stats = Section(
+        Div(
+            Div(H3('14.1%', cls='text-3xl font-extrabold text-black mb-1'), P('Avg. Net Return', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('€48M', cls='text-3xl font-extrabold text-black mb-1'), P('Investor Distributions', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('€285M', cls='text-3xl font-extrabold text-black mb-1'), P('Art Under Management', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('12,400+', cls='text-3xl font-extrabold text-black mb-1'), P('Collectors', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('180+', cls='text-3xl font-extrabold text-black mb-1'), P('Artworks Funded', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('18', cls='text-3xl font-extrabold text-black mb-1'), P('Countries', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            cls='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-8'
+        ),
+        cls='bg-gray-50 border-y border-gray-100 py-12 px-8'
     )
 
     cta = Section(
         Div(
-            H2('Ready to Invest in Art?',
-               cls='font-display text-3xl mb-4'),
-            P('Join over 12,000 European investors building wealth through blue-chip art.',
-              cls='text-lg text-white/90 max-w-xl mx-auto mb-8'),
+            H2('Start collecting smarter.',
+               cls='font-display text-3xl font-bold text-black mb-4'),
+            P('Join over 12,000 European collectors using AI-powered art advisory.',
+              cls='text-base text-gray-500 max-w-xl mx-auto mb-8'),
             Div(
-                A('Create Free Account', href='/register',
-                  cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-white text-primary hover:bg-blue-50 transition-colors'),
-                A('Learn More', href='/how-it-works',
-                  cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-white border-2 border-white/30 hover:border-white hover:text-white transition-colors'),
+                A('Start Advisory Session', href='/app',
+                  cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-black text-white hover:bg-gray-800 transition-colors'),
+                A('Create Account' if login_enabled else 'Open App',
+                  href='/register' if login_enabled else '/app',
+                  cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-black border border-gray-300 hover:border-black transition-colors'),
                 cls='flex gap-4 flex-wrap justify-center'
             ),
             cls='max-w-7xl mx-auto'
         ),
-        cls='art-gradient text-white py-20 px-8 text-center'
+        cls='bg-white text-center py-20 px-8'
     )
 
-    return Div(hero, stats, products, how_it_works, security, cta)
+    return Div(hero, features, how_it_works, agents_preview, stats, cta)
