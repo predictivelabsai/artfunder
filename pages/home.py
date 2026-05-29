@@ -201,4 +201,14 @@ def home_page():
         cls='bg-white text-center py-20 px-8'
     )
 
-    return Div(hero, features, how_it_works, agents_preview, stats, cta)
+    partners = Section(
+        Div(
+            P('Supported by', cls='text-xs text-gray-400 uppercase tracking-wider mb-4'),
+            A('Tezos Foundation', href='https://tezos.foundation/', target='_blank',
+              cls='text-sm text-gray-500 no-underline hover:text-black transition-colors font-medium'),
+            cls='max-w-7xl mx-auto text-center'
+        ),
+        cls='py-8 px-8 bg-gray-50 border-t border-gray-100'
+    )
+
+    return Div(hero, features, how_it_works, agents_preview, stats, cta, partners)
