@@ -104,6 +104,7 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
             A("Market Map", href="/app/market-map", cls="workspace-link"),
             A("Analytics", href="/app/analytics", cls="workspace-link"),
             A("Art Index", href="/app/market-map", cls="workspace-link"),
+            A("\U0001f3ae Art Guru", href="/app/art-guru", cls="workspace-link"),
             cls="workspace-section",
         ),
         Div(auth_section, cls="auth-section"),
@@ -139,11 +140,20 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
             msg_els.append(Div(bubble, cls=f"msg msg-{role}"))
 
     current_agent = AGENTS_BY_SLUG.get(current_agent_slug)
+    is_game = current_agent_slug == "art_guru"
+
+    if is_game:
+        welcome_title = "\U0001f3ae Art Guru"
+        welcome_body = "An AI-powered art collection RPG. Choose your character and enter the art world."
+        header_title = "\U0001f3ae Art Guru"
+    else:
+        welcome_title = t("chat_welcome_title", lang)
+        welcome_body = t("chat_welcome_body", lang)
+        header_title = current_agent.name if current_agent else "Art Advisor"
 
     welcome = Div(
-        H2(t("chat_welcome_title", lang), cls="text-2xl font-display font-bold mb-2"),
-        P(t("chat_welcome_body", lang),
-          cls="text-sm text-gray-500 mb-6"),
+        H2(welcome_title, cls="text-2xl font-display font-bold mb-2"),
+        P(welcome_body, cls="text-sm text-gray-500 mb-6"),
         Div(id="sample-cards-row", cls="sample-cards-row"),
         Div(id="sample-cards-label", cls="sample-cards-label-wrap"),
         id="welcome-hero",
@@ -155,8 +165,7 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
         Div(
             Div(
                 Button("=", cls="mobile-menu-btn", onclick="toggleLeftPane()"),
-                Span(current_agent.name if current_agent else "Art Advisor",
-                     id="current-agent-label", cls="chat-header-title"),
+                Span(header_title, id="current-agent-label", cls="chat-header-title"),
                 cls="chat-header-left",
             ),
             Div(

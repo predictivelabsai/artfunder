@@ -43,6 +43,9 @@ register_chat_routes(rt)
 register_analytics_routes(rt)
 register_market_map_routes(rt)
 
+from game.routes import register_game_routes
+register_game_routes(rt)
+
 
 # --- Auth helpers ---
 

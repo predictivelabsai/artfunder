@@ -208,8 +208,8 @@
         ta.style.height = "";
 
         const body = new URLSearchParams({ msg, sid: currentSessionId || "" });
-
-        const resp = await fetch("/app/chat", { method: "POST", body });
+        const chatEndpoint = window.location.pathname.includes("art-guru") ? "/app/art-guru/chat" : "/app/chat";
+        const resp = await fetch(chatEndpoint, { method: "POST", body });
         if (!resp.ok) {
             addBubble("assistant", "Error: " + resp.status);
             streaming = false;
