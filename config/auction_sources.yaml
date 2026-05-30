@@ -84,12 +84,13 @@ sources:
     country: LT
     url: https://www.menorinka.lt
     scraper: scripts/scrapers/menorinka.py
-    status: active
+    status: blocked
     lots_estimate: 10000
     year_range: [2007, 2026]
     notes: >
       90+ auctions (XXVI-XCI), /aukcionas/{id}.
-      May return 403 to bots. Lithuania's oldest auction house.
+      Cloudflare anti-bot protection blocks headless browsers.
+      Lithuania's oldest auction house. Needs manual session cookie or API.
 
   - name: ARS VIA Aukcionas
     slug: arsvia

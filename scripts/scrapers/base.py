@@ -111,17 +111,18 @@ def deduplicate(lots: list[dict]) -> list[dict]:
     result = []
     for lot in lots:
         lot_num = lot.get("lot_number")
+        aname = (lot.get("auction_name") or "").strip().lower()
         if lot_num is not None:
             key = (
                 str(lot_num),
-                lot.get("auction_name", "").strip().lower(),
-                lot.get("auction_provider", "").strip().lower(),
+                aname,
+                (lot.get("auction_provider") or "").strip().lower(),
             )
         else:
             key = (
-                lot.get("author", "").strip().lower(),
-                lot.get("title", "").strip().lower(),
-                lot.get("auction_name", "").strip().lower(),
+                (lot.get("author") or "").strip().lower(),
+                (lot.get("title") or "").strip().lower(),
+                aname,
             )
         if key in seen:
             continue
