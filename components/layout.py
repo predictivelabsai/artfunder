@@ -99,21 +99,32 @@ def NavBar(active='home', sess=None):
         Div(
             A('Kanvas', Span('.ai', cls='text-gray-400'), href='/',
               cls='font-display text-2xl font-bold text-black no-underline tracking-wide shrink-0'),
-            Button('☰',
-                   cls='md:hidden bg-transparent border-none text-black text-2xl cursor-pointer',
-                   onclick="document.getElementById('nav-links').classList.toggle('hidden')"),
+            Div(
+                _lang_switcher(lang),
+                Button('☰',
+                       cls='md:hidden bg-transparent border-none text-black text-2xl cursor-pointer',
+                       onclick="document.getElementById('nav-links').classList.toggle('hidden')"),
+                cls='flex items-center gap-2 md:hidden',
+            ),
             Ul(
                 *[Li(nav_link(key, href, label)) for key, href, label in nav_items_left],
                 Li(cls='flex-grow'),
                 *[Li(nav_link(key, href, label)) for key, href, label in nav_items_right],
-                Li(_lang_switcher(lang)),
+                Li(_lang_switcher(lang), cls='hidden md:block'),
                 *auth_items,
                 id='nav-links',
                 cls='hidden md:flex items-center gap-8 list-none m-0 p-0 flex-grow'
             ),
             cls='max-w-7xl mx-auto flex items-center justify-between h-[70px] gap-8'
         ),
-        cls='bg-white px-8 sticky top-0 z-50 border-b border-gray-100'
+        Script("""document.addEventListener('click', function(e) {
+            var dd = e.target.closest('.relative');
+            document.querySelectorAll('.relative > div').forEach(function(d) {
+                if (d.parentElement !== dd && !d.classList.contains('md:flex'))
+                    d.classList.add('hidden');
+            });
+        });"""),
+        cls='bg-white px-8 sticky top-0 z-50 border-b border-gray-100',
     )
 
 
