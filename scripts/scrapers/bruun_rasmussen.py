@@ -127,9 +127,25 @@ def scrape(headless: bool = True, limit: int = 0):
                 dismiss_cookies(page)
 
             _scroll_to_load_all(page)
+            time.sleep(3)  # Wait for JS price rendering
 
             raw_lots = _scrape_category_page(page)
-            log.info("  %d lots in %s", len(raw_lots), cat_name)
+            log.info("  %d lots in %s (fetching detail prices...)", len(raw_lots), cat_name)
+
+            # Visit detail pages to get actual DKK prices
+            for raw in raw_lots:
+                if raw.get("source_url") and raw["end_price"] == 0 and raw.get("sold"):
+                    try:
+                        safe_navigate(page, raw["source_url"])
+                        time.sleep(1)
+                        detail_price = page.evaluate(r"""() => {
+                            const text = document.body.textContent;
+                            const m = text.match(/(?:Price realised|Pris)\s*([\d.,\s]+)\s*DKK/i);
+                            return m ? m[1].replace(/[.\s]/g, '').replace(',', '') : '0';
+                        }""")
+                        raw["end_price"] = round(int(detail_price) * 0.134) if detail_price != '0' else 0
+                    except Exception:
+                        pass
 
             for raw in raw_lots:
                 key = (str(raw.get("lot_number", "")), cat_name)

@@ -29,8 +29,8 @@ def _get_past_auctions(page) -> list[dict]:
         const auctions = [];
         const seen = new Set();
         for (const a of links) {
-            const m = a.href.match(/\/auction\/(\d+)\/?$/);
-            if (m && !seen.has(m[1])) {
+            const m = a.href.match(/\/auction\/(\d+)/);
+            if (m && !seen.has(m[1]) && !a.href.includes('cars.bonhams')) {
                 seen.add(m[1]);
                 auctions.push({
                     id: parseInt(m[1]),
@@ -46,44 +46,53 @@ def _get_past_auctions(page) -> list[dict]:
 def _scrape_auction_lots(page) -> list[dict]:
     """Extract lots from a Bonhams auction page."""
     return page.evaluate(r"""() => {
-        // Find lot elements
-        const items = document.querySelectorAll('[class*="lot"], [class*="item"], [class*="card"]');
+        const links = [...document.querySelectorAll('a[href*="/lot/"]')];
         const lots = [];
         const seen = new Set();
 
-        for (const item of items) {
-            const text = item.textContent.replace(/\s+/g, ' ').trim();
-            if (text.length < 20 || text.length > 1000) continue;
-
-            const link = item.querySelector('a[href*="/lot/"]');
-            if (!link || seen.has(link.href)) continue;
+        for (const link of links) {
+            if (seen.has(link.href)) continue;
             seen.add(link.href);
 
-            const img = item.querySelector('img');
+            const parent = link.closest('div, li, article') || link.parentElement;
+            const text = (parent ? parent.textContent : link.textContent).replace(/\s+/g, ' ').trim();
+            if (text.length < 15) continue;
 
-            // Parse lot number
-            const lotMatch = text.match(/Lot\s*(\d+)/i) || text.match(/^(\d+)\s/);
-            const lotNum = lotMatch ? parseInt(lotMatch[1]) : null;
+            // Parse lot number from URL: /lot/159/
+            const lotUrlMatch = link.href.match(/\/lot\/(\d+)\//);
+            const lotNum = lotUrlMatch ? parseInt(lotUrlMatch[1]) : null;
 
-            // Parse price: "Sold for GBP X,XXX" or "£X,XXX" or "GBP X"
-            const priceMatch = text.match(/(?:Sold for|Hammer|Price|£|GBP)\s*([\d,.\s]+)/i);
+            // Parse price: "Sold for US$12,160" or "Sold for £X,XXX" or "Sold for GBP X"
+            const priceMatch = text.match(/Sold for\s*(?:US\$|£|GBP|EUR|€)\s*([\d,]+)/i);
             let price = 0;
+            let currency = 'GBP';
             if (priceMatch) {
-                price = parseInt(priceMatch[1].replace(/[,.\s]/g, '')) || 0;
-                price = Math.round(price * 1.17);  // GBP to EUR
+                price = parseInt(priceMatch[1].replace(/,/g, '')) || 0;
+                if (text.includes('US$')) { currency = 'USD'; price = Math.round(price * 0.92); }
+                else if (text.includes('€') || text.includes('EUR')) { currency = 'EUR'; }
+                else { price = Math.round(price * 1.17); }  // GBP to EUR
             }
 
-            // Parse author: usually first significant text
-            let author = text.substring(0, 80).split('.')[0].split(',')[0].trim();
-            // Remove lot number prefix
-            author = author.replace(/^Lot\s*\d+\s*/i, '').replace(/^\d+\s*/, '').trim();
+            // Parse author: "AUTHOR NAME (YEARS) TITLE"
+            const authorMatch = text.match(/^([A-ZÄÖÜÅÉÈÊËÀÂÏÎÔÛÙÜÇ\s.'-]+)\s*\(/);
+            let author = '';
+            let title = '';
+            if (authorMatch) {
+                author = authorMatch[1].trim();
+                author = author.split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+                const titleMatch = text.match(/\)\s*(.+?)\.?\s*(?:Sold|$)/);
+                if (titleMatch) title = titleMatch[1].trim();
+            } else {
+                author = text.split('.')[0].substring(0, 80).trim();
+            }
 
-            const sold = text.includes('Sold') || price > 0;
+            const sold = text.includes('Sold for') || price > 0;
+            const img = parent ? parent.querySelector('img') : null;
 
             lots.push({
                 lot_number: lotNum,
                 author: author.substring(0, 200),
-                title: '',
+                title: title.substring(0, 200),
                 end_price: price,
                 sold: sold,
                 image_url: img ? img.src : null,
