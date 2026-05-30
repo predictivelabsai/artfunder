@@ -60,71 +60,62 @@ def NavBar(active='home', sess=None):
     logged_in = sess and sess.get('auth') if login_enabled else False
     user_name = (sess.get('name', '') if sess else '') or ''
 
-    nav_items_left = [
+    nav_items = [
         ('home', '/', t('nav_home', lang)),
         ('advisory', '/app', t('nav_advisory', lang)),
         ('investors', '/investors', t('nav_collection', lang)),
         ('artists', '/artists', t('nav_artists', lang)),
         ('about', '/about', t('nav_about', lang)),
-    ]
-    nav_items_right = [
         ('art-index', '/app/market-map', t('nav_art_index', lang)),
         ('contact', '/contact', t('nav_contact', lang)),
     ]
 
     def nav_link(key, href, label):
-        base = 'text-sm font-medium no-underline transition-colors duration-200'
         if key == active:
-            return A(label, href=href, cls=f'{base} text-black')
-        return A(label, href=href, cls=f'{base} text-gray-400 hover:text-black')
+            return A(label, href=href, cls='text-sm text-black hover:text-black transition-colors no-underline')
+        return A(label, href=href, cls='text-sm text-gray-400 hover:text-black transition-colors no-underline')
 
-    if not login_enabled:
-        auth_items = [
-            Li(A(t('nav_open_app', lang), href='/app',
-                 cls='bg-black text-white px-5 py-2 rounded-full font-semibold text-sm no-underline hover:bg-gray-800 transition-colors')),
-        ]
-    elif logged_in:
-        auth_items = [
-            Li(Span(user_name, cls='text-gray-400 text-sm')) if user_name else '',
-            Li(A(t('nav_logout', lang), href='/logout',
-                 cls='bg-black text-white px-5 py-2 rounded-full font-semibold text-sm no-underline hover:bg-gray-800 transition-colors')),
-        ]
+    nav_links = [Li(nav_link(k, h, l)) for k, h, l in nav_items]
+
+    if login_enabled:
+        if logged_in:
+            cta = A(t('nav_logout', lang), href='/logout',
+                    cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
+        else:
+            cta = A(t('nav_login', lang), href='/login',
+                    cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
     else:
-        auth_items = [
-            Li(A(t('nav_login', lang), href='/login',
-                 cls='bg-black text-white px-5 py-2 rounded-full font-semibold text-sm no-underline hover:bg-gray-800 transition-colors')),
-        ]
+        cta = A(t('nav_open_app', lang), href='/app',
+                cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
 
     return Nav(
         Div(
             A('Kanvas', Span('.ai', cls='text-gray-400'), href='/',
-              cls='font-display text-2xl font-bold text-black no-underline tracking-wide shrink-0'),
+              cls='font-display text-xl font-bold text-black no-underline tracking-tight shrink-0'),
+            Ul(*nav_links, cls='hidden lg:flex items-center gap-6 list-none m-0 p-0'),
             Div(
                 _lang_switcher(lang),
+                cta,
                 Button('☰',
-                       cls='md:hidden bg-transparent border-none text-black text-2xl cursor-pointer',
-                       onclick="document.getElementById('nav-links').classList.toggle('hidden')"),
-                cls='flex items-center gap-2 md:hidden',
+                       cls='lg:hidden bg-transparent border-none text-black text-xl cursor-pointer ml-1',
+                       onclick="document.getElementById('nav-mobile').classList.toggle('hidden')"),
+                cls='flex items-center gap-3',
             ),
-            Ul(
-                *[Li(nav_link(key, href, label)) for key, href, label in nav_items_left],
-                Li(cls='flex-grow'),
-                *[Li(nav_link(key, href, label)) for key, href, label in nav_items_right],
-                Li(_lang_switcher(lang), cls='hidden md:block'),
-                *auth_items,
-                id='nav-links',
-                cls='hidden md:flex items-center gap-8 list-none m-0 p-0 flex-grow'
-            ),
-            cls='max-w-7xl mx-auto flex items-center justify-between h-[70px] gap-8'
+            cls='max-w-7xl mx-auto px-5 flex items-center justify-between h-16 gap-4',
+        ),
+        Div(
+            *[A(l, href=h, cls='block px-5 py-2.5 text-sm text-gray-500 hover:text-black hover:bg-gray-50 no-underline') for _, h, l in nav_items],
+            id='nav-mobile',
+            cls='hidden lg:hidden border-t border-gray-100 bg-white py-2',
         ),
         Script("""document.addEventListener('click', function(e) {
             var dd = e.target.closest('.relative');
             document.querySelectorAll('.relative > div').forEach(function(d) {
-                if (d.parentElement !== dd && !d.classList.contains('md:flex'))
-                    d.classList.add('hidden');
+                if (d.parentElement !== dd) d.classList.add('hidden');
             });
         });"""),
-        cls='bg-white px-8 sticky top-0 z-50 border-b border-gray-100',
+        cls='bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100',
+        style='display:block',
     )
 
 
