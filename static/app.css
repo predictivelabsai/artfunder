@@ -266,6 +266,49 @@
 }
 .thinking-indicator .secs { color: var(--ink-dim); }
 
+/* ── Choice buttons (Art Guru game) ───────────────────────── */
+.choice-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+.choice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.15s;
+  max-width: 100%;
+  text-align: left;
+  line-height: 1.3;
+}
+.choice-btn:hover:not(:disabled) {
+  border-color: #1a1a1a;
+  background: #f9f9f9;
+}
+.choice-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.choice-btn.choice-selected {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+  opacity: 1;
+}
+.choice-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
 /* ── Chat form ─────────────────────────────────────────────── */
 .chat-form {
   display: flex;

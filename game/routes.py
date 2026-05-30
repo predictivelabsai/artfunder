@@ -15,18 +15,30 @@ from game.engine import (
     CHARACTERS, GameState, new_game, draw_event, format_status,
     STAGES, ROUNDS_TOTAL,
 )
-from game.prompts import GAME_MASTER_SYSTEM, SERAH_INTRO, CHARACTER_SELECT
+from game.prompts import GAME_MASTER_SYSTEM, SERAH_INTRO
 
 log = logging.getLogger(__name__)
 
 CHAR_MAP = {
-    "1": "famous_artist", "famous artist": "famous_artist",
-    "2": "emerging_artist", "emerging artist": "emerging_artist",
+    "1": "famous_artist", "famous_artist": "famous_artist",
+    "famous artist": "famous_artist",
+    "2": "emerging_artist", "emerging_artist": "emerging_artist",
+    "emerging artist": "emerging_artist",
     "3": "gallerist", "gallerist": "gallerist",
-    "4": "museum_curator", "museum curator": "museum_curator",
-    "5": "billionaire_collector", "billionaire collector": "billionaire_collector",
-    "6": "regular_collector", "regular collector": "regular_collector",
+    "4": "museum_curator", "museum_curator": "museum_curator",
+    "museum curator": "museum_curator",
+    "5": "billionaire_collector", "billionaire_collector": "billionaire_collector",
+    "billionaire collector": "billionaire_collector",
+    "6": "regular_collector", "regular_collector": "regular_collector",
+    "regular collector": "regular_collector",
 }
+
+# Top 3 characters for the initial button selection
+TOP_CHARS = [
+    ("famous_artist", "\U0001f3a8", "Famous Artist"),
+    ("gallerist", "\U0001f3db", "Gallerist"),
+    ("billionaire_collector", "\U0001f4b0", "Billionaire Collector"),
+]
 
 
 def _get_game_state(sess) -> GameState | None:
@@ -100,35 +112,50 @@ def register_game_routes(rt):
                 "icon": "\U0001f3ae",
             })
 
-            # Character selection phase
+            # ── Character selection phase ──
             if state is None:
                 choice = user_msg.lower().strip().rstrip(".")
                 char_key = CHAR_MAP.get(choice)
 
                 if not char_key:
-                    yield sse.event(sse.TOKEN, {"text": CHARACTER_SELECT})
+                    # Show welcome + character buttons
+                    welcome = (
+                        "# \U0001f3ae Art Guru\n\n"
+                        "*Build the ultimate art collection in this AI-powered RPG.*\n\n"
+                        "Choose your character to begin:\n\n"
+                        "| | Character | Gold | Knowledge | Ability |\n"
+                        "|---|---|---|---|---|\n"
+                    )
+                    for key, char in CHARACTERS.items():
+                        welcome += f"| {char['icon']} | **{char['name']}** | {char['start_gold']:,} | {char['start_knowledge']} | {char['ability'][:50]}... |\n"
+
+                    yield sse.event(sse.TOKEN, {"text": welcome})
+                    yield sse.event(sse.CHOICES, {"options": [
+                        {"icon": icon, "label": name, "value": key}
+                        for key, icon, name in TOP_CHARS
+                    ]})
                     yield sse.event(sse.DONE, {"slug": "art_guru"})
                     return
 
                 state = new_game(char_key, player_name=sess.get("email", "Art Guru"))
                 _save_game_state(sess, state)
 
-                # Send intro + Serah Vale + first round
                 char = CHARACTERS[char_key]
                 intro = (
-                    f"# You are the {char['icon']} {char['name']}\n\n"
+                    f"## {char['icon']} You are the {char['name']}\n"
                     f"*{char['description']}*\n\n"
-                    f"**Starting resources:** {char['start_gold']:,} gold | {char['start_knowledge']} knowledge\n"
-                    f"**Special ability:** {char['ability']}\n\n"
-                    f"---\n\n"
-                    f"{SERAH_INTRO}\n\n"
-                    f"---\n\n"
-                    f"## Round 1 begins...\n\n"
+                    f"\U0001f4b0 **{char['start_gold']:,} gold** | "
+                    f"\U0001f4da **{char['start_knowledge']} knowledge** | "
+                    f"✨ *{char['ability']}*\n\n"
+                    f"---\n{SERAH_INTRO}\n---\n\n"
                 )
                 yield sse.event(sse.TOKEN, {"text": intro})
 
                 # Game master generates Round 1
-                yield sse.event(sse.TOOL_START, {"name": "game_master", "args": {"stage": "Creation & Acquisition", "round": 1}})
+                yield sse.event(sse.TOOL_START, {
+                    "name": "game_master",
+                    "args": {"action": "Starting Round 1", "stage": "Creation & Acquisition"},
+                })
                 system = _build_system_prompt(state)
                 accumulated = []
                 try:
@@ -136,7 +163,11 @@ def register_game_routes(rt):
                     llm = build_llm()
                     messages = [
                         SystemMessage(content=system),
-                        HumanMessage(content="The game begins! Present Round 1, Stage 1: Creation & Acquisition. Set the scene in the Estonian art world. Show available artworks with prices from real Estonian artists. Give me 3-4 choices."),
+                        HumanMessage(content=(
+                            "The game begins! Present Round 1, Stage 1: Creation & Acquisition.\n"
+                            "Set the scene in the Estonian art world. Show 3-4 available artworks with prices.\n"
+                            "End with exactly 3 numbered choices for the player."
+                        )),
                     ]
                     yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
                     for chunk in llm.stream(messages):
@@ -151,22 +182,43 @@ def register_game_routes(rt):
                 yield sse.event(sse.DONE, {"slug": "art_guru"})
                 return
 
-            # Game over check
+            # ── Game over ──
             if state.game_over:
-                yield sse.event(sse.TOKEN, {"text": "The game has ended! Type **new game** to start over."})
+                yield sse.event(sse.TOKEN, {
+                    "text": (
+                        f"## \U0001f3c6 Game Over!\n\n"
+                        f"**Final Score: {state.score:,}**\n\n"
+                        f"\U0001f4b0 Gold: {state.gold:,} | "
+                        f"\U0001f5bc Collection: {state.collection_value():,} | "
+                        f"\U0001f4da Knowledge: {state.knowledge} (+{state.knowledge * 500})\n\n"
+                    )
+                })
                 if "new game" in user_msg.lower():
                     sess.pop("art_guru_state", None)
-                    yield sse.event(sse.TOKEN, {"text": "\n\n" + CHARACTER_SELECT})
+                yield sse.event(sse.CHOICES, {"options": [
+                    {"icon": "\U0001f504", "label": "New Game", "value": "new game"},
+                ]})
                 yield sse.event(sse.DONE, {"slug": "art_guru"})
                 return
 
-            # Normal game turn — send to LLM game master
-            system = _build_system_prompt(state)
-            yield sse.event(sse.TOOL_START, {"name": "game_master", "args": {"stage": state.current_stage(), "round": state.round}})
+            # ── Normal game turn ──
+            yield sse.event(sse.TOOL_START, {
+                "name": "game_master",
+                "args": {
+                    "action": user_msg[:40],
+                    "stage": state.current_stage(),
+                    "round": state.round,
+                },
+            })
 
+            system = _build_system_prompt(state)
             messages = [
                 SystemMessage(content=system),
-                HumanMessage(content=f"Player action: {user_msg}\n\nProcess this action for the current stage ({state.current_stage()}). Update the game state accordingly. If the stage is complete, advance to the next stage. If all stages are done, advance to the next round. Present the results and the next set of choices."),
+                HumanMessage(content=(
+                    f"Player action: {user_msg}\n\n"
+                    f"Process this action for {state.current_stage()} (Round {state.round}).\n"
+                    f"Show the outcome, update resources, then present exactly 3 numbered choices for the next action."
+                )),
             ]
 
             accumulated = []
@@ -193,11 +245,9 @@ def register_game_routes(rt):
                         state.game_over = True
                         state.score = state.collection_value() + (state.knowledge * 500) + state.gold
 
-            # Check for Serah Vale trust building
             if "serah" in user_msg.lower() or "vale" in user_msg.lower():
                 state.serah_trust = min(10, state.serah_trust + 1)
 
-            # Check for special power usage
             if "special power" in user_msg.lower() or "ability" in user_msg.lower():
                 if not state.special_power_used:
                     state.special_power_used = True
@@ -211,5 +261,3 @@ def register_game_routes(rt):
     async def art_guru_reset(request: Request):
         request.session.pop("art_guru_state", None)
         return JSONResponse({"ok": True})
-
-

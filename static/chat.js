@@ -259,12 +259,32 @@
                         hideThinking();
                         if (!bubble) bubble = addBubble("assistant", "", "");
                         bubble.textContent = "Error: " + (payload.message || "unknown");
+                    } else if (type === "choices") {
+                        if (bubble) {
+                            const btns = document.createElement("div");
+                            btns.className = "choice-buttons";
+                            (payload.options || []).forEach(opt => {
+                                const b = document.createElement("button");
+                                b.className = "choice-btn";
+                                b.innerHTML = opt.icon ? `<span class="choice-icon">${opt.icon}</span> ${opt.label}` : opt.label;
+                                b.onclick = () => {
+                                    btns.querySelectorAll(".choice-btn").forEach(x => x.disabled = true);
+                                    b.classList.add("choice-selected");
+                                    fillChat(opt.value || opt.label);
+                                    sendMessage(null);
+                                };
+                                btns.appendChild(b);
+                            });
+                            bubble.parentElement.appendChild(btns);
+                            scrollMessagesBottom();
+                        }
                     } else if (type === "session") {
                         if (payload.sid) setSid(payload.sid);
                     } else if (type === "done") {
                         hideThinking();
                         if (bubble) bubble.classList.remove("streaming");
                         enhanceTables(bubble);
+                        parseAndRenderChoices(bubble);
                     }
                 });
             }
@@ -434,6 +454,40 @@
             if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); }
         });
     };
+
+    function parseAndRenderChoices(bubble) {
+        if (!bubble || !window.location.pathname.includes("art-guru")) return;
+        const parent = bubble.parentElement;
+        if (!parent || parent.querySelector(".choice-buttons")) return;
+
+        const text = bubble.textContent || "";
+        const lines = text.split("\n");
+        const choices = [];
+        for (const line of lines) {
+            const m = line.match(/^\s*(\d)\.\s*(.+)/);
+            if (m && choices.length < 4) {
+                choices.push({ num: m[1], label: m[2].trim().substring(0, 120) });
+            }
+        }
+        if (choices.length < 2) return;
+
+        const btns = document.createElement("div");
+        btns.className = "choice-buttons";
+        choices.forEach(opt => {
+            const b = document.createElement("button");
+            b.className = "choice-btn";
+            b.textContent = opt.label;
+            b.onclick = () => {
+                btns.querySelectorAll(".choice-btn").forEach(x => x.disabled = true);
+                b.classList.add("choice-selected");
+                fillChat(opt.num);
+                sendMessage(null);
+            };
+            btns.appendChild(b);
+        });
+        parent.appendChild(btns);
+        scrollMessagesBottom();
+    }
 
     document.querySelectorAll(".msg-bubble").forEach(b => enhanceTables(b));
 
