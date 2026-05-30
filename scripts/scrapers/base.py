@@ -153,6 +153,17 @@ def _clean(val: str | None, maxlen: int = 500) -> str | None:
     return cleaned[:maxlen] if cleaned else None
 
 
+def _safe_int(val) -> int | None:
+    if val is None:
+        return None
+    if isinstance(val, int):
+        return val
+    try:
+        return int(str(val).split("/")[0].strip())
+    except (ValueError, TypeError):
+        return None
+
+
 def lot_to_db_row(lot: dict) -> dict:
     """Normalize a scraped lot dict to match the auction_lots DB columns."""
     year = lot.get("year")
@@ -173,12 +184,12 @@ def lot_to_db_row(lot: dict) -> dict:
         "dimension": lot.get("dimension"),
         "auction_provider": lot["auction_provider"],
         "title": _clean(lot.get("title")),
-        "lot_number": lot.get("lot_number"),
+        "lot_number": _safe_int(lot.get("lot_number")),
         "dimensions_raw": _clean(lot.get("dimensions_raw"), 100),
         "bid_count": lot.get("bid_count"),
         "auction_name": _clean(lot.get("auction_name"), 255),
         "image_url": lot.get("image_url"),
-        "source_url": lot.get("source_url"),
+        "source_url": (lot.get("source_url") or "")[:500] or None,
         "sold": lot.get("sold", True),
         "country": lot.get("country", "EE"),
     }
