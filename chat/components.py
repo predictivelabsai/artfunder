@@ -10,20 +10,21 @@ from fasthtml.common import (
 )
 from agents.registry import CATEGORIES, AGENTS, AGENTS_BY_SLUG
 from utils.version import __version__, __version_date__
+from utils.i18n import t, agent_t, category_t, LANGUAGES, js_translations
 
 
-def signin_overlay():
+def signin_overlay(lang: str = "en"):
     return Div(
         Div(
-            H3("Sign in to Kanvas.ai", cls="text-lg font-semibold mb-4"),
-            P("Enter your email to save chat history.", cls="text-sm text-gray-500 mb-4"),
+            H3(t("chat_signin_title", lang), cls="text-lg font-semibold mb-4"),
+            P(t("chat_signin_body", lang), cls="text-sm text-gray-500 mb-4"),
             Input(type="email", id="signin-email", placeholder="you@example.com",
                   cls="w-full px-3 py-2 border border-gray-200 rounded-md text-sm mb-3",
                   onkeydown="if(event.key==='Enter')doSignIn()"),
             Div(
-                Button("Sign in", onclick="doSignIn()",
+                Button(t("chat_sign_in", lang), onclick="doSignIn()",
                        cls="px-4 py-2 bg-black text-white rounded-md text-sm cursor-pointer border-none"),
-                Button("Cancel", onclick="document.getElementById('signin-overlay').classList.remove('visible')",
+                Button(t("chat_cancel", lang), onclick="document.getElementById('signin-overlay').classList.remove('visible')",
                        cls="px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm cursor-pointer border-none ml-2"),
                 cls="flex gap-2",
             ),
@@ -34,7 +35,7 @@ def signin_overlay():
     )
 
 
-def left_pane(user_email=None, sessions=None, current_sid=""):
+def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
     sessions = sessions or []
 
     session_items = []
@@ -75,27 +76,27 @@ def left_pane(user_email=None, sessions=None, current_sid=""):
     auth_section = (
         Div(
             Span(user_email, cls="text-xs text-gray-500 truncate"),
-            Button("Sign out", onclick="signOut()", cls="text-xs text-gray-400 hover:text-black cursor-pointer bg-transparent border-none"),
+            Button(t("chat_sign_out", lang), onclick="signOut()", cls="text-xs text-gray-400 hover:text-black cursor-pointer bg-transparent border-none"),
             cls="flex items-center justify-between gap-2 px-3 py-2",
         ) if user_email else
-        Button("Sign in", onclick="showSignIn()",
+        Button(t("chat_sign_in", lang), onclick="showSignIn()",
                cls="w-full text-sm py-2 bg-black text-white rounded-md cursor-pointer border-none")
     )
 
     return Div(
         Div(
-            Button("+ New chat", onclick="newChat()",
+            Button(t("chat_new", lang), onclick="newChat()",
                    cls="new-chat-btn"),
             cls="px-3 pt-3",
         ),
         Div(
-            H4("History", cls="section-label"),
+            H4(t("chat_history", lang), cls="section-label"),
             Div(*session_items, cls="session-list") if session_items else
-            P("No conversations yet.", cls="text-xs text-gray-400 px-3"),
+            P(t("chat_no_sessions", lang), cls="text-xs text-gray-400 px-3"),
             cls="history-section",
         ),
         Div(
-            H4("Agents", cls="section-label"),
+            H4(t("chat_agents", lang), cls="section-label"),
             *agent_groups,
             cls="agents-section",
         ),
@@ -115,7 +116,7 @@ def left_pane(user_email=None, sessions=None, current_sid=""):
     )
 
 
-def center_pane(messages=None, current_agent_slug=None):
+def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
     messages = messages or []
     agent_names_json = json.dumps({a.slug: a.name for a in AGENTS})
     agent_prompts_json = json.dumps({a.slug: list(a.example_prompts) for a in AGENTS})
@@ -140,8 +141,8 @@ def center_pane(messages=None, current_agent_slug=None):
     current_agent = AGENTS_BY_SLUG.get(current_agent_slug)
 
     welcome = Div(
-        H2("Kanvas.ai Art Advisor", cls="text-2xl font-display font-bold mb-2"),
-        P("Ask about artists, market trends, valuations, or collection strategy.",
+        H2(t("chat_welcome_title", lang), cls="text-2xl font-display font-bold mb-2"),
+        P(t("chat_welcome_body", lang),
           cls="text-sm text-gray-500 mb-6"),
         Div(id="sample-cards-row", cls="sample-cards-row"),
         Div(id="sample-cards-label", cls="sample-cards-label-wrap"),
@@ -159,8 +160,8 @@ def center_pane(messages=None, current_agent_slug=None):
                 cls="chat-header-left",
             ),
             Div(
-                Button("Copy", id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn"),
-                Button("Canvas", id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn"),
+                Button(t("chat_copy", lang), id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn"),
+                Button(t("chat_canvas", lang), id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn"),
                 cls="chat-header-actions",
             ),
             cls="chat-header",
@@ -174,7 +175,7 @@ def center_pane(messages=None, current_agent_slug=None):
         Form(
             Textarea(
                 id="chat-input", name="msg", rows="1",
-                placeholder="Ask about an artist, market trends, or get advisory...",
+                placeholder=t("chat_placeholder", lang),
                 onkeydown="handleKey(event)", oninput="autoResize(this); onInputChange(this)",
             ),
             Button("->", id="send-btn", type="button", onclick="sendMessage(event)",
@@ -190,7 +191,7 @@ def center_pane(messages=None, current_agent_slug=None):
     )
 
 
-def right_pane():
+def right_pane(lang: str = "en"):
     from tools.news import fetch_art_news
     news_items = []
     try:
@@ -216,12 +217,12 @@ def right_pane():
 
     return Div(
         Div(
-            H4("Art News", cls="artifact-title"),
-            Span("Estonian & Baltic art market", id="artifact-subtitle", cls="artifact-subtitle"),
+            H4(t("chat_news_title", lang), cls="artifact-title"),
+            Span(t("chat_news_subtitle", lang), id="artifact-subtitle", cls="artifact-subtitle"),
             cls="artifact-header",
         ),
         Div(
-            *news_els if news_els else [P("Loading art news...", cls="text-sm text-gray-400")],
+            *news_els if news_els else [P(t("js_loading_news", lang), cls="text-sm text-gray-400")],
             id="artifact-empty",
             cls="px-4 py-2 overflow-y-auto flex-1",
         ),

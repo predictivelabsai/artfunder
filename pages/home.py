@@ -1,24 +1,30 @@
 from fasthtml.common import *
+from utils.i18n import t, agent_t, get_lang
 
 
-def home_page():
+def home_page(sess=None):
     from utils.config import settings
     login_enabled = settings().login_enabled
+    lang = get_lang(sess or {})
+
+    agents = [
+        "artist_lookup", "artist_compare", "market_analyst", "auction_tracker",
+        "acquisition_advisor", "portfolio_analyst", "valuator", "provenance_checker",
+    ]
 
     hero = Section(
         Div(
             Div(
-                H1('Your AI Art Advisor.',
+                H1(t('hero_h1', lang),
                    cls='font-display text-5xl md:text-6xl font-bold leading-tight max-w-3xl mb-2 text-black'),
-                P('Track, value, and grow your collection.',
+                P(t('hero_h2', lang),
                   cls='font-display text-3xl md:text-4xl text-gray-400 mb-8'),
-                P('AI-powered art advisory combining market intelligence, auction analytics, '
-                  'and collection management. From artist research to acquisition strategy.',
+                P(t('hero_body', lang),
                   cls='text-base max-w-xl text-gray-500 mb-10 leading-relaxed'),
                 Div(
-                    A('Start Advisory Session', href='/app',
+                    A(t('hero_cta_start', lang), href='/app',
                       cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-black text-white hover:bg-gray-800 transition-colors'),
-                    A('Explore Collection', href='/investors',
+                    A(t('hero_cta_explore', lang), href='/investors',
                       cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-black border border-gray-300 hover:border-black transition-colors'),
                     cls='flex gap-4 flex-wrap'
                 ),
@@ -26,7 +32,7 @@ def home_page():
             ),
             A(
                 Img(src='/docs/kanvas.gif',
-                    alt='Kanvas.ai product tour — advisory chat, market map, analytics',
+                    alt='Kanvas.ai product tour',
                     cls='block w-full h-auto rounded-2xl border border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)]',
                     loading='lazy'),
                 href='/app',
@@ -40,29 +46,23 @@ def home_page():
         Div(
             Div(
                 Div(
-                    H3('Advisory', cls='text-lg font-bold text-black mb-3'),
-                    P('AI-powered recommendations from 8 specialist agents. Research artists, '
-                      'compare market performance, and get acquisition advice tailored to your goals.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
-                    A('Start a conversation', href='/app',
+                    H3(t('feat_advisory', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('feat_advisory_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
+                    A(t('feat_advisory_link', lang), href='/app',
                       cls='block mt-4 no-underline font-semibold text-sm text-black'),
                     cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
                 Div(
-                    H3('Market Intelligence', cls='text-lg font-bold text-black mb-3'),
-                    P('Real-time auction analytics, price trend visualizations, and sector heat maps. '
-                      'Track Estonian and international art markets with interactive Plotly charts.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
-                    A('View market map', href='/app/market-map',
+                    H3(t('feat_market', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('feat_market_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
+                    A(t('feat_market_link', lang), href='/app/market-map',
                       cls='block mt-4 no-underline font-semibold text-sm text-black'),
                     cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
                 Div(
-                    H3('Collection Management', cls='text-lg font-bold text-black mb-3'),
-                    P('Track your portfolio, manage fractional ownership positions, and monitor '
-                      'artwork valuations. Diversification analysis and rebalancing suggestions.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
-                    A('View collection', href='/investors',
+                    H3(t('feat_collection', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('feat_collection_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
+                    A(t('feat_collection_link', lang), href='/investors',
                       cls='block mt-4 no-underline font-semibold text-sm text-black'),
                     cls='p-8 border border-gray-100 rounded-lg hover:border-gray-300 transition-colors'
                 ),
@@ -76,34 +76,27 @@ def home_page():
     how_it_works = Section(
         Div(
             Div(
-                H2('How It Works', cls='font-display text-3xl font-bold text-black mb-4'),
-                P('Three steps to smarter art collecting.',
-                  cls='text-base text-gray-500 max-w-xl'),
+                H2(t('how_title', lang), cls='font-display text-3xl font-bold text-black mb-4'),
+                P(t('how_subtitle', lang), cls='text-base text-gray-500 max-w-xl'),
                 cls='mb-12'
             ),
             Div(
                 Div(
                     Span('01', cls='text-4xl font-bold text-gray-200 block mb-4'),
-                    H3('Ask', cls='text-lg font-bold text-black mb-3'),
-                    P('Ask any question about an artist, artwork, market trend, or collection strategy. '
-                      'Our AI routes your query to the right specialist agent.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
+                    H3(t('how_01_title', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('how_01_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
                     cls='p-6'
                 ),
                 Div(
                     Span('02', cls='text-4xl font-bold text-gray-200 block mb-4'),
-                    H3('Analyze', cls='text-lg font-bold text-black mb-3'),
-                    P('The agent searches auction databases, scrapes market data, and generates '
-                      'visualizations. Results stream in real-time with full transparency.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
+                    H3(t('how_02_title', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('how_02_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
                     cls='p-6'
                 ),
                 Div(
                     Span('03', cls='text-4xl font-bold text-gray-200 block mb-4'),
-                    H3('Act', cls='text-lg font-bold text-black mb-3'),
-                    P('Get actionable recommendations: buy, hold, or diversify. Track acquisitions '
-                      'in your portfolio with ongoing valuation updates.',
-                      cls='text-gray-500 text-sm leading-relaxed'),
+                    H3(t('how_03_title', lang), cls='text-lg font-bold text-black mb-3'),
+                    P(t('how_03_body', lang), cls='text-gray-500 text-sm leading-relaxed'),
                     cls='p-6'
                 ),
                 cls='grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-gray-100 pt-8'
@@ -113,65 +106,22 @@ def home_page():
         cls='py-20 px-8 bg-gray-50'
     )
 
+    agent_cards = []
+    for slug in agents:
+        agent_cards.append(Div(
+            H4(agent_t(slug, 'name', lang), cls='text-sm font-bold text-black mb-1'),
+            P(agent_t(slug, 'one_liner', lang), cls='text-xs text-gray-500'),
+            cls='p-4 border border-gray-100 rounded-lg'
+        ))
+
     agents_preview = Section(
         Div(
             Div(
-                H2('8 Specialist Agents', cls='font-display text-3xl font-bold text-black mb-4'),
-                P('Each trained for a specific aspect of art advisory.',
-                  cls='text-base text-gray-500 max-w-xl'),
+                H2(t('agents_title', lang), cls='font-display text-3xl font-bold text-black mb-4'),
+                P(t('agents_subtitle', lang), cls='text-base text-gray-500 max-w-xl'),
                 cls='mb-12'
             ),
-            Div(
-                Div(
-                    H4('Artist Lookup', cls='text-sm font-bold text-black mb-1'),
-                    P('Biography, exhibitions, and auction history via web search.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Artist Compare', cls='text-sm font-bold text-black mb-1'),
-                    P('Side-by-side comparison by market performance and style.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Market Analyst', cls='text-sm font-bold text-black mb-1'),
-                    P('Auction trends, price movements, and sector analytics.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Auction Tracker', cls='text-sm font-bold text-black mb-1'),
-                    P('Track lots and results from Estonian auction houses.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Acquisition Advisor', cls='text-sm font-bold text-black mb-1'),
-                    P('Recommendations based on goals, budget, and preferences.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Portfolio Analyst', cls='text-sm font-bold text-black mb-1'),
-                    P('Diversification analysis and rebalancing suggestions.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Valuator', cls='text-sm font-bold text-black mb-1'),
-                    P('Fair value estimation from comparable sales and market data.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                Div(
-                    H4('Provenance Checker', cls='text-sm font-bold text-black mb-1'),
-                    P('Ownership history and authenticity research.',
-                      cls='text-xs text-gray-500'),
-                    cls='p-4 border border-gray-100 rounded-lg'
-                ),
-                cls='grid grid-cols-2 md:grid-cols-4 gap-4'
-            ),
+            Div(*agent_cards, cls='grid grid-cols-2 md:grid-cols-4 gap-4'),
             cls='max-w-7xl mx-auto'
         ),
         cls='py-20 px-8 bg-white'
@@ -179,12 +129,12 @@ def home_page():
 
     stats = Section(
         Div(
-            Div(H3('14.1%', cls='text-3xl font-extrabold text-black mb-1'), P('Avg. Net Return', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('€48M', cls='text-3xl font-extrabold text-black mb-1'), P('Investor Distributions', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('€285M', cls='text-3xl font-extrabold text-black mb-1'), P('Art Under Management', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('12,400+', cls='text-3xl font-extrabold text-black mb-1'), P('Collectors', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('180+', cls='text-3xl font-extrabold text-black mb-1'), P('Artworks Funded', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
-            Div(H3('18', cls='text-3xl font-extrabold text-black mb-1'), P('Countries', cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('14.1%', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_return', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3(chr(8364) + '48M', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_distributions', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3(chr(8364) + '285M', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_aum', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('12,400+', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_collectors', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('180+', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_artworks', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
+            Div(H3('18', cls='text-3xl font-extrabold text-black mb-1'), P(t('stat_countries', lang), cls='text-xs text-gray-400 uppercase tracking-wider'), cls='text-center'),
             cls='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-8'
         ),
         cls='bg-gray-50 border-y border-gray-100 py-12 px-8'
@@ -192,14 +142,12 @@ def home_page():
 
     cta = Section(
         Div(
-            H2('Start collecting smarter.',
-               cls='font-display text-3xl font-bold text-black mb-4'),
-            P('Join over 12,000 European collectors using AI-powered art advisory.',
-              cls='text-base text-gray-500 max-w-xl mx-auto mb-8'),
+            H2(t('cta_headline', lang), cls='font-display text-3xl font-bold text-black mb-4'),
+            P(t('cta_body', lang), cls='text-base text-gray-500 max-w-xl mx-auto mb-8'),
             Div(
-                A('Start Advisory Session', href='/app',
+                A(t('hero_cta_start', lang), href='/app',
                   cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-black text-white hover:bg-gray-800 transition-colors'),
-                A('Create Account' if login_enabled else 'Open App',
+                A(t('cta_create_account', lang) if login_enabled else t('nav_open_app', lang),
                   href='/register' if login_enabled else '/app',
                   cls='inline-block px-8 py-3 rounded-full font-semibold text-base no-underline bg-transparent text-black border border-gray-300 hover:border-black transition-colors'),
                 cls='flex gap-4 flex-wrap justify-center'
@@ -211,7 +159,7 @@ def home_page():
 
     partners = Section(
         Div(
-            P('Supported by', cls='text-xs text-gray-400 uppercase tracking-wider mb-4'),
+            P(t('supported_by', lang), cls='text-xs text-gray-400 uppercase tracking-wider mb-4'),
             A('Tezos Foundation', href='https://tezos.foundation/', target='_blank',
               cls='text-sm text-gray-500 no-underline hover:text-black transition-colors font-medium'),
             cls='max-w-7xl mx-auto text-center'

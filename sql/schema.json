@@ -1,0 +1,307 @@
+{
+  "kanvas.artworks": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "title",
+        "type": "VARCHAR(255)",
+        "nullable": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT"
+      },
+      {
+        "name": "category",
+        "type": "VARCHAR(11)",
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "VARCHAR(9)"
+      },
+      {
+        "name": "artist_name",
+        "type": "VARCHAR(255)"
+      },
+      {
+        "name": "medium",
+        "type": "VARCHAR(500)"
+      },
+      {
+        "name": "origin_country",
+        "type": "VARCHAR(100)"
+      },
+      {
+        "name": "year_created",
+        "type": "VARCHAR(20)"
+      },
+      {
+        "name": "dimensions",
+        "type": "VARCHAR(200)"
+      },
+      {
+        "name": "estimated_value",
+        "type": "NUMERIC(14, 2)"
+      },
+      {
+        "name": "acquisition_cost",
+        "type": "NUMERIC(14, 2)"
+      },
+      {
+        "name": "appreciation_rate",
+        "type": "NUMERIC(5, 2)"
+      },
+      {
+        "name": "artist_id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "image_url",
+        "type": "VARCHAR(500)"
+      },
+      {
+        "name": "provenance",
+        "type": "TEXT"
+      },
+      {
+        "name": "created_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "updated_at",
+        "type": "TIMESTAMP"
+      }
+    ],
+    "row_count": 10
+  },
+  "kanvas.investment_opportunities": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "artwork_id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "VARCHAR(255)",
+        "nullable": false
+      },
+      {
+        "name": "description",
+        "type": "TEXT"
+      },
+      {
+        "name": "funding_goal",
+        "type": "NUMERIC(14, 2)",
+        "nullable": false
+      },
+      {
+        "name": "amount_raised",
+        "type": "NUMERIC(14, 2)"
+      },
+      {
+        "name": "minimum_investment",
+        "type": "NUMERIC(10, 2)"
+      },
+      {
+        "name": "interest_rate",
+        "type": "NUMERIC(5, 2)",
+        "nullable": false
+      },
+      {
+        "name": "term_months",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "start_date",
+        "type": "DATE"
+      },
+      {
+        "name": "end_date",
+        "type": "DATE"
+      },
+      {
+        "name": "funding_status",
+        "type": "VARCHAR(8)"
+      },
+      {
+        "name": "risk_level",
+        "type": "VARCHAR(1)"
+      },
+      {
+        "name": "funding_type",
+        "type": "VARCHAR(50)"
+      },
+      {
+        "name": "created_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "updated_at",
+        "type": "TIMESTAMP"
+      }
+    ],
+    "row_count": 10
+  },
+  "kanvas.investments": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "opportunity_id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "investor_id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "amount",
+        "type": "NUMERIC(14, 2)",
+        "nullable": false
+      },
+      {
+        "name": "ownership_percentage",
+        "type": "NUMERIC(5, 2)"
+      },
+      {
+        "name": "expected_return",
+        "type": "NUMERIC(14, 2)"
+      },
+      {
+        "name": "status",
+        "type": "VARCHAR(9)"
+      },
+      {
+        "name": "invested_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "updated_at",
+        "type": "TIMESTAMP"
+      }
+    ],
+    "row_count": 0
+  },
+  "kanvas.auction_lots": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "nullable": false
+      },
+      {
+        "name": "auction_date",
+        "type": "BIGINT",
+        "nullable": false
+      },
+      {
+        "name": "author",
+        "type": "VARCHAR(255)",
+        "nullable": false
+      },
+      {
+        "name": "start_price",
+        "type": "BIGINT",
+        "nullable": false
+      },
+      {
+        "name": "end_price",
+        "type": "BIGINT",
+        "nullable": false
+      },
+      {
+        "name": "year",
+        "type": "BIGINT"
+      },
+      {
+        "name": "decade",
+        "type": "BIGINT"
+      },
+      {
+        "name": "tech",
+        "type": "VARCHAR(255)"
+      },
+      {
+        "name": "category",
+        "type": "VARCHAR(100)"
+      },
+      {
+        "name": "dimension",
+        "type": "DOUBLE PRECISION"
+      },
+      {
+        "name": "auction_provider",
+        "type": "VARCHAR(100)",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "title",
+        "type": "VARCHAR(500)"
+      },
+      {
+        "name": "lot_number",
+        "type": "INTEGER"
+      },
+      {
+        "name": "dimensions_raw",
+        "type": "VARCHAR(100)"
+      },
+      {
+        "name": "bid_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "auction_name",
+        "type": "VARCHAR(255)"
+      },
+      {
+        "name": "image_url",
+        "type": "VARCHAR(500)"
+      },
+      {
+        "name": "source_url",
+        "type": "VARCHAR(500)"
+      },
+      {
+        "name": "sold",
+        "type": "BOOLEAN"
+      }
+    ],
+    "row_count": 10495,
+    "providers": [
+      "allee",
+      "artandtonic",
+      "haus",
+      "vaal",
+      "vernissage"
+    ],
+    "categories_sample": [
+      "Drawing",
+      "Graphics",
+      "Oil paint",
+      "Other",
+      "Other paint"
+    ]
+  }
+}

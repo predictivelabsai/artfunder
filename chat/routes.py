@@ -148,12 +148,15 @@ def register_chat_routes(rt):
             except (TypeError, ValueError):
                 pass
 
+        from utils.i18n import get_lang
+        lang = get_lang(sess)
         return chat_page(
             user_email=email,
             sessions=sessions,
             current_sid=str(sid) if sid else "",
             messages=messages,
             current_agent_slug=current_agent,
+            lang=lang,
         )
 
     @rt("/app/chat", methods=["POST"])
@@ -201,7 +204,16 @@ def register_chat_routes(rt):
                 "icon": spec.icon if spec else "*",
             })
 
-            lc_messages = [SystemMessage(content="You are a Kanvas.ai art advisor. Respond helpfully and concisely.")]
+            from utils.i18n import get_lang, LANGUAGES
+            lang = get_lang(sess)
+            lang_info = LANGUAGES.get(lang, LANGUAGES["en"])
+            lang_directive = ""
+            if lang != "en":
+                lang_directive = (
+                    f"\nUser language: {lang} ({lang_info['name']}). "
+                    f"Respond in {lang_info['name']}."
+                )
+            lc_messages = [SystemMessage(content=f"You are a Kanvas.ai art advisor. Respond helpfully and concisely.{lang_directive}")]
             for h in history[-20:]:
                 if h["role"] == "user":
                     lc_messages.append(HumanMessage(content=h["content"]))
@@ -259,6 +271,15 @@ def register_chat_routes(rt):
             yield sse.event(sse.DONE, {"slug": agent_slug, "tools": len(tool_calls_log)})
 
         return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+    @rt("/app/config", methods=["POST"])
+    async def app_config(request: Request):
+        from utils.i18n import set_lang, get_lang
+        form = await request.form()
+        lang_code = (form.get("lang") or "").strip()
+        if lang_code:
+            set_lang(request.session, lang_code)
+        return JSONResponse({"ok": True, "lang": get_lang(request.session)})
 
     @rt("/api/news")
     def api_news():

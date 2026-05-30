@@ -54,11 +54,21 @@ def check_auth(sess):
     return sess.get('auth')
 
 
+# --- Language switching ---
+
+@rt('/set-lang/{code}')
+def set_language(code: str, sess):
+    from utils.i18n import set_lang, LANGUAGES
+    if code in LANGUAGES:
+        set_lang(sess, code)
+    return RedirectResponse('/', status_code=303)
+
+
 # --- Public pages ---
 
 @rt
 def index(sess):
-    return Page(home_page(), active='home', sess=sess)
+    return Page(home_page(sess=sess), active='home', sess=sess)
 
 @rt('/how-it-works')
 def how_it_works(sess):

@@ -1,10 +1,11 @@
-"""Text-to-SQL tool for agents — queries kanvas.auction_lots and artworks."""
+"""Text-to-SQL tool for agents — queries kanvas schema via sql/schema.json."""
 
 from __future__ import annotations
 
 import json
 import logging
 import re
+from pathlib import Path
 
 import pandas as pd
 from langchain_core.tools import StructuredTool
@@ -12,25 +13,33 @@ from pydantic import BaseModel, Field
 
 log = logging.getLogger(__name__)
 
-SCHEMA_SNIPPET = """\
-kanvas.auction_lots (
-    id, auction_date BIGINT (auction year), author VARCHAR,
-    start_price BIGINT (EUR), end_price BIGINT (EUR, 0 if unsold),
-    year BIGINT (year artwork created), decade BIGINT,
-    tech VARCHAR (e.g. 'Oil on canvas', 'Watercolour', 'Lithograph'),
-    category VARCHAR (e.g. 'Oil paint', 'Graphics', 'Drawing'),
-    dimension DOUBLE PRECISION (area cm²),
-    auction_provider VARCHAR ('haus','allee','vaal','vernissage','artandtonic'),
-    title VARCHAR, lot_number INT, dimensions_raw VARCHAR,
-    bid_count INT, auction_name VARCHAR, sold BOOLEAN
-)
--- 10,000+ lots from 5 Estonian galleries (1998-2026)
+_SCHEMA_JSON = Path(__file__).resolve().parents[1] / "sql" / "schema.json"
 
-kanvas.artworks (
-    id, title, artist_name, category, medium, year_created,
-    estimated_value NUMERIC, status, origin_country, dimensions
-)
-"""
+
+def _load_schema_snippet() -> str:
+    """Build a human-readable schema snippet from sql/schema.json."""
+    if not _SCHEMA_JSON.exists():
+        return "(schema.json not found — query kanvas.auction_lots and kanvas.artworks)"
+    data = json.loads(_SCHEMA_JSON.read_text())
+    lines = []
+    for table, info in data.items():
+        cols = info.get("columns", [])
+        col_parts = []
+        for c in cols:
+            part = f"{c['name']} {c['type']}"
+            col_parts.append(part)
+        count = info.get("row_count", "?")
+        providers = info.get("providers")
+        categories = info.get("categories_sample")
+        header = f"{table} ({count} rows)"
+        lines.append(header)
+        lines.append(f"  ({', '.join(col_parts)})")
+        if providers:
+            lines.append(f"  -- providers: {', '.join(repr(p) for p in providers)}")
+        if categories:
+            lines.append(f"  -- categories sample: {', '.join(repr(c) for c in categories)}")
+        lines.append("")
+    return "\n".join(lines)
 
 
 class SQLQueryArgs(BaseModel):
@@ -40,6 +49,7 @@ class SQLQueryArgs(BaseModel):
 def _draft_sql(question: str) -> str:
     from utils.llm import build_llm
 
+    schema = _load_schema_snippet()
     system = f"""You translate plain-English questions into a single PostgreSQL SELECT query.
 
 Rules:
@@ -52,7 +62,7 @@ Rules:
 - Prices are in whole EUR (not cents).
 
 Schema:
-{SCHEMA_SNIPPET}"""
+{schema}"""
 
     llm = build_llm()
     resp = llm.invoke(f"{system}\n\nQuestion: {question}\n\nSQL:").content
