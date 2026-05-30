@@ -13,6 +13,25 @@ from utils.version import __version__, __version_date__
 from utils.i18n import t, agent_t, category_t, LANGUAGES, js_translations
 
 
+def _chat_lang_dropdown(lang: str = "en"):
+    """Flag dropdown for the chat header (PEHero pattern)."""
+    current = LANGUAGES.get(lang, LANGUAGES["en"])
+    options = [
+        Button(
+            Span(info["flag"], cls="lang-dd-flag"),
+            Span(info["native"], cls="lang-dd-label"),
+            cls=f"lang-dd-item{' active' if code == lang else ''}",
+            onclick=f"fetch('/app/config',{{method:'POST',body:new URLSearchParams({{lang:'{code}'}})}}).then(()=>location.reload())",
+        )
+        for code, info in LANGUAGES.items()
+    ]
+    return Div(
+        Button(current["flag"], cls="lang-trigger", onclick="toggleLangDropdown(event)"),
+        Div(*options, cls="lang-dd-menu", id="lang-dd-menu"),
+        cls="lang-dropdown",
+    )
+
+
 def signin_overlay(lang: str = "en"):
     return Div(
         Div(
@@ -169,6 +188,7 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
                 cls="chat-header-left",
             ),
             Div(
+                _chat_lang_dropdown(lang),
                 Button(t("chat_copy", lang), id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn"),
                 Button(t("chat_canvas", lang), id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn"),
                 cls="chat-header-actions",

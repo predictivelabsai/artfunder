@@ -534,6 +534,16 @@
         if (seconds >= 60) setInterval(refreshNews, seconds * 1000);
     })();
 
+    window.toggleLangDropdown = (ev) => {
+        ev.stopPropagation();
+        const menu = document.getElementById("lang-dd-menu");
+        if (menu) menu.classList.toggle("open");
+    };
+    document.addEventListener("click", () => {
+        const menu = document.getElementById("lang-dd-menu");
+        if (menu) menu.classList.remove("open");
+    });
+
     window.sendMessage = sendMessage;
     window.renderMarkdownLite = renderMarkdownLite;
     window.enhanceTables = enhanceTables;
