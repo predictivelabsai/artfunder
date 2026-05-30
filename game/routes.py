@@ -127,15 +127,8 @@ def register_game_routes(rt):
                 )
                 yield sse.event(sse.TOKEN, {"text": intro})
 
-                # Now run the first game master turn
-                system = _build_system_prompt(state)
-                await _run_game_turn(
-                    system, state, sess,
-                    "I just chose my character and the game is starting. Present Round 1, Stage 1: Creation & Acquisition. Introduce the art market setting and give me my first choices.",
-                    event_stream_yield=lambda e: None,
-                    token_collector=[],
-                )
-                # Re-stream with actual LLM
+                # Game master generates Round 1
+                yield sse.event(sse.TOOL_START, {"name": "game_master", "args": {"stage": "Creation & Acquisition", "round": 1}})
                 system = _build_system_prompt(state)
                 accumulated = []
                 try:
@@ -145,6 +138,7 @@ def register_game_routes(rt):
                         SystemMessage(content=system),
                         HumanMessage(content="The game begins! Present Round 1, Stage 1: Creation & Acquisition. Set the scene in the Estonian art world. Show available artworks with prices from real Estonian artists. Give me 3-4 choices."),
                     ]
+                    yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
                     for chunk in llm.stream(messages):
                         if hasattr(chunk, "content") and chunk.content:
                             accumulated.append(chunk.content)
@@ -168,8 +162,8 @@ def register_game_routes(rt):
 
             # Normal game turn — send to LLM game master
             system = _build_system_prompt(state)
+            yield sse.event(sse.TOOL_START, {"name": "game_master", "args": {"stage": state.current_stage(), "round": state.round}})
 
-            # Build conversation history
             messages = [
                 SystemMessage(content=system),
                 HumanMessage(content=f"Player action: {user_msg}\n\nProcess this action for the current stage ({state.current_stage()}). Update the game state accordingly. If the stage is complete, advance to the next stage. If all stages are done, advance to the next round. Present the results and the next set of choices."),
@@ -179,6 +173,7 @@ def register_game_routes(rt):
             try:
                 from utils.llm import build_llm
                 llm = build_llm()
+                yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
                 for chunk in llm.stream(messages):
                     if hasattr(chunk, "content") and chunk.content:
                         accumulated.append(chunk.content)
@@ -218,6 +213,3 @@ def register_game_routes(rt):
         return JSONResponse({"ok": True})
 
 
-async def _run_game_turn(system, state, sess, prompt, event_stream_yield, token_collector):
-    """Helper to run a game master turn (used internally)."""
-    pass
