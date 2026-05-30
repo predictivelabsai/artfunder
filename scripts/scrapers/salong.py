@@ -26,8 +26,9 @@ INDEX_URL = f"{BASE_URL}/E-kunstisalongi_oksjonid_756"
 
 
 def _get_auction_links(page) -> list[dict]:
-    """Get all auction page links from the index."""
+    """Get all auction page links from the index, with dates extracted from surrounding text."""
     return page.evaluate(r"""() => {
+        const body = document.body.innerHTML;
         const links = [...document.querySelectorAll('a')];
         const auctions = [];
         const seen = new Set();
@@ -40,7 +41,22 @@ def _get_auction_links(page) -> list[dict]:
                 && !seen.has(href)) {
                 seen.add(href);
                 const text = a.textContent.trim() || href.split('/').pop().split('_')[0];
-                auctions.push({ url: href, name: text });
+
+                // Extract date from surrounding HTML context (DD.MM.YYYY pattern)
+                const hrefEsc = href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const ctxMatch = body.match(new RegExp('.{0,200}' + hrefEsc.split('/').pop()));
+                let year = 0;
+                if (ctxMatch) {
+                    const dateMatch = ctxMatch[0].match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+                    if (dateMatch) year = parseInt(dateMatch[3]);
+                }
+                // Fallback: try URL for year-like patterns (e.g. 05042025)
+                if (!year) {
+                    const urlDateMatch = href.match(/(\d{2})(\d{2})(20\d{2})/);
+                    if (urlDateMatch) year = parseInt(urlDateMatch[3]);
+                }
+
+                auctions.push({ url: href, name: text, year: year });
             }
         }
         return auctions;
@@ -133,7 +149,7 @@ def scrape(headless: bool = True, limit: int = 0):
 
         for auc in auction_links:
             auc_name = auc["name"] or auc["url"].split("/")[-1]
-            auction_year = parse_year_from_text(auc["url"]) or parse_year_from_text(auc_name)
+            auction_year = auc.get("year", 0) or parse_year_from_text(auc["url"]) or parse_year_from_text(auc_name)
 
             log.info("Processing: %s", auc_name)
             try:

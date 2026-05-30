@@ -1,307 +1,973 @@
 {
-  "kanvas.artworks": {
-    "columns": [
-      {
-        "name": "id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "title",
-        "type": "VARCHAR(255)",
-        "nullable": false
-      },
-      {
-        "name": "description",
-        "type": "TEXT"
-      },
-      {
-        "name": "category",
-        "type": "VARCHAR(11)",
-        "nullable": false
-      },
-      {
-        "name": "status",
-        "type": "VARCHAR(9)"
-      },
-      {
-        "name": "artist_name",
-        "type": "VARCHAR(255)"
-      },
-      {
-        "name": "medium",
-        "type": "VARCHAR(500)"
-      },
-      {
-        "name": "origin_country",
-        "type": "VARCHAR(100)"
-      },
-      {
-        "name": "year_created",
-        "type": "VARCHAR(20)"
-      },
-      {
-        "name": "dimensions",
-        "type": "VARCHAR(200)"
-      },
-      {
-        "name": "estimated_value",
-        "type": "NUMERIC(14, 2)"
-      },
-      {
-        "name": "acquisition_cost",
-        "type": "NUMERIC(14, 2)"
-      },
-      {
-        "name": "appreciation_rate",
-        "type": "NUMERIC(5, 2)"
-      },
-      {
-        "name": "artist_id",
-        "type": "INTEGER"
-      },
-      {
-        "name": "image_url",
-        "type": "VARCHAR(500)"
-      },
-      {
-        "name": "provenance",
-        "type": "TEXT"
-      },
-      {
-        "name": "created_at",
-        "type": "TIMESTAMP"
-      },
-      {
-        "name": "updated_at",
-        "type": "TIMESTAMP"
-      }
-    ],
-    "row_count": 10
-  },
-  "kanvas.investment_opportunities": {
-    "columns": [
-      {
-        "name": "id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "artwork_id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "name",
-        "type": "VARCHAR(255)",
-        "nullable": false
-      },
-      {
-        "name": "description",
-        "type": "TEXT"
-      },
-      {
-        "name": "funding_goal",
-        "type": "NUMERIC(14, 2)",
-        "nullable": false
-      },
-      {
-        "name": "amount_raised",
-        "type": "NUMERIC(14, 2)"
-      },
-      {
-        "name": "minimum_investment",
-        "type": "NUMERIC(10, 2)"
-      },
-      {
-        "name": "interest_rate",
-        "type": "NUMERIC(5, 2)",
-        "nullable": false
-      },
-      {
-        "name": "term_months",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "start_date",
-        "type": "DATE"
-      },
-      {
-        "name": "end_date",
-        "type": "DATE"
-      },
-      {
-        "name": "funding_status",
-        "type": "VARCHAR(8)"
-      },
-      {
-        "name": "risk_level",
-        "type": "VARCHAR(1)"
-      },
-      {
-        "name": "funding_type",
-        "type": "VARCHAR(50)"
-      },
-      {
-        "name": "created_at",
-        "type": "TIMESTAMP"
-      },
-      {
-        "name": "updated_at",
-        "type": "TIMESTAMP"
-      }
-    ],
-    "row_count": 10
-  },
-  "kanvas.investments": {
-    "columns": [
-      {
-        "name": "id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "opportunity_id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "investor_id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "amount",
-        "type": "NUMERIC(14, 2)",
-        "nullable": false
-      },
-      {
-        "name": "ownership_percentage",
-        "type": "NUMERIC(5, 2)"
-      },
-      {
-        "name": "expected_return",
-        "type": "NUMERIC(14, 2)"
-      },
-      {
-        "name": "status",
-        "type": "VARCHAR(9)"
-      },
-      {
-        "name": "invested_at",
-        "type": "TIMESTAMP"
-      },
-      {
-        "name": "updated_at",
-        "type": "TIMESTAMP"
-      }
-    ],
-    "row_count": 0
-  },
-  "kanvas.auction_lots": {
-    "columns": [
-      {
-        "name": "id",
-        "type": "INTEGER",
-        "nullable": false
-      },
-      {
-        "name": "auction_date",
-        "type": "BIGINT",
-        "nullable": false
-      },
-      {
-        "name": "author",
-        "type": "VARCHAR(255)",
-        "nullable": false
-      },
-      {
-        "name": "start_price",
-        "type": "BIGINT",
-        "nullable": false
-      },
-      {
-        "name": "end_price",
-        "type": "BIGINT",
-        "nullable": false
-      },
-      {
-        "name": "year",
-        "type": "BIGINT"
-      },
-      {
-        "name": "decade",
-        "type": "BIGINT"
-      },
-      {
-        "name": "tech",
-        "type": "VARCHAR(255)"
-      },
-      {
-        "name": "category",
-        "type": "VARCHAR(100)"
-      },
-      {
-        "name": "dimension",
-        "type": "DOUBLE PRECISION"
-      },
-      {
-        "name": "auction_provider",
-        "type": "VARCHAR(100)",
-        "nullable": false
-      },
-      {
-        "name": "created_at",
-        "type": "TIMESTAMP"
-      },
-      {
-        "name": "title",
-        "type": "VARCHAR(500)"
-      },
-      {
-        "name": "lot_number",
-        "type": "INTEGER"
-      },
-      {
-        "name": "dimensions_raw",
-        "type": "VARCHAR(100)"
-      },
-      {
-        "name": "bid_count",
-        "type": "INTEGER"
-      },
-      {
-        "name": "auction_name",
-        "type": "VARCHAR(255)"
-      },
-      {
-        "name": "image_url",
-        "type": "VARCHAR(500)"
-      },
-      {
-        "name": "source_url",
-        "type": "VARCHAR(500)"
-      },
-      {
-        "name": "sold",
-        "type": "BOOLEAN"
-      }
-    ],
-    "row_count": 10495,
-    "providers": [
-      "allee",
-      "artandtonic",
-      "haus",
-      "vaal",
-      "vernissage"
-    ],
-    "categories_sample": [
-      "Drawing",
-      "Graphics",
-      "Oil paint",
-      "Other",
-      "Other paint"
-    ]
+  "tables": {
+    "artworks": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "USER-DEFINED",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "artist_name",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "medium",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "origin_country",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "year_created",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "dimensions",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "estimated_value",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "acquisition_cost",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "appreciation_rate",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "artist_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "image_url",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "provenance",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 10
+    },
+    "auction_lots": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "auction_date",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "author",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "start_price",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "end_price",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "year",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "decade",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "tech",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "dimension",
+          "type": "double precision",
+          "nullable": true
+        },
+        {
+          "name": "auction_provider",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "title",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "lot_number",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "dimensions_raw",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "bid_count",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "auction_name",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "image_url",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "source_url",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "sold",
+          "type": "boolean",
+          "nullable": true
+        }
+      ],
+      "row_count": 11447,
+      "sample_providers": [
+        "allee",
+        "artandtonic",
+        "haus",
+        "salong",
+        "vaal",
+        "vernissage"
+      ],
+      "sample_categories": [
+        "Drawing",
+        "Graphics",
+        "Oil paint",
+        "Other",
+        "Other paint"
+      ],
+      "year_range": [
+        1998,
+        2026
+      ]
+    },
+    "auto_invest": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investor_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "max_investment_amount",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "min_interest_rate",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "max_appreciation_rate",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "preferred_risk_levels",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "preferred_categories",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "chat_messages": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "session_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "role",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "content",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "agent_slug",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "tool_calls",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 20
+    },
+    "chat_sessions": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "title",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "agent_slug",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "share_token",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 10
+    },
+    "chat_users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 10
+    },
+    "dividends": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investor_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "opportunity_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "is_paid",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "paid_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "faqs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "question",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "answer",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "display_order",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": true
+        }
+      ],
+      "row_count": 8
+    },
+    "follow_artworks": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "artwork_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "galleries": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "registration_number",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "investment_opportunities": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "artwork_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "funding_goal",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "amount_raised",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "minimum_investment",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "interest_rate",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "term_months",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "end_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "funding_status",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "risk_level",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "funding_type",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 10
+    },
+    "investments": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "opportunity_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investor_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "ownership_percentage",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "expected_return",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "invested_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "investor_votings": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "opportunity_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "question",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type": "timestamp without time zone",
+          "nullable": false
+        },
+        {
+          "name": "end_date",
+          "type": "timestamp without time zone",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "notifications": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "notification_type",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "is_read",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "payments": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investor_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investment_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "payment_status",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "reference_number",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "project_updates": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "artwork_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "update_type",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "repayments": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "opportunity_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "repayment_date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "is_principal",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "secondary_market": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "investment_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "seller_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "listing_price",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "name": "listed_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "name": "sold_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "user_votes": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "voting_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "vote_choice",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 0
+    },
+    "users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "password_hash",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "first_name",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "last_name",
+          "type": "character varying",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "USER-DEFINED",
+          "nullable": false
+        },
+        {
+          "name": "phone",
+          "type": "character varying",
+          "nullable": true
+        },
+        {
+          "name": "is_verified",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "is_staff",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 10
+    }
   }
 }

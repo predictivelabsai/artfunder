@@ -70,7 +70,7 @@ def _fetch_trend_data(author=None, category=None):
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        conditions = []
+        conditions = ["end_price > 0", "auction_date > 0"]
         params = {}
         if author:
             conditions.append("author ILIKE :author")
@@ -78,14 +78,16 @@ def _fetch_trend_data(author=None, category=None):
         if category:
             conditions.append("category ILIKE :category")
             params["category"] = f"%{category}%"
-        where = "WHERE " + " AND ".join(conditions) if conditions else ""
+        where = "WHERE " + " AND ".join(conditions)
         sql = text(f"""
-            SELECT auction_date as year, category,
+            SELECT auction_date as year,
+                   COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other')) as category,
                    AVG(end_price)::int as avg_price,
                    COUNT(*) as lots
             FROM kanvas.auction_lots
             {where}
-            GROUP BY auction_date, category
+            GROUP BY auction_date,
+                     COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other'))
             ORDER BY auction_date
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, params)]

@@ -1,16 +1,18 @@
-"""Art & Tonic scraper — single page with all past auction results (2019-present).
+"""Art & Tonic scraper — single page with all past auction results.
 
 All lots on one page: /en/auctions/held/
-Format: Author"Title"AH: Price€ (straight quotes, no spaces)
+Structure: h2 auction headers with dates, then per-lot divs containing
+  h2 "N. Author", h3 "\"Title\"", h3 "AH: Price€"
 """
 
 from __future__ import annotations
 
 import logging
+import re
 import time
 
 from scripts.scrapers.base import (
-    parse_price, parse_year_from_text,
+    parse_price,
     setup_browser, dismiss_cookies, save_checkpoint, load_checkpoint,
     deduplicate, safe_navigate,
 )
@@ -22,42 +24,58 @@ HELD_URL = f"{BASE_URL}/en/auctions/held/"
 
 
 def _scrape_all_lots(page) -> list[dict]:
-    """Extract all lots from the held auctions page."""
+    """Extract all lots from the held auctions page using DOM structure."""
     return page.evaluate(r"""() => {
-        const body = document.body.textContent;
+        const allH2 = [...document.querySelectorAll('h2')];
         const lots = [];
+        let currentAuction = '';
+        let currentYear = 0;
 
-        // Find auction headers: "Winter Auction 2020, 2020-12-11 18:00"
-        // and lot entries: Author"Title"AH: Price€
-        // The pattern: word chars + "title" + AH: + digits + €
-        const lotPattern = /([\wÀ-ɏ][\wÀ-ɏ\s]+?)"([^"]+)"\s*AH:\s*([\d\s]+)€/g;
+        for (const h2 of allH2) {
+            const text = h2.textContent.trim();
 
-        // Also find auction headers to associate lots with auctions
-        const headerPattern = /((?:Winter|Spring|Summer|Autumn|Fall|Kevad|Sugis|Talve)\s*(?:Auction|oksjon)\s*\d{4})/gi;
-        const headers = [...body.matchAll(headerPattern)].map(m => ({
-            name: m[1].trim(),
-            index: m.index,
-        }));
-
-        let match;
-        while ((match = lotPattern.exec(body)) !== null) {
-            // Find which auction this lot belongs to
-            let auctionName = '';
-            for (const h of headers) {
-                if (h.index < match.index) auctionName = h.name;
+            // Check if this is an auction header (contains a date like YYYY-MM-DD)
+            const dateMatch = text.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (dateMatch) {
+                currentAuction = text.split(',')[0].trim();
+                currentYear = parseInt(dateMatch[1]);
+                continue;
             }
 
-            // Check for lot number prefix: "N. Author" or "N.Author"
-            const before = body.substring(Math.max(0, match.index - 10), match.index);
-            const numMatch = before.match(/(\d+)\.\s*$/);
+            // Check if this is a lot author (starts with "N. Author" or "N.Author")
+            const lotMatch = text.match(/^(\d+)\.\s*(.+)$/);
+            if (!lotMatch) continue;
 
-            lots.push({
-                lot_number: numMatch ? parseInt(numMatch[1]) : null,
-                author: match[1].trim(),
-                title: match[2].trim(),
-                end_price_text: match[3].trim(),
-                auction_name: auctionName,
-            });
+            const lotNumber = parseInt(lotMatch[1]);
+            const author = lotMatch[2].trim();
+
+            // Find the title and price h3s that follow this h2
+            const container = h2.closest('div') || h2.parentElement;
+            if (!container) continue;
+
+            const h3s = container.querySelectorAll('h3');
+            let title = '';
+            let priceText = '';
+
+            for (const h3 of h3s) {
+                const h3text = h3.textContent.trim();
+                if (h3text.startsWith('AH:') || h3text.startsWith('AH :')) {
+                    priceText = h3text;
+                } else if (h3text.startsWith('"') || h3text.startsWith('“')) {
+                    title = h3text.replace(/^[""“]+|[""”]+$/g, '').trim();
+                }
+            }
+
+            if (author && currentAuction) {
+                lots.push({
+                    lot_number: lotNumber,
+                    author: author,
+                    title: title,
+                    end_price_text: priceText.replace(/^AH\s*:\s*/, ''),
+                    auction_name: currentAuction,
+                    auction_year: currentYear,
+                });
+            }
         }
 
         return lots;
@@ -86,7 +104,6 @@ def scrape(headless: bool = True, limit: int = 0):
                 continue
 
             end_price = parse_price(raw.get("end_price_text", ""))
-            auction_year = parse_year_from_text(raw.get("auction_name", ""))
 
             lot = {
                 "auction_provider": "artandtonic",
@@ -100,7 +117,7 @@ def scrape(headless: bool = True, limit: int = 0):
                 "end_price": end_price,
                 "bid_count": None,
                 "auction_name": raw.get("auction_name", ""),
-                "auction_date": auction_year or 0,
+                "auction_date": raw.get("auction_year", 0),
                 "image_url": None,
                 "source_url": None,
                 "sold": end_price > 0,

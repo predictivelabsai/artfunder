@@ -35,7 +35,7 @@ def _get_auction_links(page) -> list[dict]:
             if ((href.includes('kevadoksjon') || href.includes('sugisoksjon') ||
                  href.includes('oksjon-2') || href.includes('klassika'))
                 && !href.includes('toimunud') && !href.includes('#')
-                && !href.includes('2026')
+
                 && href.startsWith('https://vernissage.ee/')
                 && !href.includes('tootekategooria')
                 && !seen.has(href)) {
