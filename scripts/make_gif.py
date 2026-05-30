@@ -19,8 +19,6 @@ FRAMES = [
     ("01-home-full.png",           2500),
     ("05-chat-empty.png",          2000),
     ("05-chat-with-news.png",      3000),
-    ("07-chat-market.png",         3000),
-    ("07-chat-market-treemap.png", 3000),
     ("12-market-map.png",          3000),
 ]
 
