@@ -121,6 +121,7 @@ def PageFooter():
                         Li(A('Art Index', href='/app/market-map', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('About', href='/about', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('Contact', href='/contact', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
+                        Li(A('Tezos Foundation', href='https://tezos.foundation/', target='_blank', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         cls='list-none'
                     )
                 ),
