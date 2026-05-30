@@ -1,29 +1,31 @@
-# Kanvas.ai - Fine Art Investment Platform
+# Kanvas.ai - AI Art Advisory Platform
 
-A fractional art investment platform connecting investors with museum-quality artworks. Built with FastHTML, SQLAlchemy, and PostgreSQL.
+AI-powered art advisory combining market intelligence, auction analytics, and collection management for the Estonian and Baltic art market.
+
+![Kanvas.ai Product Tour](docs/kanvas.gif)
 
 ## Features
 
-### For Investors
-- Browse blue-chip art investment opportunities
-- Fractional ownership of museum-quality artworks
-- Secondary market for trading positions
-- Historical appreciation avg. 13.8% p.a.
-- Minimum investment from $500
-- Portfolio dashboard and tracking
+### AI Advisory (8 Specialist Agents)
+- **Artist Lookup & Compare** — research and compare Estonian artists
+- **Market Analyst & Auction Tracker** — real-time market intelligence from 7 auction houses
+- **Acquisition Advisor** — personalized buying recommendations
+- **Portfolio Analyst** — collection valuation and tracking
+- **Valuator & Provenance Checker** — artwork authentication and pricing
 
-### For Artists & Galleries
-- Consign artworks to reach new collectors
-- Eligible categories: Paintings, Sculpture, Photography, Prints, Mixed Media
-- Professional valuation and authentication
-- Climate-controlled, insured storage
+### Art Guru
+- AI-powered text RPG — build an art collection as one of 6 characters
+- Real Estonian artists and auction data woven into gameplay
+- Resource management: gold, knowledge, reputation
 
-### Platform
-- Full admin interface at `/admin` with CRUD for all models
-- JSON API at `/api/*`
-- Session-based authentication
-- Mobile-responsive design
-- Health check endpoint
+### Market Map
+- Interactive treemap of 11,000+ auction lots from 7 Estonian galleries
+- Price trends by category, artist sales rankings
+- Data from Haus, Allee, Vaal, Vernissage, Art&Tonic, E-Kunstisalong (1998-2026)
+
+### Internationalization
+- 9 languages: English, Estonian, German, French, Swedish, Latvian, Norwegian, Danish, Polish
+- Auto-detection via IP geolocation
 
 ## Tech Stack
 
@@ -31,22 +33,19 @@ A fractional art investment platform connecting investors with museum-quality ar
 |-----------|-----------|
 | Framework | [FastHTML](https://fastht.ml) (Python) |
 | Database | PostgreSQL + SQLAlchemy |
+| AI | LangGraph ReAct agents, xAI Grok / OpenAI |
 | CSS | Tailwind CSS (Cormorant Garamond + Inter) |
+| Scrapers | Playwright (7 Estonian auction galleries) |
 | Server | Uvicorn |
-| Deployment | Docker / Docker Compose / Coolify |
+| CI/CD | GitHub Actions + Coolify auto-deploy |
 
 ## Quick Start
 
 ### Local Development
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Set environment variables
 export DB_URL=postgresql://user:pass@host:5432/dbname
-
-# Run the app
 python main.py
 # Access at http://localhost:5009
 ```
@@ -55,14 +54,7 @@ python main.py
 
 ```bash
 docker compose up --build
-# Access at http://localhost:5009
 ```
-
-### Default Admin
-
-- URL: `http://localhost:5009/admin`
-- Email: `admin@kanvas.ai`
-- Password: `admin123`
 
 ## Project Structure
 
@@ -70,83 +62,40 @@ docker compose up --build
 kanvas/
 ├── main.py                 # App entry point, routes, auth
 ├── db.py                   # SQLAlchemy engine & session
-├── models.py               # Data models (Artwork, Investment, etc.)
-├── components/
-│   └── layout.py           # Design system, nav, footer
-├── pages/
-│   ├── home.py             # Landing page
-│   ├── how_it_works.py     # Process explanation
-│   ├── investors.py        # Investor info
-│   ├── artists.py          # Artist/gallery info
-│   ├── about.py            # About page
-│   └── contact.py          # Contact page
-├── admin/
-│   └── views.py            # Admin CRUD interface
-├── api/
-│   └── routes.py           # JSON API endpoints
-├── sql/
-│   └── schema.sql          # Full database DDL
-├── tasks/
-│   └── seed_artworks.py    # Seed sample artworks & FAQs
-├── tests/
-│   └── test_api_endpoints.py
-├── Dockerfile              # Production container
-├── docker-compose.yml      # Docker stack
-└── requirements.txt        # Python dependencies
+├── models.py               # Data models
+├── components/layout.py    # Navbar, footer, page wrapper
+├── pages/                  # Landing pages (home, investors, artists, about, contact)
+├── chat/                   # AI chat UI (components, routes, layout, SSE, market map)
+├── agents/                 # LangGraph ReAct agents (8 specialists)
+├── tools/                  # Agent tools (SQL query, news, auctions, web search)
+├── game/                   # Art Guru RPG (engine, prompts, routes)
+├── prompts/system/         # Agent system prompts (markdown)
+├── scripts/scrapers/       # Playwright scrapers for 7 auction galleries
+├── utils/                  # i18n, config, LLM factory, version
+├── sql/                    # Schema DDL + schema.json for text-to-SQL
+├── admin/                  # Admin CRUD interface
+├── api/                    # JSON API endpoints
+├── static/                 # CSS, JS
+├── .github/workflows/      # CI/CD pipeline
+├── Dockerfile
+├── docker-compose.yml
+└── requirements.txt
 ```
-
-## API Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/health` | Health check |
-| `GET /api/stats` | Platform statistics |
-| `GET /api/artworks` | List active artworks |
-| `GET /api/artworks/{id}` | Artwork details |
-| `GET /api/opportunities` | Open investment opportunities |
-| `GET /api/opportunities/{id}` | Opportunity details |
-| `GET /api/faqs` | Active FAQs |
 
 ## Database
 
-The app uses PostgreSQL with a dedicated `kanvas` schema. Tables are auto-created on startup via SQLAlchemy, or you can apply the DDL manually:
+PostgreSQL with `kanvas` schema. Key tables:
 
-```bash
-psql -h host -U user -d dbname -f sql/schema.sql
-```
+- **auction_lots** — 11,000+ lots from 7 providers with prices, artist, technique, dimensions
+- **users** — investors, artists, admins
+- **artworks** — art pieces with provenance and valuation
+- **chat_sessions / chat_messages** — conversation history
 
-### Models
+## Deployment
 
-- **User** - Investors, artists, admins
-- **Gallery** - Galleries and dealers
-- **Artwork** - Art pieces with provenance and valuation
-- **InvestmentOpportunity** - Fractional ownership campaigns
-- **Investment** - Individual investments
-- **ProjectUpdate** - Valuation and status updates
-- **Repayment** - Return distributions
-- **Dividend** - Dividend payments
-- **Payment** - Transaction records
-- **SecondaryMarket** - Position trading
-- **AutoInvest** - Automated investing rules
-- **InvestorVoting / UserVote** - Governance
-- **Notification** - User notifications
-- **FAQ** - Platform FAQs
+CI/CD: push to `main` triggers GitHub Actions, which calls Coolify webhook for auto-deploy (~90s).
 
-## Deployment (Coolify)
-
-1. Connect the GitHub repo in Coolify
-2. Set build pack to **Dockerfile**
-3. Set environment variables:
-   - `DB_URL` - PostgreSQL connection string
-   - `PORT` - Server port (default: 5009)
-4. Deploy
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DB_URL` | *(required)* | PostgreSQL connection string |
-| `PORT` | `5009` | Server port |
+Live at [kanvas.ai](https://kanvas.ai)
 
 ## License
 

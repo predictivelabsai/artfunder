@@ -14,12 +14,12 @@ ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "screenshots"
 OUT_GIF = ROOT / "docs" / "kanvas.gif"
 
-# App-focused tour — skips landing pages (the GIF lives on the landing page).
+# App-focused tour — no home page (the GIF lives on the home page).
 FRAMES = [
-    ("01-home-full.png",           2500),
-    ("05-chat-empty.png",          2000),
-    ("05-chat-with-news.png",      3000),
-    ("12-market-map.png",          3000),
+    ("gif-01-chat.png",        4000),   # Chat with market analyst response
+    ("gif-02-art-guru.png",    4000),   # Art Guru RPG gameplay
+    ("gif-03-market-map.png",  3500),   # Interactive treemap
+    ("gif-04-trends.png",      3500),   # Price trends chart
 ]
 
 TARGET_W = 1200
