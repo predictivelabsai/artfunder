@@ -144,6 +144,70 @@ sources:
       Covers Stockholms Auktionsverk + Uppsala Auktionskammare post-2021.
       Search: /en/search?is=ended&category_id=1 (Fine Art)
 
+  # === DENMARK ===
+  - name: Bruun Rasmussen
+    slug: bruun_rasmussen
+    country: DK
+    url: https://bruun-rasmussen.dk
+    scraper: scripts/scrapers/bruun_rasmussen.py
+    status: active
+    lots_estimate: 75000
+    year_range: [2012, 2026]
+    notes: >
+      Denmark's largest auction house. 75K+ items/year.
+      Categories at /m/categories/{id}?status=sold. JS-rendered prices (needs Playwright).
+
+  # === NORWAY ===
+  - name: Grev Wedels Plass Auksjoner
+    slug: gwpa
+    country: "NO"
+    url: https://gwpa.no
+    scraper: scripts/scrapers/gwpa.py
+    status: active
+    lots_estimate: 5000
+    year_range: [1994, 2026]
+    notes: >
+      Norway's premier auction house since 1994. /en/auctions/{id}.
+      Public hammer prices in NOK, no anti-bot.
+
+  - name: Christiania Auksjoner
+    slug: christiania
+    country: "NO"
+    url: https://christiania-auksjoner.no
+    scraper: scripts/scrapers/christiania.py
+    status: planned
+    lots_estimate: 5000
+    year_range: [2009, 2026]
+    notes: >
+      55 auctions, "Tilslag" (hammer price) shown per lot.
+      /auksjoner/{slug} pattern, no anti-bot.
+
+  # === NETHERLANDS ===
+  - name: Kunstveiling.nl
+    slug: kunstveiling
+    country: NL
+    url: https://www.kunstveiling.nl
+    scraper: scripts/scrapers/kunstveiling.py
+    status: active
+    lots_estimate: 500000
+    year_range: [2010, 2026]
+    notes: >
+      Netherlands' largest online art auction. 500K+ items.
+      Paginated results at /en/auction-results/list?offset=N.
+
+  # === UK ===
+  - name: Bonhams
+    slug: bonhams
+    country: GB
+    url: https://www.bonhams.com
+    scraper: scripts/scrapers/bonhams.py
+    status: active
+    lots_estimate: 100000
+    year_range: [2000, 2026]
+    notes: >
+      Major UK auction house. Public results at /auctions/results/.
+      Light anti-bot protection. Prices in GBP.
+
 # Image storage plan (future):
 # - Primary: Cloudflare R2 (free egress, S3-compatible, $0.015/GB/mo)
 # - Alternative: Backblaze B2 ($0.006/GB/mo, free egress via Cloudflare)
