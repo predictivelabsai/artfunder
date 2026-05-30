@@ -35,11 +35,15 @@ kanvas.artworks (
 )
 
 kanvas.auction_lots (
-    id, auction_date BIGINT (year), author, start_price BIGINT (EUR),
-    end_price BIGINT (EUR), year BIGINT (year created), decade BIGINT,
-    tech (technique e.g. 'Oil on canvas'), category (e.g. 'Oil paint'),
-    dimension DOUBLE PRECISION (area cm2), auction_provider ('allee' or 'haus')
+    id, auction_date BIGINT (auction year), author VARCHAR, title VARCHAR,
+    start_price BIGINT (EUR), end_price BIGINT (EUR, 0 if unsold),
+    year BIGINT (year created), decade BIGINT,
+    tech VARCHAR (technique e.g. 'Oil on canvas'), category VARCHAR (e.g. 'Oil paint'),
+    dimension DOUBLE PRECISION (area cm2),
+    auction_provider VARCHAR ('haus','allee','vaal','vernissage','artandtonic'),
+    auction_name VARCHAR, bid_count INT, sold BOOLEAN, lot_number INT
 )
+-- 10,000+ lots from 5 Estonian galleries (1998-2026)
 
 kanvas.investment_opportunities (
     id, artwork_id, name, funding_goal, amount_raised,

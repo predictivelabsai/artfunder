@@ -5,9 +5,10 @@ from agents.registry import AGENTS_BY_SLUG
 from tools.search import web_search
 from tools.auctions import search_auction_lots, artist_auction_history
 from tools.charts import treemap_chart, price_trend_chart
+from tools.sql_query import art_market_query
 
 SPEC = AGENTS_BY_SLUG["market_analyst"]
-TOOLS = [web_search, search_auction_lots, artist_auction_history, treemap_chart, price_trend_chart]
+TOOLS = [art_market_query, search_auction_lots, artist_auction_history, treemap_chart, price_trend_chart, web_search]
 
 
 @lru_cache(maxsize=1)

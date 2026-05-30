@@ -21,7 +21,7 @@ class SearchLotsArgs(BaseModel):
     author: Optional[str] = Field(default=None, description="Artist name to search for.")
     category: Optional[str] = Field(default=None, description="Art category (e.g. Oil paint, Other paint).")
     tech: Optional[str] = Field(default=None, description="Technique (e.g. Oil on canvas, Watercolour).")
-    provider: Optional[str] = Field(default=None, description="Auction provider: allee or haus.")
+    provider: Optional[str] = Field(default=None, description="Auction provider: haus, allee, vaal, vernissage, or artandtonic.")
     min_price: Optional[int] = Field(default=None, description="Minimum end price in EUR.")
     max_price: Optional[int] = Field(default=None, description="Maximum end price in EUR.")
     limit: int = Field(default=20, ge=1, le=100)
