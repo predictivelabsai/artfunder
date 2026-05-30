@@ -96,17 +96,9 @@ def NavBar(active='home', sess=None):
             Div(
                 _lang_switcher(lang),
                 cta,
-                Button('☰',
-                       cls='lg:hidden bg-transparent border-none text-black text-xl cursor-pointer ml-1',
-                       onclick="document.getElementById('nav-mobile').classList.toggle('hidden')"),
                 cls='flex items-center gap-3',
             ),
             cls='max-w-7xl mx-auto px-5 flex items-center justify-between h-16 gap-4',
-        ),
-        Div(
-            *[A(l, href=h, cls='block px-5 py-2.5 text-sm text-gray-500 hover:text-black hover:bg-gray-50 no-underline') for _, h, l in nav_items],
-            id='nav-mobile',
-            cls='hidden lg:hidden border-t border-gray-100 bg-white py-2',
         ),
         Script("""document.addEventListener('click', function(e) {
             var dd = e.target.closest('.relative');
