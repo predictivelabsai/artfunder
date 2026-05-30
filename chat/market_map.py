@@ -38,18 +38,26 @@ def _fetch_treemap_data(provider=None):
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        where = "WHERE auction_provider = :provider" if provider else ""
-        params = {"provider": provider} if provider else {}
+        where = "WHERE end_price > 0"
+        params = {}
+        if provider:
+            where += " AND auction_provider = :provider"
+            params["provider"] = provider
         sql = text(f"""
-            SELECT author, tech, category,
+            SELECT author,
+                   COALESCE(NULLIF(tech, ''), 'Unknown') as tech,
+                   COALESCE(NULLIF(category, ''), 'Other') as category,
                    SUM(end_price) as total_sales,
                    AVG(CASE WHEN start_price > 0
                        THEN (end_price - start_price)::float / start_price * 100
                        ELSE 0 END) as overbid_pct
             FROM kanvas.auction_lots
             {where}
-            GROUP BY author, tech, category
-            HAVING SUM(end_price) > 0
+            GROUP BY author, COALESCE(NULLIF(tech, ''), 'Unknown'),
+                     COALESCE(NULLIF(category, ''), 'Other')
+            HAVING SUM(end_price) > 500
+            ORDER BY total_sales DESC
+            LIMIT 200
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, params)]
         return rows

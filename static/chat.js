@@ -437,20 +437,18 @@
 
     document.querySelectorAll(".msg-bubble").forEach(b => enhanceTables(b));
 
-    /* ── News polling ─────────────────────────────────────────── */
-    (function startNewsPolling() {
+    /* ── News: lazy load + polling ───────────────────────────── */
+    (function startNews() {
         const intervalEl = document.getElementById("news-interval");
         const seconds = intervalEl ? parseInt(intervalEl.textContent, 10) : 1800;
-        if (!seconds || seconds < 60) return;
 
-        setInterval(async () => {
+        async function refreshNews() {
             try {
                 const r = await fetch("/api/news");
                 if (!r.ok) return;
                 const data = await r.json();
                 const container = document.getElementById("artifact-empty");
                 if (!container || !data.items || !data.items.length) return;
-
                 container.innerHTML = data.items.map(it => `
                     <div class="py-3 border-b border-gray-50">
                         <a href="${it.url || '#'}" target="_blank"
@@ -463,7 +461,10 @@
                     </div>
                 `).join('');
             } catch (e) { /* silent */ }
-        }, seconds * 1000);
+        }
+
+        refreshNews();
+        if (seconds >= 60) setInterval(refreshNews, seconds * 1000);
     })();
 
     window.sendMessage = sendMessage;

@@ -201,29 +201,6 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
 
 
 def right_pane(lang: str = "en"):
-    from tools.news import fetch_art_news
-    news_items = []
-    try:
-        news_items = fetch_art_news(max_items=10)
-    except Exception:
-        pass
-
-    news_els = []
-    for item in news_items:
-        news_els.append(
-            Div(
-                A(item.get("title", "Untitled"), href=item.get("url", "#"), target="_blank",
-                  cls="text-sm font-medium text-black no-underline hover:underline leading-snug block"),
-                Div(
-                    Span(item.get("source", ""), cls="text-[10px] font-medium text-gray-400"),
-                    Span(item.get("published", "")[:10], cls="text-[10px] text-gray-300") if item.get("published") else "",
-                    cls="flex gap-2 mt-1",
-                ),
-                P(item.get("snippet", ""), cls="text-xs text-gray-400 mt-1 leading-relaxed line-clamp-2") if item.get("snippet") else "",
-                cls="py-3 border-b border-gray-50",
-            )
-        )
-
     return Div(
         Div(
             H4(t("chat_news_title", lang), cls="artifact-title"),
@@ -231,7 +208,7 @@ def right_pane(lang: str = "en"):
             cls="artifact-header",
         ),
         Div(
-            *news_els if news_els else [P(t("js_loading_news", lang), cls="text-sm text-gray-400")],
+            P(t("js_loading_news", lang), cls="text-sm text-gray-400"),
             id="artifact-empty",
             cls="px-4 py-2 overflow-y-auto flex-1",
         ),
