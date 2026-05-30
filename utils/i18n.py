@@ -1,7 +1,9 @@
 """Internationalisation — session-based language with IP detection.
 
-Ported from plai/pehero. Kanvas supports 5 languages:
-en (English), et (Estonian), de (German), fr (French), sv (Swedish).
+Ported from plai/pehero. Kanvas supports 12 languages:
+en (English), et (Estonian), de (German), fr (French), sv (Swedish),
+lv (Latvian), no (Norwegian), da (Danish), pl (Polish),
+nl (Dutch), fi (Finnish), lt (Lithuanian).
 """
 
 from __future__ import annotations
@@ -20,6 +22,9 @@ LANGUAGES: dict[str, dict] = {
     "no": {"name": "Norwegian",  "native": "Norsk",      "flag": "\U0001f1f3\U0001f1f4"},
     "da": {"name": "Danish",     "native": "Dansk",      "flag": "\U0001f1e9\U0001f1f0"},
     "pl": {"name": "Polish",     "native": "Polski",     "flag": "\U0001f1f5\U0001f1f1"},
+    "nl": {"name": "Dutch",      "native": "Nederlands", "flag": "\U0001f1f3\U0001f1f1"},
+    "fi": {"name": "Finnish",    "native": "Suomi",      "flag": "\U0001f1eb\U0001f1ee"},
+    "lt": {"name": "Lithuanian", "native": "Lietuvių",  "flag": "\U0001f1f1\U0001f1f9"},
 }
 
 SUPPORTED_LANGS = set(LANGUAGES.keys())
@@ -108,6 +113,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Hjem",
         "da": "Hjem",
         "pl": "Strona główna",
+        "nl": "Home",
+        "fi": "Etusivu",
+        "lt": "Pradžia",
     },
     "nav_advisory": {
         "en": "Advisory", "et": "Nõustamine", "de": "Beratung",
@@ -116,6 +124,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Rådgivning",
         "da": "Rådgivning",
         "pl": "Doradztwo",
+        "nl": "Advies",
+        "fi": "Neuvonta",
+        "lt": "Konsultacijos",
     },
     "nav_collection": {
         "en": "Collection", "et": "Kogu", "de": "Sammlung",
@@ -124,6 +135,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Samling",
         "da": "Samling",
         "pl": "Kolekcja",
+        "nl": "Collectie",
+        "fi": "Kokoelma",
+        "lt": "Kolekcija",
     },
     "nav_artists": {
         "en": "Artists", "et": "Kunstnikud", "de": "Künstler",
@@ -132,6 +146,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kunstnere",
         "da": "Kunstnere",
         "pl": "Artyści",
+        "nl": "Kunstenaars",
+        "fi": "Taiteilijat",
+        "lt": "Menininkai",
     },
     "nav_about": {
         "en": "About", "et": "Meist", "de": "Über uns",
@@ -140,6 +157,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Om oss",
         "da": "Om os",
         "pl": "O nas",
+        "nl": "Over ons",
+        "fi": "Tietoa",
+        "lt": "Apie mus",
     },
     "nav_art_index": {
         "en": "Art Index", "et": "Kunstiindeks", "de": "Kunstindex",
@@ -148,6 +168,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kunstindeks",
         "da": "Kunstindeks",
         "pl": "Indeks sztuki",
+        "nl": "Kunstindex",
+        "fi": "Taideindeksi",
+        "lt": "Meno indeksas",
     },
     "nav_contact": {
         "en": "Contact", "et": "Kontakt", "de": "Kontakt",
@@ -156,6 +179,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kontakt",
         "da": "Kontakt",
         "pl": "Kontakt",
+        "nl": "Contact",
+        "fi": "Yhteystiedot",
+        "lt": "Kontaktai",
     },
     "nav_open_app": {
         "en": "Open App", "et": "Ava rakendus", "de": "App öffnen",
@@ -164,6 +190,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Åpne appen",
         "da": "Åbn appen",
         "pl": "Otwórz aplikację",
+        "nl": "App openen",
+        "fi": "Avaa sovellus",
+        "lt": "Atidaryti programą",
     },
     "nav_login": {
         "en": "Login", "et": "Logi sisse", "de": "Anmelden",
@@ -172,6 +201,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Logg inn",
         "da": "Log ind",
         "pl": "Zaloguj się",
+        "nl": "Inloggen",
+        "fi": "Kirjaudu sisään",
+        "lt": "Prisijungti",
     },
     "nav_logout": {
         "en": "Log Out", "et": "Logi välja", "de": "Abmelden",
@@ -180,6 +212,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Logg ut",
         "da": "Log ud",
         "pl": "Wyloguj się",
+        "nl": "Uitloggen",
+        "fi": "Kirjaudu ulos",
+        "lt": "Atsijungti",
     },
 
     # ── Hero ──────────────────────────────────────────────────
@@ -193,6 +228,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Din AI-kunstrådgiver.",
         "da": "Din AI-kunstrådgiver.",
         "pl": "Twój doradca artystyczny AI.",
+        "nl": "Uw AI-kunstadviseur.",
+        "fi": "AI-taideneuvojasi.",
+        "lt": "Jūsų AI meno patarėjas.",
     },
     "hero_h2": {
         "en": "Track, value, and grow your collection.",
@@ -204,6 +242,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Spor, verdivurder og utvikle samlingen din.",
         "da": "Spor, vurder og udvid din samling.",
         "pl": "Śledź, wyceniaj i rozwijaj swoją kolekcję.",
+        "nl": "Volg, waardeer en laat uw collectie groeien.",
+        "fi": "Seuraa, arvota ja kasvata kokoelmaasi.",
+        "lt": "Sekite, vertinkite ir plėskite savo kolekciją.",
     },
     "hero_body": {
         "en": "AI-powered art advisory combining market intelligence, auction analytics, and collection management. From artist research to acquisition strategy.",
@@ -215,6 +256,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "AI-drevet kunstrådgivning som kombinerer markedsintelligens, auksjonsanalyse og samlingsforvaltning. Fra kunstnerforskning til anskaffelsesstrategi.",
         "da": "AI-drevet kunstrådgivning der kombinerer markedsintelligens, auktionsanalyse og samlingsforvaltning. Fra kunstnerforskning til anskaffelsesstrategi.",
         "pl": "Doradztwo artystyczne wspierane przez AI łączące analizę rynku, analitykę aukcyjną i zarządzanie kolekcją. Od badania artystów po strategię akwizycji.",
+        "nl": "AI-gestuurde kunstadvisering die marktintelligentie, veilinganalyse en collectiebeheer combineert. Van kunstenaarsonderzoek tot acquisitiestrategie.",
+        "fi": "Tekoälypohjainen taideneuvonta yhdistää markkinatiedon, huutokauppa-analytiikan ja kokoelmienhallinnan. Taiteilijatutkimuksesta hankintastrategiaan.",
+        "lt": "Dirbtinio intelekto valdomas meno konsultavimas, jungiantis rinkos žvalgybą, aukcionų analitiką ir kolekcijų valdymą. Nuo menininkų tyrimų iki įsigijimo strategijos.",
     },
     "hero_cta_start": {
         "en": "Start Advisory Session", "et": "Alusta nõustamist",
@@ -224,6 +268,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Start rådgivning",
         "da": "Start rådgivning",
         "pl": "Rozpocznij sesję",
+        "nl": "Adviesgesprek starten",
+        "fi": "Aloita neuvontaistunto",
+        "lt": "Pradėti konsultaciją",
     },
     "hero_cta_explore": {
         "en": "Explore Collection", "et": "Avasta kogu",
@@ -233,6 +280,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Utforsk samlingen",
         "da": "Udforsk samlingen",
         "pl": "Odkryj kolekcję",
+        "nl": "Collectie verkennen",
+        "fi": "Tutustu kokoelmaan",
+        "lt": "Naršyti kolekciją",
     },
 
     # ── Features ──────────────────────────────────────────────
@@ -243,6 +293,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Rådgivning",
         "da": "Rådgivning",
         "pl": "Doradztwo",
+        "nl": "Advies",
+        "fi": "Neuvonta",
+        "lt": "Konsultacijos",
     },
     "feat_advisory_body": {
         "en": "AI-powered recommendations from 8 specialist agents. Research artists, compare market performance, and get acquisition advice tailored to your goals.",
@@ -254,6 +307,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "AI-drevne anbefalinger fra 8 spesialistagenter. Forsk på kunstnere, sammenlign markedsprestasjon og få tilpassede anskaffelsesråd.",
         "da": "AI-drevne anbefalinger fra 8 specialistagenter. Forsk i kunstnere, sammenlign markedspræstationer og få tilpassede anskaffelsesråd.",
         "pl": "Rekomendacje AI od 8 wyspecjalizowanych agentów. Badaj artystów, porównuj wyniki rynkowe i otrzymuj dopasowane porady zakupowe.",
+        "nl": "AI-gestuurde aanbevelingen van 8 gespecialiseerde agenten. Onderzoek kunstenaars, vergelijk marktprestaties en ontvang aankoopadvies op maat.",
+        "fi": "Tekoälypohjaiset suositukset 8 erikoistuneelta agentilta. Tutki taiteilijoita, vertaile markkinoiden suorituskykyä ja saa tavoitteisiisi räätälöityjä hankintaneuvoja.",
+        "lt": "Dirbtinio intelekto rekomendacijos iš 8 specializuotų agentų. Tyrinėkite menininkus, lyginkite rinkos rezultatus ir gaukite pirkimo patarimus pagal savo tikslus.",
     },
     "feat_advisory_link": {
         "en": "Start a conversation", "et": "Alusta vestlust",
@@ -263,6 +319,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Start en samtale",
         "da": "Start en samtale",
         "pl": "Rozpocznij rozmowę",
+        "nl": "Start een gesprek",
+        "fi": "Aloita keskustelu",
+        "lt": "Pradėti pokalbį",
     },
     "feat_market": {
         "en": "Market Intelligence", "et": "Turuluure",
@@ -272,6 +331,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Markedsintelligens",
         "da": "Markedsintelligens",
         "pl": "Analiza rynku",
+        "nl": "Marktintelligentie",
+        "fi": "Markkinatieto",
+        "lt": "Rinkos žvalgyba",
     },
     "feat_market_body": {
         "en": "Real-time auction analytics, price trend visualizations, and sector heat maps. Track Estonian and international art markets with interactive Plotly charts.",
@@ -283,6 +345,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Sanntids auksjonsanalyse, pristrendvisualiseringer og sektorvarmekart. Følg estiske og internasjonale kunstmarkeder.",
         "da": "Realtids auktionsanalyse, pristendvisualiseringer og sektorvarmekort. Følg estiske og internationale kunstmarkeder.",
         "pl": "Analityka aukcyjna w czasie rzeczywistym, wizualizacje trendów cenowych i mapy cieplne sektorów. Śledź estoński i międzynarodowy rynek sztuki.",
+        "nl": "Realtime veilinganalyse, prijstrendvisualisaties en sectorheatmaps. Volg Estse en internationale kunstmarkten met interactieve Plotly-grafieken.",
+        "fi": "Reaaliaikainen huutokauppa-analytiikka, hintatrendien visualisoinnit ja sektorien lämpökartat. Seuraa virolaisia ja kansainvälisiä taidemarkkinoita interaktiivisilla Plotly-kaavioilla.",
+        "lt": "Realaus laiko aukcionų analitika, kainų tendencijų vizualizacijos ir sektorių šilumos žemėlapiai. Sekite Estijos ir tarptautines meno rinkas su interaktyviomis Plotly diagramomis.",
     },
     "feat_market_link": {
         "en": "View market map", "et": "Vaata turukaart",
@@ -292,6 +357,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Se markedskart",
         "da": "Se markedskort",
         "pl": "Zobacz mapę rynku",
+        "nl": "Marktkaart bekijken",
+        "fi": "Näytä markkina­kartta",
+        "lt": "Žiūrėti rinkos žemėlapį",
     },
     "feat_collection": {
         "en": "Collection Management", "et": "Kogu haldamine",
@@ -301,6 +369,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Samlingsforvaltning",
         "da": "Samlingsforvaltning",
         "pl": "Zarządzanie kolekcją",
+        "nl": "Collectiebeheer",
+        "fi": "Kokoelmienhallinta",
+        "lt": "Kolekcijų valdymas",
     },
     "feat_collection_body": {
         "en": "Track your portfolio, manage fractional ownership positions, and monitor artwork valuations. Diversification analysis and rebalancing suggestions.",
@@ -312,6 +383,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Spor porteføljen din, administrer delt eierskap og overvåk kunstverkvurderinger.",
         "da": "Spor din portefølje, administrer delt ejerskab og overvåg kunstværksvurderinger.",
         "pl": "Śledź swój portfel, zarządzaj pozycjami ułamkowej własności i monitoruj wyceny dzieł sztuki.",
+        "nl": "Volg uw portfolio, beheer fractionele eigendomsposities en monitor kunstwaarderingen. Diversificatieanalyse en herbalanceringsuggesties.",
+        "fi": "Seuraa salkkuasi, hallitse murto-omistuspositioita ja seuraa taideteosten arvostuksia. Hajautusanalyysi ja tasapainotussuositukset.",
+        "lt": "Sekite savo portfelį, valdykite dalinės nuosavybės pozicijas ir stebėkite kūrinių vertinimus. Diversifikacijos analizė ir perbalansuojimo pasiūlymai.",
     },
     "feat_collection_link": {
         "en": "View collection", "et": "Vaata kogu",
@@ -321,6 +395,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Se samling",
         "da": "Se samling",
         "pl": "Zobacz kolekcję",
+        "nl": "Collectie bekijken",
+        "fi": "Näytä kokoelma",
+        "lt": "Žiūrėti kolekciją",
     },
 
     # ── How It Works ──────────────────────────────────────────
@@ -332,6 +409,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Slik fungerer det",
         "da": "Sådan fungerer det",
         "pl": "Jak to działa",
+        "nl": "Hoe het werkt",
+        "fi": "Näin se toimii",
+        "lt": "Kaip tai veikia",
     },
     "how_subtitle": {
         "en": "Three steps to smarter art collecting.",
@@ -343,6 +423,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Tre steg til smartere kunstsamling.",
         "da": "Tre trin til smartere kunstsamling.",
         "pl": "Trzy kroki do mądrzejszego kolekcjonowania sztuki.",
+        "nl": "Drie stappen naar slimmer kunstverzamelen.",
+        "fi": "Kolme askelta älykkäämpään taiteen keräilyyn.",
+        "lt": "Trys žingsniai prie protingesnio meno kolekcionavimo.",
     },
     "how_01_title": {
         "en": "Ask", "et": "Küsi", "de": "Fragen",
@@ -351,6 +434,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Spør",
         "da": "Spørg",
         "pl": "Zapytaj",
+        "nl": "Vraag",
+        "fi": "Kysy",
+        "lt": "Paklauskite",
     },
     "how_01_body": {
         "en": "Ask any question about an artist, artwork, market trend, or collection strategy. Our AI routes your query to the right specialist agent.",
@@ -362,6 +448,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Still et spørsmål om en kunstner, kunstverk, markedstrend eller samlingsstrategi.",
         "da": "Stil et spørgsmål om en kunstner, kunstværk, markedstendens eller samlingsstrategi.",
         "pl": "Zadaj dowolne pytanie o artystę, dzieło sztuki, trend rynkowy lub strategię kolekcjonerską.",
+        "nl": "Stel een vraag over een kunstenaar, kunstwerk, markttrend of verzamelstrategie. Onze AI stuurt uw vraag naar de juiste specialistagent.",
+        "fi": "Kysy mitä tahansa taiteilijasta, taideteoksesta, markkinatrendistä tai kokoelmastrategiasta. Tekoälymme ohjaa kysymyksesi oikealle erikoisagentille.",
+        "lt": "Užduokite bet kokį klausimą apie menininką, kūrinį, rinkos tendenciją ar kolekcijos strategiją. Mūsų AI nukreipia užklausą tinkamam specializuotam agentui.",
     },
     "how_02_title": {
         "en": "Analyze", "et": "Analüüsi", "de": "Analysieren",
@@ -370,6 +459,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Analyser",
         "da": "Analyser",
         "pl": "Analizuj",
+        "nl": "Analyseer",
+        "fi": "Analysoi",
+        "lt": "Analizuokite",
     },
     "how_02_body": {
         "en": "The agent searches auction databases, scrapes market data, and generates visualizations. Results stream in real-time with full transparency.",
@@ -381,6 +473,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Agenten søker i auksjonsdatabaser, samler markedsdata og lager visualiseringer. Resultater strømmes i sanntid.",
         "da": "Agenten søger i auktionsdatabaser, indsamler markedsdata og skaber visualiseringer. Resultater streames i realtid.",
         "pl": "Agent przeszukuje bazy danych aukcyjnych, zbiera dane rynkowe i tworzy wizualizacje. Wyniki są strumieniowane w czasie rzeczywistym.",
+        "nl": "De agent doorzoekt veilingdatabases, verzamelt marktgegevens en genereert visualisaties. Resultaten worden realtime gestreamd met volledige transparantie.",
+        "fi": "Agentti etsii huutokauppatietokannoista, kerää markkinadataa ja luo visualisointeja. Tulokset suoratoistetaan reaaliajassa täydellä läpinäkyvyydellä.",
+        "lt": "Agentas ieško aukcionų duomenų bazėse, renka rinkos duomenis ir kuria vizualizacijas. Rezultatai transliuojami realiu laiku su visišku skaidrumu.",
     },
     "how_03_title": {
         "en": "Act", "et": "Tegutse", "de": "Handeln",
@@ -389,6 +484,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Handle",
         "da": "Handl",
         "pl": "Działaj",
+        "nl": "Handel",
+        "fi": "Toimi",
+        "lt": "Veikite",
     },
     "how_03_body": {
         "en": "Get actionable recommendations: buy, hold, or diversify. Track acquisitions in your portfolio with ongoing valuation updates.",
@@ -400,6 +498,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Få handlingsbare anbefalinger: kjøp, hold eller diversifiser.",
         "da": "Få handlingsorienterede anbefalinger: køb, hold eller diversificer.",
         "pl": "Otrzymaj praktyczne rekomendacje: kup, trzymaj lub dywersyfikuj.",
+        "nl": "Ontvang bruikbare aanbevelingen: kopen, vasthouden of diversifiëren. Volg aankopen in uw portfolio met doorlopende waarde-updates.",
+        "fi": "Saa toimintakelpoisia suosituksia: osta, pidä tai hajauta. Seuraa hankintoja salkussasi jatkuvilla arvostuspäivityksillä.",
+        "lt": "Gaukite veiksmingas rekomendacijas: pirkti, laikyti ar diversifikuoti. Sekite įsigijimus savo portfelyje su nuolatiniais vertinimo atnaujinimais.",
     },
 
     # ── Agents Preview ────────────────────────────────────────
@@ -411,6 +512,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "8 spesialistagenter",
         "da": "8 specialistagenter",
         "pl": "8 wyspecjalizowanych agentów",
+        "nl": "8 gespecialiseerde agenten",
+        "fi": "8 erikoistunutta agenttia",
+        "lt": "8 specializuoti agentai",
     },
     "agents_subtitle": {
         "en": "Each trained for a specific aspect of art advisory.",
@@ -422,6 +526,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Hver trent for en spesifikk del av kunstrådgivning.",
         "da": "Hver trænet til et specifikt aspekt af kunstrådgivning.",
         "pl": "Każdy wyszkolony w konkretnym aspekcie doradztwa artystycznego.",
+        "nl": "Elk getraind voor een specifiek aspect van kunstadvies.",
+        "fi": "Jokainen koulutettu tiettyyn taideneuvonnan osa-alueeseen.",
+        "lt": "Kiekvienas apmokytas konkrečiam meno konsultavimo aspektui.",
     },
 
     # ── Stats ─────────────────────────────────────────────────
@@ -433,6 +540,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Gj.sn. nettoavkastning",
         "da": "Gns. nettoafkast",
         "pl": "Śr. zwrot netto",
+        "nl": "Gem. nettorendement",
+        "fi": "Keskim. nettotuotto",
+        "lt": "Vid. grynasis pelnas",
     },
     "stat_distributions": {
         "en": "Investor Distributions", "et": "Investori väljamaksed",
@@ -442,6 +552,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Investordistribusjoner",
         "da": "Investordistributioner",
         "pl": "Wypłaty inwestorów",
+        "nl": "Beleggersuitkeringen",
+        "fi": "Sijoittajajaot",
+        "lt": "Investuotojų išmokos",
     },
     "stat_aum": {
         "en": "Art Under Management", "et": "Hallatav kunst",
@@ -451,6 +564,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kunst under forvaltning",
         "da": "Kunst under forvaltning",
         "pl": "Sztuka pod zarządzaniem",
+        "nl": "Kunst onder beheer",
+        "fi": "Hallinnassa oleva taide",
+        "lt": "Valdomas menas",
     },
     "stat_collectors": {
         "en": "Collectors", "et": "Kogujad", "de": "Sammler",
@@ -459,6 +575,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Samlere",
         "da": "Samlere",
         "pl": "Kolekcjonerzy",
+        "nl": "Verzamelaars",
+        "fi": "Keräilijät",
+        "lt": "Kolekcionieriai",
     },
     "stat_artworks": {
         "en": "Artworks Funded", "et": "Rahastatud teosed",
@@ -468,6 +587,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Finansierte kunstverk",
         "da": "Finansierede kunstværker",
         "pl": "Sfinansowane dzieła",
+        "nl": "Gefinancierde kunstwerken",
+        "fi": "Rahoitetut taideteokset",
+        "lt": "Finansuoti kūriniai",
     },
     "stat_countries": {
         "en": "Countries", "et": "Riigid", "de": "Länder",
@@ -476,6 +598,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Land",
         "da": "Lande",
         "pl": "Kraje",
+        "nl": "Landen",
+        "fi": "Maat",
+        "lt": "Šalys",
     },
 
     # ── CTA ───────────────────────────────────────────────────
@@ -489,6 +614,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Begynn å samle smartere.",
         "da": "Begynd at samle smartere.",
         "pl": "Zacznij kolekcjonować mądrzej.",
+        "nl": "Begin slimmer te verzamelen.",
+        "fi": "Aloita älykkäämpi keräily.",
+        "lt": "Pradėkite kolekcionuoti protingiau.",
     },
     "cta_body": {
         "en": "Join over 12,000 European collectors using AI-powered art advisory.",
@@ -500,6 +628,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Bli med over 12 000 europeiske samlere som bruker AI-drevet kunstrådgivning.",
         "da": "Slut dig til over 12.000 europæiske samlere der bruger AI-drevet kunstrådgivning.",
         "pl": "Dołącz do ponad 12 000 europejskich kolekcjonerów korzystających z doradztwa artystycznego AI.",
+        "nl": "Sluit u aan bij meer dan 12.000 Europese verzamelaars die AI-gestuurd kunstadvies gebruiken.",
+        "fi": "Liity yli 12 000 eurooppalaisen keräilijän joukkoon, jotka käyttävät tekoälypohjaista taideneuvontaa.",
+        "lt": "Prisijunkite prie daugiau nei 12 000 Europos kolekcininkų, naudojančių AI meno konsultacijas.",
     },
     "cta_create_account": {
         "en": "Create Account", "et": "Loo konto", "de": "Konto erstellen",
@@ -508,6 +639,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Opprett konto",
         "da": "Opret konto",
         "pl": "Utwórz konto",
+        "nl": "Account aanmaken",
+        "fi": "Luo tili",
+        "lt": "Sukurti paskyrą",
     },
 
     # ── Partners ──────────────────────────────────────────────
@@ -518,6 +652,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Støttet av",
         "da": "Støttet af",
         "pl": "Wspierany przez",
+        "nl": "Ondersteund door",
+        "fi": "Tukija",
+        "lt": "Remia",
     },
 
     # ── Footer ────────────────────────────────────────────────
@@ -531,6 +668,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "AI-drevet plattform for kunstrådgivning og investering. Vi kobler samlere med ekspertkuraterte kunstverk og markedsintelligens.",
         "da": "AI-drevet platform for kunstrådgivning og investering. Vi forbinder samlere med ekspertkuraterede kunstværker og markedsintelligens.",
         "pl": "Platforma doradztwa artystycznego i inwestycji wspierana AI. Łączymy kolekcjonerów z eksperckimi dziełami sztuki i analizą rynku.",
+        "nl": "AI-gestuurd platform voor kunstadvies en investeringen. Wij verbinden verzamelaars met deskundig samengestelde kunstwerken, marktintelligentie en fractioneel eigendom.",
+        "fi": "Tekoälypohjainen taideneuvonta- ja sijoitusalusta. Yhdistämme keräilijät asiantuntevasti kuratoituihin taideteoksiin, markkinatietoon ja murto-omistusmahdollisuuksiin.",
+        "lt": "Dirbtinio intelekto valdoma meno konsultavimo ir investicijų platforma. Jungiame kolekcininkus su profesionaliai atrinktais kūriniais, rinkos žvalgyba ir dalinės nuosavybės galimybėmis.",
     },
     "footer_platform": {
         "en": "Platform", "et": "Platvorm", "de": "Plattform",
@@ -539,6 +679,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Plattform",
         "da": "Platform",
         "pl": "Platforma",
+        "nl": "Platform",
+        "fi": "Alusta",
+        "lt": "Platforma",
     },
     "footer_resources": {
         "en": "Resources", "et": "Ressursid", "de": "Ressourcen",
@@ -547,6 +690,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Ressurser",
         "da": "Ressourcer",
         "pl": "Zasoby",
+        "nl": "Bronnen",
+        "fi": "Resurssit",
+        "lt": "Ištekliai",
     },
     "footer_legal": {
         "en": "Legal", "et": "Juriidiline", "de": "Rechtliches",
@@ -555,6 +701,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Juridisk",
         "da": "Juridisk",
         "pl": "Prawne",
+        "nl": "Juridisch",
+        "fi": "Oikeudellinen",
+        "lt": "Teisinė informacija",
     },
     "footer_for_artists": {
         "en": "For Artists", "et": "Kunstnikele", "de": "Für Künstler",
@@ -563,6 +712,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "For kunstnere",
         "da": "For kunstnere",
         "pl": "Dla artystów",
+        "nl": "Voor kunstenaars",
+        "fi": "Taiteilijoille",
+        "lt": "Menininkams",
     },
     "footer_terms": {
         "en": "Terms of Service", "et": "Teenuse tingimused",
@@ -572,6 +724,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Bruksvilkår",
         "da": "Brugsvilkår",
         "pl": "Regulamin",
+        "nl": "Servicevoorwaarden",
+        "fi": "Käyttöehdot",
+        "lt": "Paslaugų sąlygos",
     },
     "footer_privacy": {
         "en": "Privacy Policy", "et": "Privaatsuspoliitika",
@@ -581,6 +736,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Personvernregler",
         "da": "Privatlivspolitik",
         "pl": "Polityka prywatności",
+        "nl": "Privacybeleid",
+        "fi": "Tietosuojakäytäntö",
+        "lt": "Privatumo politika",
     },
     "footer_risk": {
         "en": "Risk Disclosures", "et": "Riskiavaldused",
@@ -590,6 +748,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Risikoopplysninger",
         "da": "Risikooplysninger",
         "pl": "Ujawnienia ryzyka",
+        "nl": "Risicoverklaringen",
+        "fi": "Riskitiedot",
+        "lt": "Rizikos atskleidimai",
     },
     "footer_copyright": {
         "en": "© 2026 Kanvas.ai. All rights reserved.",
@@ -601,6 +762,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "© 2026 Kanvas.ai. Alle rettigheter forbeholdt.",
         "da": "© 2026 Kanvas.ai. Alle rettigheder forbeholdes.",
         "pl": "© 2026 Kanvas.ai. Wszelkie prawa zastrzeżone.",
+        "nl": "© 2026 Kanvas.ai. Alle rechten voorbehouden.",
+        "fi": "© 2026 Kanvas.ai. Kaikki oikeudet pidätetään.",
+        "lt": "© 2026 Kanvas.ai. Visos teisės saugomos.",
     },
     "footer_disclaimer": {
         "en": "Art advisory and investment involve risk. Past performance does not guarantee future results.",
@@ -612,6 +776,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kunstrådgivning og investeringer innebærer risiko. Tidligere resultater garanterer ikke fremtidige resultater.",
         "da": "Kunstrådgivning og investeringer indebærer risiko. Tidligere resultater garanterer ikke fremtidige resultater.",
         "pl": "Doradztwo artystyczne i inwestycje wiążą się z ryzykiem. Wyniki historyczne nie gwarantują przyszłych rezultatów.",
+        "nl": "Kunstadvies en investeringen brengen risico's met zich mee. Resultaten uit het verleden bieden geen garantie voor toekomstige resultaten.",
+        "fi": "Taideneuvonta ja sijoittaminen sisältävät riskejä. Aiempi tuotto ei takaa tulevia tuloksia.",
+        "lt": "Meno konsultavimas ir investavimas susijęs su rizika. Ankstesni rezultatai negarantuoja būsimų rezultatų.",
     },
 
     # ── Chat UI ───────────────────────────────────────────────
@@ -622,6 +789,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "+ Ny chat",
         "da": "+ Ny chat",
         "pl": "+ Nowy czat",
+        "nl": "+ Nieuw gesprek",
+        "fi": "+ Uusi keskustelu",
+        "lt": "+ Naujas pokalbis",
     },
     "chat_history": {
         "en": "History", "et": "Ajalugu", "de": "Verlauf",
@@ -630,6 +800,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Historikk",
         "da": "Historik",
         "pl": "Historia",
+        "nl": "Geschiedenis",
+        "fi": "Historia",
+        "lt": "Istorija",
     },
     "chat_no_sessions": {
         "en": "No conversations yet.", "et": "Vestlused puuduvad.",
@@ -639,6 +812,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Ingen samtaler ennå.",
         "da": "Ingen samtaler endnu.",
         "pl": "Brak rozmów.",
+        "nl": "Nog geen gesprekken.",
+        "fi": "Ei keskusteluja vielä.",
+        "lt": "Pokalbių dar nėra.",
     },
     "chat_agents": {
         "en": "Agents", "et": "Agendid", "de": "Agenten",
@@ -647,6 +823,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Agenter",
         "da": "Agenter",
         "pl": "Agenci",
+        "nl": "Agenten",
+        "fi": "Agentit",
+        "lt": "Agentai",
     },
     "chat_sign_in": {
         "en": "Sign in", "et": "Logi sisse", "de": "Anmelden",
@@ -655,6 +834,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Logg inn",
         "da": "Log ind",
         "pl": "Zaloguj się",
+        "nl": "Inloggen",
+        "fi": "Kirjaudu sisään",
+        "lt": "Prisijungti",
     },
     "chat_sign_out": {
         "en": "Sign out", "et": "Logi välja", "de": "Abmelden",
@@ -663,6 +845,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Logg ut",
         "da": "Log ud",
         "pl": "Wyloguj się",
+        "nl": "Uitloggen",
+        "fi": "Kirjaudu ulos",
+        "lt": "Atsijungti",
     },
     "chat_welcome_title": {
         "en": "Kanvas.ai Art Advisor",
@@ -674,6 +859,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kanvas.ai kunstrådgiver",
         "da": "Kanvas.ai kunstrådgiver",
         "pl": "Kanvas.ai doradca artystyczny",
+        "nl": "Kanvas.ai Kunstadviseur",
+        "fi": "Kanvas.ai Taideneuvoja",
+        "lt": "Kanvas.ai Meno patarėjas",
     },
     "chat_welcome_body": {
         "en": "Ask about artists, market trends, valuations, or collection strategy.",
@@ -685,6 +873,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Spør om kunstnere, markedstrender, verdivurderinger eller samlingsstrategi.",
         "da": "Spørg om kunstnere, markedstendenser, vurderinger eller samlingsstrategi.",
         "pl": "Zapytaj o artystów, trendy rynkowe, wyceny lub strategię kolekcjonerską.",
+        "nl": "Vraag over kunstenaars, markttrends, waarderingen of verzamelstrategie.",
+        "fi": "Kysy taiteilijoista, markkinatrendeistä, arvostuksista tai kokoelmastrategiasta.",
+        "lt": "Klauskite apie menininkus, rinkos tendencijas, vertinimus ar kolekcijos strategiją.",
     },
     "chat_placeholder": {
         "en": "Ask about an artist, market trends, or get advisory...",
@@ -696,6 +887,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Spør om en kunstner, markedstrender eller få rådgivning...",
         "da": "Spørg om en kunstner, markedstendenser eller få rådgivning...",
         "pl": "Zapytaj o artystę, trendy rynkowe lub uzyskaj poradę...",
+        "nl": "Vraag over een kunstenaar, markttrends of krijg advies...",
+        "fi": "Kysy taiteilijasta, markkinatrendeistä tai saa neuvontaa...",
+        "lt": "Paklauskite apie menininką, rinkos tendencijas ar gaukite konsultaciją...",
     },
     "chat_copy": {
         "en": "Copy", "et": "Kopeeri", "de": "Kopieren",
@@ -704,6 +898,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kopier",
         "da": "Kopier",
         "pl": "Kopiuj",
+        "nl": "Kopiëren",
+        "fi": "Kopioi",
+        "lt": "Kopijuoti",
     },
     "chat_canvas": {
         "en": "Canvas", "et": "Lõuend", "de": "Leinwand",
@@ -712,6 +909,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Lerret",
         "da": "Lærred",
         "pl": "Płótno",
+        "nl": "Canvas",
+        "fi": "Kanvas",
+        "lt": "Drobė",
     },
     "chat_signin_title": {
         "en": "Sign in to Kanvas.ai",
@@ -723,6 +923,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Logg inn på Kanvas.ai",
         "da": "Log ind på Kanvas.ai",
         "pl": "Zaloguj się do Kanvas.ai",
+        "nl": "Inloggen bij Kanvas.ai",
+        "fi": "Kirjaudu sisään Kanvas.ai",
+        "lt": "Prisijungti prie Kanvas.ai",
     },
     "chat_signin_body": {
         "en": "Enter your email to save chat history.",
@@ -734,6 +937,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Skriv inn e-posten din for å lagre chatthistorikk.",
         "da": "Indtast din e-mail for at gemme chathistorik.",
         "pl": "Podaj e-mail, aby zapisać historię czatu.",
+        "nl": "Voer uw e-mailadres in om de chatgeschiedenis op te slaan.",
+        "fi": "Syötä sähköpostiosoitteesi tallentaaksesi keskusteluhistorian.",
+        "lt": "Įveskite el. paštą, kad išsaugotumėte pokalbių istoriją.",
     },
     "chat_cancel": {
         "en": "Cancel", "et": "Tühista", "de": "Abbrechen",
@@ -742,6 +948,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Avbryt",
         "da": "Annuller",
         "pl": "Anuluj",
+        "nl": "Annuleren",
+        "fi": "Peruuta",
+        "lt": "Atšaukti",
     },
     "chat_news_title": {
         "en": "Art News", "et": "Kunstiuudised", "de": "Kunstnachrichten",
@@ -750,6 +959,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kunstnyheter",
         "da": "Kunstnyheder",
         "pl": "Wiadomości o sztuce",
+        "nl": "Kunstnieuws",
+        "fi": "Taideuutiset",
+        "lt": "Meno naujienos",
     },
     "chat_news_subtitle": {
         "en": "Estonian & Baltic art market",
@@ -761,6 +973,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Estisk og baltisk kunstmarked",
         "da": "Estisk og baltisk kunstmarked",
         "pl": "Estoński i bałtycki rynek sztuki",
+        "nl": "Estse & Baltische kunstmarkt",
+        "fi": "Viron ja Baltian taidemarkkinat",
+        "lt": "Estijos ir Baltijos meno rinka",
     },
 
     # ── JS strings (prefixed js_ → exported without prefix) ──
@@ -771,6 +986,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Tenker",
         "da": "Tænker",
         "pl": "Myśli",
+        "nl": "Denkt na",
+        "fi": "Miettii",
+        "lt": "Mąsto",
     },
     "js_calling": {
         "en": "Calling", "et": "Kutsub", "de": "Ruft auf",
@@ -779,6 +997,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kaller",
         "da": "Kalder",
         "pl": "Wywołuje",
+        "nl": "Roept aan",
+        "fi": "Kutsuu",
+        "lt": "Kviečia",
     },
     "js_copy_csv": {
         "en": "Copy CSV", "et": "Kopeeri CSV", "de": "CSV kopieren",
@@ -787,6 +1008,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kopier CSV",
         "da": "Kopier CSV",
         "pl": "Kopiuj CSV",
+        "nl": "CSV kopiëren",
+        "fi": "Kopioi CSV",
+        "lt": "Kopijuoti CSV",
     },
     "js_download_csv": {
         "en": "Download CSV", "et": "Laadi CSV", "de": "CSV herunterladen",
@@ -795,6 +1019,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Last ned CSV",
         "da": "Download CSV",
         "pl": "Pobierz CSV",
+        "nl": "CSV downloaden",
+        "fi": "Lataa CSV",
+        "lt": "Atsisiųsti CSV",
     },
     "js_copied": {
         "en": "Copied!", "et": "Kopeeritud!", "de": "Kopiert!",
@@ -803,6 +1030,9 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Kopiert!",
         "da": "Kopieret!",
         "pl": "Skopiowano!",
+        "nl": "Gekopieerd!",
+        "fi": "Kopioitu!",
+        "lt": "Nukopijuota!",
     },
     "js_loading_news": {
         "en": "Loading art news...", "et": "Kunstiuudiste laadimine...",
@@ -812,57 +1042,60 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "no": "Laster kunstnyheter...",
         "da": "Indlæser kunstnyheder...",
         "pl": "Ładowanie wiadomości o sztuce...",
+        "nl": "Kunstnieuws laden...",
+        "fi": "Ladataan taideuutisia...",
+        "lt": "Kraunamos meno naujienos...",
     },
 }
 
 # ── Agent translations ────────────────────────────────────────
 AGENT_TRANSLATIONS: dict[str, dict[str, dict[str, str]]] = {
     "artist_lookup": {
-        "name": {"en": "Artist Lookup", "et": "Kunstniku otsing", "de": "Künstlersuche", "fr": "Recherche d'artiste", "sv": "Konstnärssökning"},
-        "one_liner": {"en": "Biography, exhibitions, and auction history via web search.", "et": "Biograafia, näitused ja oksjoniajalugu veebiotsingu kaudu.", "de": "Biografie, Ausstellungen und Auktionsgeschichte.", "fr": "Biographie, expositions et historique des enchères.", "sv": "Biografi, utställningar och auktionshistorik."},
+        "name": {"en": "Artist Lookup", "et": "Kunstniku otsing", "de": "Künstlersuche", "fr": "Recherche d'artiste", "sv": "Konstnärssökning", "nl": "Kunstenaar opzoeken", "fi": "Taiteilijahaku", "lt": "Menininko paieška"},
+        "one_liner": {"en": "Biography, exhibitions, and auction history via web search.", "et": "Biograafia, näitused ja oksjoniajalugu veebiotsingu kaudu.", "de": "Biografie, Ausstellungen und Auktionsgeschichte.", "fr": "Biographie, expositions et historique des enchères.", "sv": "Biografi, utställningar och auktionshistorik.", "nl": "Biografie, tentoonstellingen en veilinggeschiedenis via webzoekopdracht.", "fi": "Elämäkerta, näyttelyt ja huutokauppahistoria verkkohaun kautta.", "lt": "Biografija, parodos ir aukcionų istorija per internetinę paiešką."},
     },
     "artist_compare": {
-        "name": {"en": "Artist Compare", "et": "Kunstnike võrdlus", "de": "Künstlervergleich", "fr": "Comparaison d'artistes", "sv": "Konstnärsjämförelse"},
-        "one_liner": {"en": "Side-by-side comparison by market performance and style.", "et": "Kõrvutivõrdlus turutulemuste ja stiili alusel.", "de": "Vergleich nach Marktleistung und Stil.", "fr": "Comparaison par performance et style.", "sv": "Jämförelse efter marknadsprestanda och stil."},
+        "name": {"en": "Artist Compare", "et": "Kunstnike võrdlus", "de": "Künstlervergleich", "fr": "Comparaison d'artistes", "sv": "Konstnärsjämförelse", "nl": "Kunstenaars vergelijken", "fi": "Taiteilijavertailu", "lt": "Menininkų palyginimas"},
+        "one_liner": {"en": "Side-by-side comparison by market performance and style.", "et": "Kõrvutivõrdlus turutulemuste ja stiili alusel.", "de": "Vergleich nach Marktleistung und Stil.", "fr": "Comparaison par performance et style.", "sv": "Jämförelse efter marknadsprestanda och stil.", "nl": "Vergelijking op basis van marktprestaties en stijl.", "fi": "Vertailu markkinoiden suorituskyvyn ja tyylin mukaan.", "lt": "Palyginimas pagal rinkos rezultatus ir stilių."},
     },
     "market_analyst": {
-        "name": {"en": "Market Analyst", "et": "Turuanalüütik", "de": "Marktanalyst", "fr": "Analyste de marché", "sv": "Marknadsanalytiker"},
-        "one_liner": {"en": "Auction trends, price movements, and sector analytics.", "et": "Oksjonitrendid, hinnaliikumised ja sektori analüütika.", "de": "Auktionstrends, Preisbewegungen und Sektoranalysen.", "fr": "Tendances des enchères, mouvements de prix et analyses sectorielles.", "sv": "Auktionstrender, prisrörelser och sektorsanalys."},
+        "name": {"en": "Market Analyst", "et": "Turuanalüütik", "de": "Marktanalyst", "fr": "Analyste de marché", "sv": "Marknadsanalytiker", "nl": "Marktanalist", "fi": "Markkina-analyytikko", "lt": "Rinkos analitikas"},
+        "one_liner": {"en": "Auction trends, price movements, and sector analytics.", "et": "Oksjonitrendid, hinnaliikumised ja sektori analüütika.", "de": "Auktionstrends, Preisbewegungen und Sektoranalysen.", "fr": "Tendances des enchères, mouvements de prix et analyses sectorielles.", "sv": "Auktionstrender, prisrörelser och sektorsanalys.", "nl": "Veilingtrends, prijsbewegingen en sectoranalyse.", "fi": "Huutokauppatrendit, hintaliikkeet ja sektorianalytiikka.", "lt": "Aukcionų tendencijos, kainų pokyčiai ir sektorių analitika."},
     },
     "auction_tracker": {
-        "name": {"en": "Auction Tracker", "et": "Oksjoni jälgija", "de": "Auktionstracker", "fr": "Suivi d'enchères", "sv": "Auktionsspårare"},
-        "one_liner": {"en": "Track lots and results from Estonian auction houses.", "et": "Jälgi partii sid ja tulemusi Eesti oksjonimajadest.", "de": "Lose und Ergebnisse estnischer Auktionshäuser verfolgen.", "fr": "Suivre les lots et résultats des maisons de vente estoniennes.", "sv": "Spåra poster och resultat från estniska auktionshus."},
+        "name": {"en": "Auction Tracker", "et": "Oksjoni jälgija", "de": "Auktionstracker", "fr": "Suivi d'enchères", "sv": "Auktionsspårare", "nl": "Veilingtracker", "fi": "Huutokauppaseuranta", "lt": "Aukcionų sekimas"},
+        "one_liner": {"en": "Track lots and results from Estonian auction houses.", "et": "Jälgi partii sid ja tulemusi Eesti oksjonimajadest.", "de": "Lose und Ergebnisse estnischer Auktionshäuser verfolgen.", "fr": "Suivre les lots et résultats des maisons de vente estoniennes.", "sv": "Spåra poster och resultat från estniska auktionshus.", "nl": "Kavels en resultaten van Estse veilinghuizen volgen.", "fi": "Seuraa eriä ja tuloksia virolaisista huutokauppakamareista.", "lt": "Sekite partijas ir rezultatus iš Estijos aukcionų namų."},
     },
     "acquisition_advisor": {
-        "name": {"en": "Acquisition Advisor", "et": "Omandamise nõustaja", "de": "Akquisitionsberater", "fr": "Conseiller en acquisition", "sv": "Förvärvsrådgivare"},
-        "one_liner": {"en": "Recommendations based on goals, budget, and preferences.", "et": "Soovitused eesmärkide, eelarve ja eelistuste alusel.", "de": "Empfehlungen basierend auf Zielen, Budget und Präferenzen.", "fr": "Recommandations selon objectifs, budget et préférences.", "sv": "Rekommendationer baserade på mål, budget och preferenser."},
+        "name": {"en": "Acquisition Advisor", "et": "Omandamise nõustaja", "de": "Akquisitionsberater", "fr": "Conseiller en acquisition", "sv": "Förvärvsrådgivare", "nl": "Acquisitieadviseur", "fi": "Hankintaneuvoja", "lt": "Įsigijimo patarėjas"},
+        "one_liner": {"en": "Recommendations based on goals, budget, and preferences.", "et": "Soovitused eesmärkide, eelarve ja eelistuste alusel.", "de": "Empfehlungen basierend auf Zielen, Budget und Präferenzen.", "fr": "Recommandations selon objectifs, budget et préférences.", "sv": "Rekommendationer baserade på mål, budget och preferenser.", "nl": "Aanbevelingen op basis van doelen, budget en voorkeuren.", "fi": "Suositukset tavoitteiden, budjetin ja mieltymysten perusteella.", "lt": "Rekomendacijos pagal tikslus, biudžetą ir pageidavimus."},
     },
     "portfolio_analyst": {
-        "name": {"en": "Portfolio Analyst", "et": "Portfelli analüütik", "de": "Portfolioanalyst", "fr": "Analyste de portefeuille", "sv": "Portföljanalytiker"},
-        "one_liner": {"en": "Diversification analysis and rebalancing suggestions.", "et": "Hajutamise analüüs ja tasakaalustamise soovitused.", "de": "Diversifikationsanalyse und Rebalancing-Vorschläge.", "fr": "Analyse de diversification et suggestions de rééquilibrage.", "sv": "Diversifieringsanalys och ombalanseringsförslag."},
+        "name": {"en": "Portfolio Analyst", "et": "Portfelli analüütik", "de": "Portfolioanalyst", "fr": "Analyste de portefeuille", "sv": "Portföljanalytiker", "nl": "Portfolio-analist", "fi": "Salkkuanalyytikko", "lt": "Portfelio analitikas"},
+        "one_liner": {"en": "Diversification analysis and rebalancing suggestions.", "et": "Hajutamise analüüs ja tasakaalustamise soovitused.", "de": "Diversifikationsanalyse und Rebalancing-Vorschläge.", "fr": "Analyse de diversification et suggestions de rééquilibrage.", "sv": "Diversifieringsanalys och ombalanseringsförslag.", "nl": "Diversificatieanalyse en herbalanceringsuggesties.", "fi": "Hajautusanalyysi ja tasapainotussuositukset.", "lt": "Diversifikacijos analizė ir perbalansuojimo pasiūlymai."},
     },
     "valuator": {
-        "name": {"en": "Valuator", "et": "Hindaja", "de": "Bewerter", "fr": "Évaluateur", "sv": "Värderare"},
-        "one_liner": {"en": "Fair value estimation from comparable sales and market data.", "et": "Õiglase väärtuse hindamine võrreldavate müükide ja turuandmete põhjal.", "de": "Marktwertschätzung aus vergleichbaren Verkäufen und Marktdaten.", "fr": "Estimation de la juste valeur à partir de ventes comparables.", "sv": "Marknadsvärdering från jämförbara försäljningar."},
+        "name": {"en": "Valuator", "et": "Hindaja", "de": "Bewerter", "fr": "Évaluateur", "sv": "Värderare", "nl": "Taxateur", "fi": "Arvioija", "lt": "Vertintojas"},
+        "one_liner": {"en": "Fair value estimation from comparable sales and market data.", "et": "Õiglase väärtuse hindamine võrreldavate müükide ja turuandmete põhjal.", "de": "Marktwertschätzung aus vergleichbaren Verkäufen und Marktdaten.", "fr": "Estimation de la juste valeur à partir de ventes comparables.", "sv": "Marknadsvärdering från jämförbara försäljningar.", "nl": "Schatting van reële waarde op basis van vergelijkbare verkopen en marktgegevens.", "fi": "Käyvän arvon arviointi vertailukelpoisten myyntien ja markkinatietojen perusteella.", "lt": "Tikrosios vertės įvertinimas pagal palyginamus pardavimus ir rinkos duomenis."},
     },
     "provenance_checker": {
-        "name": {"en": "Provenance Checker", "et": "Päritolu kontrollija", "de": "Provenienzprüfer", "fr": "Vérificateur de provenance", "sv": "Provenienskontrollant"},
-        "one_liner": {"en": "Ownership history and authenticity research.", "et": "Omaniku ajalugu ja autentsuse uurimine.", "de": "Eigentumsgeschichte und Authentizitätsforschung.", "fr": "Historique de propriété et recherche d'authenticité.", "sv": "Ägarhistorik och autenticitetsforskning."},
+        "name": {"en": "Provenance Checker", "et": "Päritolu kontrollija", "de": "Provenienzprüfer", "fr": "Vérificateur de provenance", "sv": "Provenienskontrollant", "nl": "Herkomstcontrole", "fi": "Provenienssitarkistaja", "lt": "Kilmės tikrintojas"},
+        "one_liner": {"en": "Ownership history and authenticity research.", "et": "Omaniku ajalugu ja autentsuse uurimine.", "de": "Eigentumsgeschichte und Authentizitätsforschung.", "fr": "Historique de propriété et recherche d'authenticité.", "sv": "Ägarhistorik och autenticitetsforskning.", "nl": "Eigendomsgeschiedenis en authenticiteitsonderzoek.", "fi": "Omistushistoria ja aitoustutkimus.", "lt": "Nuosavybės istorija ir autentiškumo tyrimas."},
     },
 }
 
 # ── Category translations ─────────────────────────────────────
 CATEGORY_TRANSLATIONS: dict[str, dict[str, dict[str, str]]] = {
     "research": {
-        "name": {"en": "Artist Research & Discovery", "et": "Kunstniku uurimine", "de": "Künstlerrecherche", "fr": "Recherche d'artistes", "sv": "Konstnärsforskning"},
+        "name": {"en": "Artist Research & Discovery", "et": "Kunstniku uurimine", "de": "Künstlerrecherche", "fr": "Recherche d'artistes", "sv": "Konstnärsforskning", "nl": "Kunstenaarsonderzoek & Ontdekking", "fi": "Taiteilijatutkimus ja löytäminen", "lt": "Menininkų tyrimai ir atradimai"},
     },
     "market": {
-        "name": {"en": "Market Intelligence", "et": "Turuluure", "de": "Marktintelligenz", "fr": "Intelligence de marché", "sv": "Marknadsintelligens"},
+        "name": {"en": "Market Intelligence", "et": "Turuluure", "de": "Marktintelligenz", "fr": "Intelligence de marché", "sv": "Marknadsintelligens", "nl": "Marktintelligentie", "fi": "Markkinatieto", "lt": "Rinkos žvalgyba"},
     },
     "advisory": {
-        "name": {"en": "Collection Advisory", "et": "Kogu nõustamine", "de": "Sammlungsberatung", "fr": "Conseil de collection", "sv": "Samlingsrådgivning"},
+        "name": {"en": "Collection Advisory", "et": "Kogu nõustamine", "de": "Sammlungsberatung", "fr": "Conseil de collection", "sv": "Samlingsrådgivning", "nl": "Collectieadvies", "fi": "Kokoelmaneuvonta", "lt": "Kolekcijos konsultacijos"},
     },
     "valuation": {
-        "name": {"en": "Valuation & Provenance", "et": "Hindamine ja päritolu", "de": "Bewertung & Provenienz", "fr": "Évaluation & Provenance", "sv": "Värdering & Proveniens"},
+        "name": {"en": "Valuation & Provenance", "et": "Hindamine ja päritolu", "de": "Bewertung & Provenienz", "fr": "Évaluation & Provenance", "sv": "Värdering & Proveniens", "nl": "Taxatie & Herkomst", "fi": "Arviointi ja provenienssi", "lt": "Vertinimas ir kilmė"},
     },
 }
