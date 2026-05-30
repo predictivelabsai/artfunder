@@ -20,7 +20,18 @@ logging.basicConfig(
 )
 log = logging.getLogger("scrape")
 
-PROVIDERS = ["haus", "allee", "vaal", "vaal_archive", "vernissage", "artandtonic", "salong"]
+PROVIDERS = [
+    # Estonia
+    "haus", "allee", "vaal", "vaal_archive", "vernissage", "artandtonic", "salong",
+    # Latvia
+    "antonija",
+    # Lithuania
+    "menorinka",
+    # Finland
+    "hagelstam", "bukowskis",
+    # Sweden
+    "auctionet",
+]
 
 
 def get_scraper(provider: str):
@@ -38,6 +49,16 @@ def get_scraper(provider: str):
         from scripts.scrapers.artandtonic import scrape
     elif provider == "salong":
         from scripts.scrapers.salong import scrape
+    elif provider == "antonija":
+        from scripts.scrapers.antonija import scrape
+    elif provider == "menorinka":
+        from scripts.scrapers.menorinka import scrape
+    elif provider == "hagelstam":
+        from scripts.scrapers.hagelstam import scrape
+    elif provider == "bukowskis":
+        from scripts.scrapers.bukowskis import scrape
+    elif provider == "auctionet":
+        from scripts.scrapers.auctionet import scrape
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return scrape
@@ -89,12 +110,12 @@ def load_to_db(provider: str):
                     (auction_date, author, start_price, end_price, year, decade,
                      tech, category, dimension, auction_provider,
                      title, lot_number, dimensions_raw, bid_count,
-                     auction_name, image_url, source_url, sold)
+                     auction_name, image_url, source_url, sold, country)
                     VALUES
                     (:auction_date, :author, :start_price, :end_price, :year, :decade,
                      :tech, :category, :dimension, :auction_provider,
                      :title, :lot_number, :dimensions_raw, :bid_count,
-                     :auction_name, :image_url, :source_url, :sold)
+                     :auction_name, :image_url, :source_url, :sold, :country)
                 """),
                 row,
             )

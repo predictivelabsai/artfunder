@@ -106,16 +106,23 @@ def load_checkpoint(provider: str) -> list[dict]:
 
 
 def deduplicate(lots: list[dict]) -> list[dict]:
-    """Deduplicate by (author, title, auction_name), or unique source_url for detail pages."""
+    """Deduplicate by composite key including lot_number when available."""
     seen = set()
     result = []
     for lot in lots:
-        # Use composite key — source_url alone is too coarse for page-level scrapes
-        key = (
-            lot.get("author", "").strip().lower(),
-            lot.get("title", "").strip().lower(),
-            lot.get("auction_name", "").strip().lower(),
-        )
+        lot_num = lot.get("lot_number")
+        if lot_num is not None:
+            key = (
+                str(lot_num),
+                lot.get("auction_name", "").strip().lower(),
+                lot.get("auction_provider", "").strip().lower(),
+            )
+        else:
+            key = (
+                lot.get("author", "").strip().lower(),
+                lot.get("title", "").strip().lower(),
+                lot.get("auction_name", "").strip().lower(),
+            )
         if key in seen:
             continue
         seen.add(key)
@@ -172,4 +179,5 @@ def lot_to_db_row(lot: dict) -> dict:
         "image_url": lot.get("image_url"),
         "source_url": lot.get("source_url"),
         "sold": lot.get("sold", True),
+        "country": lot.get("country", "EE"),
     }
