@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("scrape")
 
-PROVIDERS = ["haus", "allee", "vaal", "vernissage", "artandtonic"]
+PROVIDERS = ["haus", "allee", "vaal", "vaal_archive", "vernissage", "artandtonic", "salong"]
 
 
 def get_scraper(provider: str):
@@ -30,10 +30,14 @@ def get_scraper(provider: str):
         from scripts.scrapers.allee import scrape
     elif provider == "vaal":
         from scripts.scrapers.vaal import scrape
+    elif provider == "vaal_archive":
+        from scripts.scrapers.vaal_archive import scrape
     elif provider == "vernissage":
         from scripts.scrapers.vernissage import scrape
     elif provider == "artandtonic":
         from scripts.scrapers.artandtonic import scrape
+    elif provider == "salong":
+        from scripts.scrapers.salong import scrape
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return scrape
