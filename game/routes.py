@@ -169,9 +169,12 @@ def register_game_routes(rt):
                             "End with exactly 3 numbered choices for the player."
                         )),
                     ]
-                    yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
+                    first_chunk = True
                     for chunk in llm.stream(messages):
                         if hasattr(chunk, "content") and chunk.content:
+                            if first_chunk:
+                                yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
+                                first_chunk = False
                             accumulated.append(chunk.content)
                             yield sse.event(sse.TOKEN, {"text": chunk.content})
                 except Exception as e:
@@ -225,9 +228,12 @@ def register_game_routes(rt):
             try:
                 from utils.llm import build_llm
                 llm = build_llm()
-                yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
+                first_chunk = True
                 for chunk in llm.stream(messages):
                     if hasattr(chunk, "content") and chunk.content:
+                        if first_chunk:
+                            yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
+                            first_chunk = False
                         accumulated.append(chunk.content)
                         yield sse.event(sse.TOKEN, {"text": chunk.content})
             except Exception as e:

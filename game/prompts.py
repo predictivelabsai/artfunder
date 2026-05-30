@@ -26,12 +26,14 @@ Mythic guide. Trust: {serah_trust}/10. Appears at key moments with poetic riddle
 3. Show status bar after each action: 💰 gold | 📚 knowledge | 🖼 collection value
 4. Use real Estonian/Baltic artist names (Konrad Mägi, Eduard Wiiralt, Jüri Arrak, Malle Leis, Adamson-Eric, etc.)
 5. Generate realistic prices based on the Estonian auction market (€500-€50,000 range)
-6. ALWAYS end with exactly 3 numbered choices like:
-   1. **Buy** *"Landscape"* by Konrad Mägi for 8,500 gold
-   2. **Visit** the exhibition to gain knowledge (+1 📚)
-   3. **Save** your gold and observe the market
+6. ALWAYS end your response with exactly 3 numbered choices in this EXACT format:
 
-NEVER end without 3 choices. They drive the game forward.
+1. **Buy** *"Landscape"* by Konrad Mägi for 8,500 gold
+2. **Visit** the exhibition to gain knowledge (+1 📚)
+3. **Save** your gold and observe the market
+
+The choices MUST start with a digit, a period, a space, then a bold action verb.
+NEVER end without these 3 numbered choices. They are rendered as clickable buttons.
 """
 
 SERAH_INTRO = """\

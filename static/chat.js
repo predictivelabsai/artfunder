@@ -464,9 +464,22 @@
         const lines = text.split("\n");
         const choices = [];
         for (const line of lines) {
-            const m = line.match(/^\s*(\d)\.\s*(.+)/);
+            const m = line.match(/^\s*(\d)[.)]\s*(.+)/) ||
+                       line.match(/^\s*(\d)\s*[-–—]\s*(.+)/);
             if (m && choices.length < 4) {
                 choices.push({ num: m[1], label: m[2].trim().substring(0, 120) });
+            }
+        }
+        // Fallback: if no numbered choices found, look for bold action lines at end
+        if (choices.length < 2) {
+            const lastLines = lines.slice(-6).filter(l => l.trim().length > 10);
+            let idx = 0;
+            for (const line of lastLines) {
+                const actionMatch = line.match(/^\s*(?:\*\*)?(?:Buy|Sell|Visit|Save|Trade|Bid|Create|Explore|Invest|Skip|Hold|Accept|Decline|Use|Attend)\b/i);
+                if (actionMatch && idx < 3) {
+                    idx++;
+                    choices.push({ num: String(idx), label: line.trim().replace(/^\*\*|\*\*$/g, '').substring(0, 120) });
+                }
             }
         }
         if (choices.length < 2) return;
