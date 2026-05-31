@@ -44,7 +44,7 @@ COUNTRY_NAMES = {
 
 
 def _build_where(params: dict) -> tuple[str, dict]:
-    conditions = [f"end_price >= {MIN_PRICE}"]
+    conditions = [f"end_price >= {MIN_PRICE}", "author != 'Unknown'"]
     bind = {}
     country = params.get("country", "").strip()
     if country and country != "ALL":
@@ -100,21 +100,8 @@ def _fetch_trend_data(params: dict):
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        base_conditions = [f"end_price >= {MIN_PRICE}", "auction_date > 0"]
-        bind = {}
-        country = params.get("country", "").strip()
-        if country and country != "ALL":
-            base_conditions.append("COALESCE(country, 'EE') = :country")
-            bind["country"] = country
-        author = params.get("author", "").strip()
-        if author:
-            base_conditions.append("author ILIKE :author")
-            bind["author"] = f"%{author}%"
-        medium = params.get("medium", "").strip()
-        if medium and medium != "ALL":
-            base_conditions.append("COALESCE(NULLIF(tech,''),'Unknown') ILIKE :medium")
-            bind["medium"] = f"%{medium}%"
-        where = "WHERE " + " AND ".join(base_conditions)
+        where, bind = _build_where(params)
+        where += " AND auction_date > 0"
         sql = text(f"""
             SELECT auction_date as year,
                    COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other')) as category,
