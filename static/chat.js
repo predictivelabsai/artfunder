@@ -154,9 +154,33 @@
     }
 
     // ── Sample cards ──────────────────────────────────────────
+    const ART_GURU_CHARS = [
+        { icon: "\u{1F3A8}", label: "Famous Artist", value: "famous_artist", desc: "5,000 gold · 3 knowledge" },
+        { icon: "\u{1F525}", label: "Emerging Artist", value: "emerging_artist", desc: "3,000 gold · 2 knowledge" },
+        { icon: "\u{1F3DB}", label: "Gallerist", value: "gallerist", desc: "8,000 gold · 4 knowledge" },
+        { icon: "\u{1F3DB}️", label: "Museum Curator", value: "museum_curator", desc: "4,000 gold · 5 knowledge" },
+        { icon: "\u{1F4B0}", label: "Billionaire Collector", value: "billionaire_collector", desc: "15,000 gold · 1 knowledge" },
+        { icon: "\u{1F50D}", label: "Regular Collector", value: "regular_collector", desc: "6,000 gold · 3 knowledge" },
+    ];
+
     window.updateSampleCards = (slug) => {
         const row = $("#sample-cards-row");
         if (!row) return;
+
+        const isGame = slug === "art_guru" || window.location.pathname.includes("art-guru");
+        if (isGame) {
+            row.innerHTML = "";
+            ART_GURU_CHARS.forEach(ch => {
+                const b = document.createElement("button");
+                b.className = "sample-card";
+                b.title = ch.label;
+                b.innerHTML = `<span class="sample-card-text"><span style="font-size:1.2em">${ch.icon}</span> <strong>${ch.label}</strong><br><span style="font-size:0.8em;color:#888">${ch.desc}</span></span>`;
+                b.onclick = () => { fillChat(ch.value); sendMessage(null); };
+                row.appendChild(b);
+            });
+            return;
+        }
+
         let prompts = (slug && AGENT_PROMPTS[slug]) || [];
         if (!prompts.length) {
             prompts = [
