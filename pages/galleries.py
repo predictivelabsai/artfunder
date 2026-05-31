@@ -27,9 +27,9 @@ COUNTRY_FLAGS = {
 }
 
 STATUS_BADGE = {
-    "active": ("Live", "bg-green-50 text-green-700 border-green-200"),
-    "planned": ("Planned", "bg-yellow-50 text-yellow-700 border-yellow-200"),
-    "blocked": ("Blocked", "bg-red-50 text-red-700 border-red-200"),
+    "active": ("Indexed", "bg-green-50 text-green-700 border-green-200"),
+    "planned": ("Coming Soon", "bg-yellow-50 text-yellow-700 border-yellow-200"),
+    "blocked": ("Coming Soon", "bg-yellow-50 text-yellow-700 border-yellow-200"),
 }
 
 
@@ -59,7 +59,7 @@ def galleries_page(sess=None):
 
     total_sources = len(sources)
     total_countries = len(by_country)
-    active_count = sum(1 for s in sources if s.get("status") == "active")
+    total_lots = sum(s.get("lots_estimate", 0) for s in sources)
 
     for code in country_order:
         galleries = by_country.get(code, [])
@@ -114,15 +114,15 @@ def galleries_page(sess=None):
 
     hero = Section(
         Div(
-            Span("Data Sources", cls="text-[11px] tracking-[0.18em] uppercase text-gray-400"),
+            Span("Art Market Data", cls="text-[11px] tracking-[0.18em] uppercase text-gray-400"),
             H1("Galleries & Auctions", cls="text-[36px] sm:text-4xl md:text-5xl font-medium tracking-tight text-black leading-[1.08] mt-3"),
             P("Auction houses and galleries providing historical sales data to the Kanvas.ai Art Index. "
-              "Each source is scraped with Playwright and loaded into our database for AI-powered market analysis.",
+              "We aggregate results from leading auction houses across the Baltic and Nordic region.",
               cls="mt-4 text-gray-500 text-base max-w-2xl leading-relaxed"),
             Div(
                 Div(
                     Span(str(total_sources), cls="text-xl font-semibold text-black"),
-                    Span("Sources", cls="text-[11px] tracking-wider uppercase text-gray-400 mt-1"),
+                    Span("Galleries", cls="text-[11px] tracking-wider uppercase text-gray-400 mt-1"),
                     cls="flex flex-col",
                 ),
                 Div(
@@ -131,8 +131,8 @@ def galleries_page(sess=None):
                     cls="flex flex-col",
                 ),
                 Div(
-                    Span(str(active_count), cls="text-xl font-semibold text-black"),
-                    Span("Live Scrapers", cls="text-[11px] tracking-wider uppercase text-gray-400 mt-1"),
+                    Span(f"{total_lots:,}+", cls="text-xl font-semibold text-black"),
+                    Span("Artworks", cls="text-[11px] tracking-wider uppercase text-gray-400 mt-1"),
                     cls="flex flex-col",
                 ),
                 cls="flex gap-10 mt-8",

@@ -65,6 +65,7 @@ def NavBar(active='home', sess=None):
         ('advisory', '/app', t('nav_advisory', lang)),
         ('investors', '/investors', t('nav_collection', lang)),
         ('artists', '/artists', t('nav_artists', lang)),
+        ('galleries', '/galleries', 'Galleries'),
         ('about', '/about', t('nav_about', lang)),
         ('art-index', '/app/market-map', t('nav_art_index', lang)),
         ('contact', '/contact', t('nav_contact', lang)),
