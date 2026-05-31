@@ -44,7 +44,7 @@ COUNTRY_NAMES = {
 
 
 def _build_where(params: dict) -> tuple[str, dict]:
-    conditions = [f"end_price >= {MIN_PRICE}", "author != 'Unknown'"]
+    conditions = [f"end_price >= {MIN_PRICE}", "COALESCE(status, 'active') = 'active'"]
     bind = {}
     country = params.get("country", "").strip()
     if country and country != "ALL":
@@ -125,11 +125,11 @@ def _fetch_filter_options():
     db = SessionLocal()
     try:
         countries = [r[0] for r in db.execute(text(
-            "SELECT DISTINCT COALESCE(country,'EE') FROM kanvas.auction_lots WHERE end_price >= 50 ORDER BY 1"
+            "SELECT DISTINCT COALESCE(country,'EE') FROM kanvas.auction_lots WHERE end_price >= 50 AND COALESCE(status,'active')='active' ORDER BY 1"
         ))]
         mediums = [r[0] for r in db.execute(text(
             """SELECT COALESCE(NULLIF(tech,''),'Unknown') as m, COUNT(*) as c
-               FROM kanvas.auction_lots WHERE end_price >= 50
+               FROM kanvas.auction_lots WHERE end_price >= 50 AND COALESCE(status,'active')='active'
                GROUP BY 1 HAVING COUNT(*) > 20 ORDER BY c DESC LIMIT 20"""
         ))]
         return {"countries": countries, "mediums": mediums}

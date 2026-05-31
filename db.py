@@ -91,6 +91,7 @@ def _init_chat_tables():
         "ALTER TABLE kanvas.auction_lots ALTER COLUMN start_price SET DEFAULT 0",
         "ALTER TABLE kanvas.auction_lots ALTER COLUMN end_price SET DEFAULT 0",
         "CREATE INDEX IF NOT EXISTS idx_auction_lots_source_url ON kanvas.auction_lots(source_url)",
+        "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'",
     ]
     with engine.connect() as conn:
         for stmt in ddl:
