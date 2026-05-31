@@ -12,6 +12,7 @@ from pages.investors import investors_page
 from pages.artists import artists_page
 from pages.about import about_page
 from pages.contact import contact_page
+from pages.galleries import galleries_page
 
 # Admin & API
 from admin.views import ar as admin_router
@@ -92,6 +93,10 @@ def about(sess):
 @rt
 def contact(sess):
     return Page(contact_page(), active='contact', title='Contact', sess=sess)
+
+@rt
+def galleries(sess):
+    return Page(galleries_page(sess=sess), active='galleries', title='Galleries & Auctions', sess=sess)
 
 
 # --- Auth pages ---

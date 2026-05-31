@@ -104,6 +104,8 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
 
     return Div(
         Div(
+            A("Kanvas", Span(".ai", cls="opacity-50"), href="/",
+              cls="font-display text-lg font-bold text-black no-underline tracking-tight block mb-2"),
             Button(t("chat_new", lang), onclick="newChat()",
                    cls="new-chat-btn"),
             cls="px-3 pt-3",
