@@ -129,6 +129,7 @@ def PageFooter(lang: str = "en"):
                         Li(A(t('nav_advisory', lang), href='/app', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A(t('nav_collection', lang), href='/investors', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A(t('footer_for_artists', lang), href='/artists', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
+                        Li(A(t('nav_art_index', lang), href='/app/market-map', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('Analytics', href='/app/analytics', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A('Galleries', href='/galleries', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         cls='list-none'

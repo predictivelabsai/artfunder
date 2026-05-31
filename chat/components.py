@@ -122,9 +122,8 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
             cls="agents-section",
         ),
         Div(
-            A("Market Map", href="/app/market-map", cls="workspace-link"),
-            A("Analytics", href="/app/analytics", cls="workspace-link"),
             A("Art Index", href="/app/market-map", cls="workspace-link"),
+            A("Analytics", href="/app/analytics", cls="workspace-link"),
             A("\U0001f3ae Art Guru", href="/app/art-guru", cls="workspace-link"),
             cls="workspace-section",
         ),
