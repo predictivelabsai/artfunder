@@ -1,8 +1,9 @@
-"""Prebuilt market map — server-rendered Plotly treemap + area chart.
+"""Art Index — interactive treemap + price trends with filters.
 
-GET /app/market-map         → full-page treemap + price trends
-GET /api/market-map/treemap → Plotly JSON for embedding
-GET /api/market-map/trends  → Plotly JSON for price trends
+GET /app/market-map              → full-page Art Index with filters
+GET /api/market-map/treemap      → Plotly JSON (supports ?country=&author=&medium=)
+GET /api/market-map/trends       → Plotly JSON (supports ?country=&author=&medium=)
+GET /api/market-map/filters      → available filter values
 """
 
 from __future__ import annotations
@@ -15,8 +16,9 @@ import pandas as pd
 import plotly.express as px
 from fasthtml.common import (
     Html, Head, Body, Meta, Title, Link, Script, NotStr,
-    Div, Span, H2, H3, P, A, Button,
+    Div, Span, H2, H3, P, A, Button, Select, Option, Label, Input,
 )
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from chat.layout import TAILWIND_CONFIG, _head
@@ -25,6 +27,8 @@ from chat.routes import _ensure_user, _list_sessions
 
 log = logging.getLogger(__name__)
 
+MIN_PRICE = 50  # filter out junk (books, porcelain, catalogs)
+
 CHART_LAYOUT = dict(
     paper_bgcolor="#FFFFFF", plot_bgcolor="#F5F5F5",
     font=dict(family="Inter, system-ui", color="#1A1A1A"),
@@ -32,17 +36,37 @@ CHART_LAYOUT = dict(
     title=dict(font=dict(size=15)),
 )
 
+COUNTRY_NAMES = {
+    "EE": "Estonia", "LV": "Latvia", "LT": "Lithuania",
+    "FI": "Finland", "SE": "Sweden", "DK": "Denmark",
+    "NO": "Norway", "NL": "Netherlands", "GB": "United Kingdom",
+}
 
-def _fetch_treemap_data(provider=None):
+
+def _build_where(params: dict) -> tuple[str, dict]:
+    conditions = [f"end_price >= {MIN_PRICE}"]
+    bind = {}
+    country = params.get("country", "").strip()
+    if country and country != "ALL":
+        conditions.append("COALESCE(country, 'EE') = :country")
+        bind["country"] = country
+    author = params.get("author", "").strip()
+    if author:
+        conditions.append("author ILIKE :author")
+        bind["author"] = f"%{author}%"
+    medium = params.get("medium", "").strip()
+    if medium and medium != "ALL":
+        conditions.append("COALESCE(NULLIF(tech,''),'Unknown') ILIKE :medium")
+        bind["medium"] = f"%{medium}%"
+    return "WHERE " + " AND ".join(conditions), bind
+
+
+def _fetch_treemap_data(params: dict):
     from db import SessionLocal
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        where = "WHERE end_price > 0"
-        params = {}
-        if provider:
-            where += " AND auction_provider = :provider"
-            params["provider"] = provider
+        where, bind = _build_where(params)
         sql = text(f"""
             SELECT author,
                    COALESCE(NULLIF(tech, ''), 'Unknown') as tech,
@@ -59,26 +83,32 @@ def _fetch_treemap_data(provider=None):
             ORDER BY total_sales DESC
             LIMIT 200
         """)
-        rows = [dict(r._mapping) for r in db.execute(sql, params)]
+        rows = [dict(r._mapping) for r in db.execute(sql, bind)]
         return rows
     finally:
         db.close()
 
 
-def _fetch_trend_data(author=None, category=None):
+def _fetch_trend_data(params: dict):
     from db import SessionLocal
     from sqlalchemy import text
     db = SessionLocal()
     try:
-        conditions = ["end_price > 0", "auction_date > 0"]
-        params = {}
+        base_conditions = [f"end_price >= {MIN_PRICE}", "auction_date > 0"]
+        bind = {}
+        country = params.get("country", "").strip()
+        if country and country != "ALL":
+            base_conditions.append("COALESCE(country, 'EE') = :country")
+            bind["country"] = country
+        author = params.get("author", "").strip()
         if author:
-            conditions.append("author ILIKE :author")
-            params["author"] = f"%{author}%"
-        if category:
-            conditions.append("category ILIKE :category")
-            params["category"] = f"%{category}%"
-        where = "WHERE " + " AND ".join(conditions)
+            base_conditions.append("author ILIKE :author")
+            bind["author"] = f"%{author}%"
+        medium = params.get("medium", "").strip()
+        if medium and medium != "ALL":
+            base_conditions.append("COALESCE(NULLIF(tech,''),'Unknown') ILIKE :medium")
+            bind["medium"] = f"%{medium}%"
+        where = "WHERE " + " AND ".join(base_conditions)
         sql = text(f"""
             SELECT auction_date as year,
                    COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other')) as category,
@@ -90,13 +120,31 @@ def _fetch_trend_data(author=None, category=None):
                      COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other'))
             ORDER BY auction_date
         """)
-        rows = [dict(r._mapping) for r in db.execute(sql, params)]
+        rows = [dict(r._mapping) for r in db.execute(sql, bind)]
         return rows
     finally:
         db.close()
 
 
-def _build_treemap_fig(rows, title="Top Selling Artists — Total Sales by Overbid %"):
+def _fetch_filter_options():
+    from db import SessionLocal
+    from sqlalchemy import text
+    db = SessionLocal()
+    try:
+        countries = [r[0] for r in db.execute(text(
+            "SELECT DISTINCT COALESCE(country,'EE') FROM kanvas.auction_lots WHERE end_price >= 50 ORDER BY 1"
+        ))]
+        mediums = [r[0] for r in db.execute(text(
+            """SELECT COALESCE(NULLIF(tech,''),'Unknown') as m, COUNT(*) as c
+               FROM kanvas.auction_lots WHERE end_price >= 50
+               GROUP BY 1 HAVING COUNT(*) > 20 ORDER BY c DESC LIMIT 20"""
+        ))]
+        return {"countries": countries, "mediums": mediums}
+    finally:
+        db.close()
+
+
+def _build_treemap_fig(rows, title="Top Artists — Total Sales by Overbid %"):
     if not rows:
         return None
     df = pd.DataFrame(rows)
@@ -134,25 +182,47 @@ def _build_trend_fig(rows, title="Price Trends by Category"):
 def register_market_map_routes(rt):
 
     @rt("/api/market-map/treemap")
-    def treemap_json():
-        rows = _fetch_treemap_data()
+    def treemap_json(request: Request):
+        params = dict(request.query_params)
+        if not params.get("country"):
+            params["country"] = "EE"
+        rows = _fetch_treemap_data(params)
         fig = _build_treemap_fig(rows)
         if not fig:
             return JSONResponse({"error": "No data"})
         return JSONResponse(json.loads(fig.to_json()))
 
     @rt("/api/market-map/trends")
-    def trends_json():
-        rows = _fetch_trend_data()
+    def trends_json(request: Request):
+        params = dict(request.query_params)
+        if not params.get("country"):
+            params["country"] = "EE"
+        rows = _fetch_trend_data(params)
         fig = _build_trend_fig(rows)
         if not fig:
             return JSONResponse({"error": "No data"})
         return JSONResponse(json.loads(fig.to_json()))
 
+    @rt("/api/market-map/filters")
+    def filter_options():
+        return JSONResponse(_fetch_filter_options())
+
     @rt("/app/market-map")
     def market_map_page(sess):
         uid, email = _ensure_user(sess)
         sessions = _list_sessions(uid) if uid else []
+
+        country_options = [
+            Option("Estonia", value="EE", selected=True),
+            Option("Latvia", value="LV"),
+            Option("Finland", value="FI"),
+            Option("Sweden", value="SE"),
+            Option("Denmark", value="DK"),
+            Option("Norway", value="NO"),
+            Option("Netherlands", value="NL"),
+            Option("United Kingdom", value="GB"),
+            Option("── All Countries ──", value="ALL"),
+        ]
 
         body = Body(
             signin_overlay(),
@@ -162,9 +232,7 @@ def register_market_map_routes(rt):
                 Div(
                     Div(
                         Button("=", cls="mobile-menu-btn", onclick="toggleLeftPane()"),
-                        Span("Market Map", cls="chat-header-title"),
-                        Span("--", cls="chat-header-dot"),
-                        Span("Estonian Art Market", cls="chat-header-agent"),
+                        Span("Art Index", cls="chat-header-title"),
                         cls="chat-header-left",
                     ),
                     Div(
@@ -176,15 +244,50 @@ def register_market_map_routes(rt):
                 ),
                 Div(
                     Div(
-                        H2("Estonian Art Market Map", cls="text-xl font-display font-bold mb-1"),
-                        P("Interactive treemap of artist sales colored by overbid percentage. Larger blocks = higher total sales. Blue = below-average overbid, Red = above-average.",
+                        H2("Art Index", cls="text-xl font-display font-bold mb-1"),
+                        P("Interactive treemap of artist sales. Larger blocks = higher total sales. Color = overbid percentage.",
                           cls="text-sm text-gray-500 mb-4"),
                         cls="mb-2",
                     ),
+                    # ── Filters ──
+                    Div(
+                        Div(
+                            Label("Country", cls="text-xs text-gray-400 block mb-1"),
+                            Select(*country_options, id="filter-country",
+                                   cls="text-sm border border-gray-200 rounded px-2 py-1.5 bg-white",
+                                   onchange="applyFilters()"),
+                            cls="flex flex-col",
+                        ),
+                        Div(
+                            Label("Artist", cls="text-xs text-gray-400 block mb-1"),
+                            Input(type="text", id="filter-author", placeholder="Search artist...",
+                                  cls="text-sm border border-gray-200 rounded px-2 py-1.5 w-40",
+                                  onkeydown="if(event.key==='Enter')applyFilters()"),
+                            cls="flex flex-col",
+                        ),
+                        Div(
+                            Label("Medium", cls="text-xs text-gray-400 block mb-1"),
+                            Select(
+                                Option("All", value="ALL"),
+                                Option("Oil on canvas", value="Oil"),
+                                Option("Watercolor", value="Watercolor"),
+                                Option("Graphics", value="Graphics"),
+                                Option("Lithograph", value="Lithograph"),
+                                Option("Pastel", value="Pastel"),
+                                Option("Mixed media", value="Mixed"),
+                                id="filter-medium",
+                                cls="text-sm border border-gray-200 rounded px-2 py-1.5 bg-white",
+                                onchange="applyFilters()"),
+                            cls="flex flex-col",
+                        ),
+                        Button("Apply", onclick="applyFilters()",
+                               cls="self-end px-4 py-1.5 text-sm bg-black text-white rounded cursor-pointer border-none hover:bg-gray-800"),
+                        cls="flex flex-wrap items-end gap-4 mb-6 p-3 bg-gray-50 rounded-lg border border-gray-100",
+                    ),
                     Div(id="treemap-chart", style="width:100%;min-height:500px;"),
                     Div(
-                        H3("Price Trends by Category", cls="text-lg font-display font-bold mt-8 mb-1"),
-                        P("Average end price over time, grouped by art category.",
+                        H3("Price Trends", cls="text-lg font-display font-bold mt-8 mb-1"),
+                        P("Average end price over time by category.",
                           cls="text-sm text-gray-500 mb-4"),
                     ),
                     Div(id="trend-chart", style="width:100%;min-height:400px;"),
@@ -193,18 +296,33 @@ def register_market_map_routes(rt):
                 cls="center-pane",
             ),
             Script(NotStr("""
-                async function loadCharts() {
-                    const t = await fetch('/api/market-map/treemap');
+                function getFilterParams() {
+                    const country = document.getElementById('filter-country').value;
+                    const author = document.getElementById('filter-author').value.trim();
+                    const medium = document.getElementById('filter-medium').value;
+                    const params = new URLSearchParams();
+                    if (country) params.set('country', country);
+                    if (author) params.set('author', author);
+                    if (medium && medium !== 'ALL') params.set('medium', medium);
+                    return params.toString();
+                }
+
+                async function applyFilters() {
+                    const qs = getFilterParams();
+                    const t = await fetch('/api/market-map/treemap?' + qs);
                     const tData = await t.json();
                     if (tData.data) Plotly.newPlot('treemap-chart', tData.data, tData.layout, {responsive: true});
+                    else document.getElementById('treemap-chart').innerHTML = '<p style="color:#888;padding:2rem">No data for these filters.</p>';
 
-                    const r = await fetch('/api/market-map/trends');
+                    const r = await fetch('/api/market-map/trends?' + qs);
                     const rData = await r.json();
                     if (rData.data) Plotly.newPlot('trend-chart', rData.data, rData.layout, {responsive: true});
+                    else document.getElementById('trend-chart').innerHTML = '<p style="color:#888;padding:2rem">No trend data.</p>';
                 }
-                loadCharts();
+
+                applyFilters();
             """)),
             Script(src="/static/chat.js"),
             cls="bg-white text-ink font-sans antialiased app pane-closed",
         )
-        return Html(_head("Market Map"), body)
+        return Html(_head("Art Index"), body)
