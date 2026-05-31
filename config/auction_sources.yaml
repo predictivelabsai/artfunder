@@ -1,6 +1,5 @@
 # Baltic & Nordic Art Auction Sources
-# Each entry represents a gallery with published historical auction results
-# Status: active = scraper built, planned = to be built
+# Each entry represents an auction house with published historical results
 
 sources:
   # === ESTONIA ===
@@ -8,211 +7,216 @@ sources:
     slug: haus
     country: EE
     url: https://haus.ee
-    scraper: scripts/scrapers/haus.py
     status: active
     lots_estimate: 5000
     year_range: [1998, 2026]
-    notes: GET search form, paginated, all data inline
+    description: >
+      One of Estonia's leading auction houses, hosting spring and autumn
+      fine art auctions in Tallinn since 1998. Specialises in Estonian
+      classical and contemporary paintings, graphics, and sculpture.
 
   - name: Allee Galerii
     slug: allee
     country: EE
     url: https://galeriiallee.ee
-    scraper: scripts/scrapers/allee.py
     status: active
     lots_estimate: 2500
     year_range: [2020, 2026]
-    notes: WordPress portfolio, category index → listing → detail
+    description: >
+      Tallinn-based gallery dedicated to Estonian art auctions and
+      exhibitions. Runs seasonal auctions featuring paintings, graphics,
+      and applied art from Estonia's most prominent artists.
 
   - name: Vaal Galerii
     slug: vaal
     country: EE
     url: https://vaal.ee
-    scraper: scripts/scrapers/vaal.py
     status: active
     lots_estimate: 1900
     year_range: [2001, 2026]
-    notes: Catalog pages with inline data
+    description: >
+      The first private gallery in Estonia, active since 1990. Promotes
+      Estonian modern art through exhibitions and regular auctions.
+      Features works from both established and emerging Baltic artists.
 
   - name: Vernissage Galerii
     slug: vernissage
     country: EE
     url: https://vernissage.ee
-    scraper: scripts/scrapers/vernissage.py
     status: active
     lots_estimate: 1700
     year_range: [2021, 2026]
-    notes: WordPress auction posts with Alghind markers
+    description: >
+      Estonian art gallery and auction house offering spring and autumn
+      sales of fine art, classical paintings, and graphics. Known for
+      curated selections of Estonian older and modern masters.
 
   - name: Art & Tonic
     slug: artandtonic
     country: EE
     url: https://artandtonic.art
-    scraper: scripts/scrapers/artandtonic.py
     status: active
     lots_estimate: 50
     year_range: [2020, 2020]
-    notes: Single page, DOM h2/h3 structure
+    description: >
+      Contemporary art gallery in Tallinn focused on stimulating the
+      Estonian art market and supporting artists' income. Organises
+      curated auctions of contemporary Estonian artwork.
 
   - name: E-Kunstisalong
     slug: salong
     country: EE
     url: https://www.e-kunstisalong.ee
-    scraper: scripts/scrapers/salong.py
     status: active
     lots_estimate: 350
     year_range: [2009, 2026]
-    notes: Tartu gallery, 57 auctions, regex on page text
+    description: >
+      Tartu-based gallery opened in 1997, hosting over 57 art auctions.
+      Features Estonian paintings, graphics, and sculpture with a focus
+      on making art accessible to a broad audience.
 
   # === LATVIA ===
   - name: Antonija Classic Art Gallery
     slug: antonija
     country: LV
     url: https://www.antonia.lv
-    scraper: scripts/scrapers/antonija.py
     status: active
     lots_estimate: 15000
     year_range: [2008, 2026]
-    notes: >
-      148 online auctions, .nf-item divs, 20/page with /page-N pagination.
-      No login required. Public hammer prices, bid counts.
-      URL pattern: /en/auction/{1-148}
+    description: >
+      Latvia's largest classic art gallery, active since 1991 in Riga.
+      Hosts 148+ online auctions featuring Latvian and Baltic fine art,
+      decorative arts, and antiques. Located in a historic Art Nouveau
+      building on Alberta Street.
 
   # === LITHUANIA ===
   - name: Menorinka / Vilniaus Aukcionas
     slug: menorinka
     country: LT
     url: https://www.menorinka.lt
-    scraper: scripts/scrapers/menorinka.py
-    status: blocked
+    status: planned
     lots_estimate: 10000
     year_range: [2007, 2026]
-    notes: >
-      90+ auctions (XXVI-XCI), /aukcionas/{id}.
-      Cloudflare anti-bot protection blocks headless browsers.
-      Lithuania's oldest auction house. Needs manual session cookie or API.
+    description: >
+      Lithuania's oldest operating auction house, established in Vilnius.
+      Conducts 90+ art auctions since 2007, specialising in Lithuanian
+      and Baltic fine art, graphics, and applied art.
 
   - name: ARS VIA Aukcionas
     slug: arsvia
     country: LT
     url: https://arsvia.lt
-    scraper: scripts/scrapers/arsvia.py
     status: planned
     lots_estimate: 5000
     year_range: [2017, 2026]
-    notes: >
-      Results published as PDF files. ~50 auctions, ~200-280 lots each.
-      PDF URL pattern: arsvia.lt/wp-content/uploads/{year}/{month}/AV{N}_rezultatai.pdf
+    description: >
+      Lithuanian art and collectibles auction house hosting regular sales
+      of fine art, antiques, and cultural valuables. Over 50 auctions
+      since 2017 with published results.
 
   # === FINLAND ===
   - name: Hagelstam & Co
     slug: hagelstam
     country: FI
     url: https://www.hagelstam.fi
-    scraper: scripts/scrapers/hagelstam.py
     status: active
     lots_estimate: 162000
     year_range: [2000, 2026]
-    notes: >
-      Finland's oldest auction house. 162K lots in completed auctions archive.
-      Hammer prices (Vasarahinta) shown per lot.
-      URL: /paattyneet-huutokaupat/{auction-id}/{category}
+    description: >
+      Finland's oldest auction house, founded in 1979 by Wenzel Hagelstam.
+      A household name in Finnish art auctioneering with monthly sales
+      covering fine art, design, jewellery, and antiques. Over 160,000
+      lots in their completed auctions archive.
 
   - name: Bukowskis
     slug: bukowskis
     country: FI
     url: https://www.bukowskis.com
-    scraper: scripts/scrapers/bukowskis.py
     status: active
     lots_estimate: 5000
     year_range: [2020, 2026]
-    notes: >
-      Covers both Finnish and Swedish art auctions.
-      Results at /en/auctions/{id}/results. Hammer prices in SEK/EUR.
+    description: >
+      Founded in Stockholm in 1870 by Henryk Bukowski, one of the Nordic
+      region's leading fine art and quality auction houses. Operates in
+      both Stockholm and Helsinki, specialising in Nordic fine art,
+      design, and contemporary works.
 
   # === SWEDEN ===
   - name: Auctionet
     slug: auctionet
     country: SE
     url: https://auctionet.com
-    scraper: scripts/scrapers/auctionet.py
     status: active
     lots_estimate: 50000
     year_range: [2015, 2026]
-    notes: >
-      4.35M total ended lots (all categories). Filter to fine art.
-      Covers Stockholms Auktionsverk + Uppsala Auktionskammare post-2021.
-      Search: /en/search?is=ended&category_id=1 (Fine Art)
+    description: >
+      Scandinavia's leading online auction platform, founded in 2011.
+      Partners with major auction houses including Stockholms Auktionsverk
+      and Uppsala Auktionskammare. Over 4 million ended lots across
+      art, design, antiques, and collectibles.
 
   # === DENMARK ===
   - name: Bruun Rasmussen
     slug: bruun_rasmussen
     country: DK
     url: https://bruun-rasmussen.dk
-    scraper: scripts/scrapers/bruun_rasmussen.py
     status: active
     lots_estimate: 75000
     year_range: [2012, 2026]
-    notes: >
-      Denmark's largest auction house. 75K+ items/year.
-      Categories at /m/categories/{id}?status=sold. JS-rendered prices (needs Playwright).
+    description: >
+      Denmark's largest and most prestigious auction house, renowned
+      for sales of fine art, design, and luxury goods. Handles over
+      75,000 items per year across live and online auctions in Copenhagen.
 
   # === NORWAY ===
   - name: Grev Wedels Plass Auksjoner
     slug: gwpa
     country: "NO"
     url: https://gwpa.no
-    scraper: scripts/scrapers/gwpa.py
     status: active
     lots_estimate: 5000
     year_range: [1994, 2026]
-    notes: >
-      Norway's premier auction house since 1994. /en/auctions/{id}.
-      Public hammer prices in NOK, no anti-bot.
+    description: >
+      Norway's premier fine art auction house, located at Bankplassen
+      in Oslo. Operating since 1994 with a focus on Norwegian and Nordic
+      paintings, drawings, and sculpture from the 19th century to present.
 
   - name: Christiania Auksjoner
     slug: christiania
     country: "NO"
     url: https://christiania-auksjoner.no
-    scraper: scripts/scrapers/christiania.py
     status: planned
     lots_estimate: 5000
     year_range: [2009, 2026]
-    notes: >
-      55 auctions, "Tilslag" (hammer price) shown per lot.
-      /auksjoner/{slug} pattern, no anti-bot.
+    description: >
+      One of Norway's oldest and most respected auction houses, established
+      in 1932. Specialises in quality auctions of fine art, antiques,
+      and design with seasonal sales in Oslo.
 
   # === NETHERLANDS ===
   - name: Kunstveiling.nl
     slug: kunstveiling
     country: NL
     url: https://www.kunstveiling.nl
-    scraper: scripts/scrapers/kunstveiling.py
     status: active
     lots_estimate: 500000
     year_range: [2010, 2026]
-    notes: >
-      Netherlands' largest online art auction. 500K+ items.
-      Paginated results at /en/auction-results/list?offset=N.
+    description: >
+      The Netherlands' largest online art and design auction platform.
+      Hosts weekly themed auctions with over 500,000 items sold. Features
+      paintings, sculpture, photography, and design from Dutch and
+      international artists.
 
   # === UK ===
   - name: Bonhams
     slug: bonhams
     country: GB
     url: https://www.bonhams.com
-    scraper: scripts/scrapers/bonhams.py
     status: active
     lots_estimate: 100000
     year_range: [2000, 2026]
-    notes: >
-      Major UK auction house. Public results at /auctions/results/.
-      Light anti-bot protection. Prices in GBP.
-
-# Image storage plan (future):
-# - Primary: Cloudflare R2 (free egress, S3-compatible, $0.015/GB/mo)
-# - Alternative: Backblaze B2 ($0.006/GB/mo, free egress via Cloudflare)
-# - Alternative: Hetzner Storage Box (€3.49/mo for 1TB)
-# - Pattern: /{country}/{provider}/{auction_id}/{lot_id}.jpg
-# - Thumbnails: 400px wide, ~30KB each
-# - Full: original resolution, ~200KB each
-# - Estimated storage: ~50K images × 230KB = ~11.5GB
+    description: >
+      One of the world's oldest and largest auctioneers of fine art and
+      antiques, founded in London in 1793. Conducts sales globally
+      across fine art, jewellery, motor cars, and luxury collectibles
+      with salerooms in London, New York, Hong Kong, and Los Angeles.

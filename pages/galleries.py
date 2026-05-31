@@ -78,9 +78,9 @@ def galleries_page(sess=None):
             lots = g.get("lots_estimate", 0)
             lots_str = f"{lots:,}" if lots else "—"
 
-            notes = g.get("notes", "")
+            notes = g.get("description", "") or g.get("notes", "")
             if isinstance(notes, str):
-                notes = notes.strip().split("\n")[0][:120]
+                notes = " ".join(notes.strip().split())[:200]
 
             cards.append(
                 A(
