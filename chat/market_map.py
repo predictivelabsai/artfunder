@@ -50,6 +50,8 @@ def _build_where(params: dict) -> tuple[str, dict]:
     if country and country != "ALL":
         conditions.append("COALESCE(country, 'EE') = :country")
         bind["country"] = country
+    else:
+        conditions.append("COALESCE(country, 'EE') != 'LV'")
     author = params.get("author", "").strip()
     if author:
         conditions.append("author ILIKE :author")
@@ -72,9 +74,13 @@ def _fetch_treemap_data(params: dict):
                    COALESCE(NULLIF(tech, ''), 'Unknown') as tech,
                    COALESCE(NULLIF(category, ''), 'Other') as category,
                    SUM(end_price) as total_sales,
-                   AVG(CASE WHEN start_price > 0
-                       THEN (end_price - start_price)::float / start_price * 100
-                       ELSE 0 END) as overbid_pct
+                   COUNT(*) as lot_count,
+                   AVG(end_price)::int as avg_price,
+                   CASE WHEN SUM(CASE WHEN start_price > 0 THEN 1 ELSE 0 END) > 0
+                        THEN AVG(CASE WHEN start_price > 0
+                             THEN (end_price - start_price)::float / start_price * 100
+                             ELSE NULL END)
+                        ELSE NULL END as overbid_pct
             FROM kanvas.auction_lots
             {where}
             GROUP BY author, COALESCE(NULLIF(tech, ''), 'Unknown'),
@@ -144,20 +150,33 @@ def _fetch_filter_options():
         db.close()
 
 
-def _build_treemap_fig(rows, title="Top Artists — Total Sales by Overbid %"):
+def _build_treemap_fig(rows, title="Top Artists — Total Sales"):
     if not rows:
         return None
     df = pd.DataFrame(rows)
     df["total_sales"] = df["total_sales"].astype(float)
-    df["overbid_pct"] = df["overbid_pct"].astype(float)
-    midpoint = np.average(df["overbid_pct"], weights=df["total_sales"]) if len(df) > 0 else 0
+    df["avg_price"] = pd.to_numeric(df["avg_price"], errors="coerce").fillna(0)
+    df["overbid_pct"] = pd.to_numeric(df["overbid_pct"], errors="coerce")
+
+    has_overbid = df["overbid_pct"].notna().sum() > len(df) * 0.3
+    if has_overbid:
+        df["overbid_pct"] = df["overbid_pct"].fillna(0)
+        color_col = "overbid_pct"
+        midpoint = np.average(df[color_col], weights=df["total_sales"])
+        color_scale = "RdBu"
+        title_suffix = " by Overbid %"
+    else:
+        color_col = "avg_price"
+        midpoint = df[color_col].median()
+        color_scale = "Viridis"
+        title_suffix = " by Avg Price"
 
     fig = px.treemap(
         df, path=["category", "tech", "author"],
-        values="total_sales", color="overbid_pct",
-        color_continuous_scale="RdBu",
+        values="total_sales", color=color_col,
+        color_continuous_scale=color_scale,
         color_continuous_midpoint=midpoint,
-        title=title,
+        title=title + title_suffix,
     )
     fig.update_layout(**CHART_LAYOUT)
     fig.update_layout(margin=dict(t=30, l=0, r=0, b=0))
@@ -214,11 +233,10 @@ def register_market_map_routes(rt):
 
         country_options = [
             Option("Estonia", value="EE", selected=True),
-            Option("Latvia", value="LV"),
             Option("Finland", value="FI"),
             Option("Sweden", value="SE"),
-            Option("Denmark", value="DK"),
             Option("Norway", value="NO"),
+            Option("Denmark", value="DK"),
             Option("Netherlands", value="NL"),
             Option("United Kingdom", value="GB"),
             Option("── All Countries ──", value="ALL"),
