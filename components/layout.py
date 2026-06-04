@@ -91,7 +91,7 @@ def NavBar(active='home', sess=None):
 
     mobile_links = [
         A(l, href=h,
-          cls=f'block px-4 py-3 text-sm {"text-black font-semibold" if k == active else "text-gray-500"} hover:bg-gray-50 hover:text-black transition-colors no-underline',
+          cls=f'block px-4 py-3 text-sm font-sans {"text-black" if k == active else "text-gray-400"} hover:text-black transition-colors no-underline',
           data_testid=f'mobile-nav-{k}')
         for k, h, l in nav_items
     ]
@@ -112,7 +112,7 @@ def NavBar(active='home', sess=None):
         Div(cta, cls='px-4 py-3'),
         id='mobile-menu',
         data_testid='mobile-menu',
-        cls='hidden lg:hidden bg-white border-t border-gray-100 shadow-lg',
+        cls='hidden lg:hidden bg-white border-t border-gray-100',
     )
 
     return Nav(
