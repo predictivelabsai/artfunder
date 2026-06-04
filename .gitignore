@@ -3,6 +3,10 @@ screenshots/
 
 # Playwright MCP
 .playwright-mcp/
+node_modules/
+package.json
+package-lock.json
+test-results/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
