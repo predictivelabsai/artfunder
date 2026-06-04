@@ -89,6 +89,32 @@ def NavBar(active='home', sess=None):
         cta = A(t('nav_open_app', lang), href='/app',
                 cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
 
+    mobile_links = [
+        A(l, href=h,
+          cls=f'block px-4 py-3 text-sm {"text-black font-semibold" if k == active else "text-gray-500"} hover:bg-gray-50 hover:text-black transition-colors no-underline',
+          data_testid=f'mobile-nav-{k}')
+        for k, h, l in nav_items
+    ]
+
+    hamburger = Button(
+        Span(cls='block w-5 h-0.5 bg-black mb-1 transition-all', id='bar1'),
+        Span(cls='block w-5 h-0.5 bg-black mb-1 transition-all', id='bar2'),
+        Span(cls='block w-5 h-0.5 bg-black transition-all', id='bar3'),
+        cls='lg:hidden flex flex-col justify-center items-center p-2 bg-transparent border-none cursor-pointer',
+        id='mobile-menu-btn',
+        aria_label='Open menu',
+        data_testid='mobile-menu-btn',
+        onclick="document.getElementById('mobile-menu').classList.toggle('hidden')",
+    )
+
+    mobile_menu = Div(
+        *mobile_links,
+        Div(cta, cls='px-4 py-3'),
+        id='mobile-menu',
+        data_testid='mobile-menu',
+        cls='hidden lg:hidden bg-white border-t border-gray-100 shadow-lg',
+    )
+
     return Nav(
         Div(
             A('Kanvas', Span('.ai', cls='text-gray-400'), href='/',
@@ -97,10 +123,12 @@ def NavBar(active='home', sess=None):
             Div(
                 _lang_switcher(lang),
                 cta,
+                hamburger,
                 cls='flex items-center gap-3',
             ),
             cls='max-w-7xl mx-auto px-5 flex items-center justify-between h-16 gap-4',
         ),
+        mobile_menu,
         Script("""document.addEventListener('click', function(e) {
             var dd = e.target.closest('.relative');
             document.querySelectorAll('.relative > div').forEach(function(d) {
