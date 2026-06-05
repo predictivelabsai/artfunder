@@ -190,8 +190,10 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
             ),
             Div(
                 _chat_lang_dropdown(lang),
-                Button(t("chat_copy", lang), id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn"),
-                Button(t("chat_canvas", lang), id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn"),
+                Button(t("chat_copy", lang), id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn copy-btn"),
+                Button(t("chat_canvas", lang), id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn canvas-btn"),
+                Button("\U0001f4f0", id="news-toggle-btn", onclick="toggleArtifactPane()", cls="header-action-btn news-toggle-btn",
+                       title="Art News"),
                 cls="chat-header-actions",
             ),
             cls="chat-header",
@@ -224,8 +226,11 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
 def right_pane(lang: str = "en"):
     return Div(
         Div(
-            H4(t("chat_news_title", lang), cls="artifact-title"),
-            Span(t("chat_news_subtitle", lang), id="artifact-subtitle", cls="artifact-subtitle"),
+            Div(
+                H4(t("chat_news_title", lang), cls="artifact-title"),
+                Span(t("chat_news_subtitle", lang), id="artifact-subtitle", cls="artifact-subtitle"),
+            ),
+            Button("✕", cls="right-close", onclick="toggleArtifactPane()"),
             cls="artifact-header",
         ),
         Div(

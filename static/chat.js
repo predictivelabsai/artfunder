@@ -558,6 +558,14 @@
         if (seconds >= 60) setInterval(refreshNews, seconds * 1000);
     })();
 
+    // On mobile, start with news pane closed
+    if (window.innerWidth <= 768) {
+        const rp = $("#right-pane");
+        if (rp) rp.classList.remove("open");
+        const app = $(".app");
+        if (app) app.classList.add("pane-closed");
+    }
+
     window.toggleLangDropdown = (ev) => {
         ev.stopPropagation();
         const menu = document.getElementById("lang-dd-menu");
