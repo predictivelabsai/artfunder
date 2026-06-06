@@ -730,3 +730,37 @@ async function submitNotify(e) {
             db.close()
 
         return JSONResponse({"ok": True})
+
+    @rt("/unsubscribe")
+    def unsubscribe_page(request):
+        """Token-based one-click unsubscribe from digest emails."""
+        from sqlalchemy import text
+        import hmac, hashlib
+        token = request.query_params.get("token", "")
+        email = request.query_params.get("email", "")
+        secret = os.getenv("SECRET_KEY", "kanvas-unsub-2026")
+
+        expected = hmac.new(secret.encode(), email.encode(), hashlib.sha256).hexdigest()[:32]
+        if not token or not email or token != expected:
+            return Html(_head("Unsubscribe"), Body(
+                Div(H2("Invalid link"), P("This unsubscribe link is invalid or expired."),
+                    cls="max-w-md mx-auto mt-20 text-center"),
+                cls="bg-white font-sans",
+            ))
+
+        db = _get_db()
+        try:
+            db.execute(text(f"""
+                UPDATE {SCHEMA}.user_profiles SET notify_weekly_digest = FALSE, updated_at = NOW()
+                WHERE user_id = (SELECT id FROM {SCHEMA}.chat_users WHERE email = :email)
+            """), {"email": email})
+            db.commit()
+        finally:
+            db.close()
+
+        return Html(_head("Unsubscribed"), Body(
+            Div(H2("Unsubscribed"), P("You've been unsubscribed from the daily art digest."),
+                P(A("Manage all preferences", href="/app/profile"), cls="mt-4"),
+                cls="max-w-md mx-auto mt-20 text-center"),
+            cls="bg-white font-sans",
+        ))

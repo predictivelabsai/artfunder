@@ -179,7 +179,8 @@ def _country_flag(provider: str | None) -> str:
 
 
 def build_digest_html(bidding_wars: list[dict], value_finds: list[dict],
-                      market_movers: list[dict], news: list[dict] | None = None) -> str:
+                      market_movers: list[dict], news: list[dict] | None = None,
+                      unsubscribe_url: str = "") -> str:
     now = datetime.now()
     today = now.strftime("%A, %B %d, %Y")
     period = "Morning" if now.hour < 12 else ("Afternoon" if now.hour < 17 else "Evening")
@@ -384,9 +385,12 @@ def build_digest_html(bidding_wars: list[dict], value_finds: list[dict],
             <a href="{BASE_URL}/app/market-map" style="color:#000000; text-decoration:none;">Art Index</a>
             &nbsp;&middot;&nbsp;
             <a href="{BASE_URL}/app/analytics" style="color:#000000; text-decoration:none;">Analytics</a>
+            &nbsp;&middot;&nbsp;
+            <a href="{BASE_URL}/app/profile" style="color:#000000; text-decoration:none;">Preferences</a>
         </p>
         <p style="color:#9CA3AF; font-size:11px; margin:0;">
             Predictive Labs Ltd &middot; You&rsquo;re receiving this because you signed up for Kanvas.ai alerts.
+            {f'<br><a href="{unsubscribe_url}" style="color:#9CA3AF;">Unsubscribe</a>' if unsubscribe_url else ''}
         </p>
     </div>
 
@@ -431,7 +435,8 @@ def _build_news_section_html(news: list[dict]) -> str:
 
 
 def build_digest_text(bidding_wars: list[dict], value_finds: list[dict],
-                      market_movers: list[dict], news: list[dict] | None = None) -> str:
+                      market_movers: list[dict], news: list[dict] | None = None,
+                      unsubscribe_url: str = "") -> str:
     now = datetime.now()
     today = now.strftime("%A, %B %d, %Y")
     period = "Morning" if now.hour < 12 else ("Afternoon" if now.hour < 17 else "Evening")
@@ -477,4 +482,7 @@ def build_digest_text(bidding_wars: list[dict], value_finds: list[dict],
 
     lines.append("---")
     lines.append(f"{BASE_URL}/app")
+    lines.append(f"Preferences: {BASE_URL}/app/profile")
+    if unsubscribe_url:
+        lines.append(f"Unsubscribe: {unsubscribe_url}")
     return "\n".join(lines)
