@@ -97,7 +97,7 @@ def _run_query(question: str) -> str:
         db.close()
 
     if not rows:
-        return f"No results found.\n\nSQL used: {sql}"
+        return "No results found for this query."
 
     df = pd.DataFrame(rows)
 
@@ -147,4 +147,94 @@ art_market_query = StructuredTool.from_function(
         "top sellers, category analysis, overbid percentages, gallery comparisons."
     ),
     args_schema=SQLQueryArgs,
+)
+
+
+class ChartArgs(BaseModel):
+    question: str = Field(description="Natural-language question for the chart, e.g. 'Top 10 artists by total sales'")
+    chart_type: str = Field(default="bar", description="Chart type: bar, line, pie, scatter")
+    title: str = Field(default="", description="Chart title")
+
+
+def _run_chart(**kw) -> str:
+    args = ChartArgs(**kw)
+    sql = _draft_sql(args.question)
+    _guard_sql(sql)
+
+    from db import SessionLocal
+    from sqlalchemy import text
+
+    db = SessionLocal()
+    try:
+        result = db.execute(text(sql))
+        rows = [dict(r._mapping) for r in result]
+    finally:
+        db.close()
+
+    if not rows:
+        return "No data available for chart."
+
+    df = pd.DataFrame(rows)
+    cols = list(df.columns)
+    if len(cols) < 2:
+        return "Need at least two columns (label + value) for a chart."
+
+    label_col = cols[0]
+    value_col = cols[1]
+
+    for c in cols[1:]:
+        if df[c].dtype in ("int64", "float64"):
+            value_col = c
+            break
+
+    labels = df[label_col].astype(str).tolist()
+    values = df[value_col].tolist()
+    chart_title = args.title or f"{value_col} by {label_col}"
+
+    chart_type = args.chart_type.lower()
+
+    if chart_type == "pie":
+        figure = {
+            "data": [{"type": "pie", "labels": labels, "values": values,
+                       "marker": {"colors": ["#1a1a1a", "#333", "#555", "#777", "#999", "#aaa", "#bbb", "#ccc", "#ddd", "#eee"]}}],
+            "layout": {"title": {"text": chart_title}, "font": {"family": "Inter, sans-serif"},
+                        "paper_bgcolor": "#fff", "plot_bgcolor": "#fff"},
+        }
+    elif chart_type == "line":
+        figure = {
+            "data": [{"type": "scatter", "mode": "lines+markers", "x": labels, "y": values,
+                       "line": {"color": "#1a1a1a", "width": 2}, "marker": {"size": 6}}],
+            "layout": {"title": {"text": chart_title}, "font": {"family": "Inter, sans-serif"},
+                        "xaxis": {"title": label_col}, "yaxis": {"title": value_col},
+                        "paper_bgcolor": "#fff", "plot_bgcolor": "#fff"},
+        }
+    else:
+        figure = {
+            "data": [{"type": "bar", "x": labels, "y": values,
+                       "marker": {"color": "#1a1a1a"}}],
+            "layout": {"title": {"text": chart_title}, "font": {"family": "Inter, sans-serif"},
+                        "xaxis": {"title": label_col, "tickangle": -45},
+                        "yaxis": {"title": value_col},
+                        "paper_bgcolor": "#fff", "plot_bgcolor": "#fff",
+                        "margin": {"b": 120}},
+        }
+
+    payload = json.dumps({
+        "kind": "chart",
+        "title": chart_title,
+        "subtitle": f"{len(rows)} data points",
+        "figure": figure,
+    })
+    return f"__ARTIFACT__{payload}"
+
+
+art_market_chart = StructuredTool.from_function(
+    func=_run_chart,
+    name="art_market_chart",
+    description=(
+        "Generate an interactive Plotly chart from art market data. "
+        "Use when the user asks for a visualization, chart, graph, or says 'yes' to a visualization offer. "
+        "Supports bar, line, pie, and scatter charts. The chart appears in the Canvas pane."
+    ),
+    args_schema=ChartArgs,
 )

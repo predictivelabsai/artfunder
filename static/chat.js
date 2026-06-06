@@ -48,26 +48,34 @@
         return bubble;
     }
 
-    function appendToolLog(bubble, name, args) {
-        let log = bubble.parentElement.querySelector(".tool-log");
-        if (!log) {
-            log = document.createElement("div");
-            log.className = "tool-log";
-            bubble.parentElement.appendChild(log);
-        }
-        const step = document.createElement("div");
-        step.className = "tool-step";
-        const argStr = args ? JSON.stringify(args).slice(0, 140) : "";
-        step.innerHTML = `-> <span class="tool-name">${name}</span> <span class="tool-args">${argStr}</span>`;
-        log.appendChild(step);
-    }
-
-    function scrollMessagesBottom() {
+function scrollMessagesBottom() {
         const m = $("#messages");
         if (m) m.scrollTop = m.scrollHeight;
     }
 
+    function stripSQL(text) {
+        text = text.replace(/```sql[\s\S]*?```/gi, '');
+        text = text.replace(/\bSQL used:.*$/gim, '');
+        const lines = text.split('\n');
+        const out = [];
+        let inSQL = false;
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!inSQL && /^(SELECT|WITH)\b/i.test(trimmed)) { inSQL = true; continue; }
+            if (inSQL) {
+                if (/^(FROM|JOIN|WHERE|GROUP|ORDER|HAVING|LIMIT|AND|OR|ON|LEFT|RIGHT|INNER|OUTER|CASE|WHEN|AS|UNION|INSERT|UPDATE|DELETE)\b/i.test(trimmed)
+                    || /^[)(\s,]/.test(trimmed) || trimmed === '' || /;\s*$/.test(trimmed)) {
+                    continue;
+                }
+                inSQL = false;
+            }
+            out.push(line);
+        }
+        return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    }
+
     function renderMarkdownLite(text) {
+        text = stripSQL(text);
         if (window.marked) return marked.parse(text);
         return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
             .replace(/\n/g, "<br>");
@@ -119,14 +127,28 @@
     }
 
     // ── Thinking indicator ────────────────────────────────────
+    const TOOL_LABELS = {
+        art_market_query: ["Querying art market data", "Analyzing auction records", "Processing market statistics"],
+        search_auction_lots: ["Searching auction lots", "Scanning auction records"],
+        artist_auction_history: ["Looking up artist history", "Retrieving auction data"],
+        art_market_chart: ["Building visualization", "Generating chart"],
+        treemap_chart: ["Building market treemap", "Mapping artist sales"],
+        price_trend_chart: ["Analyzing price trends", "Charting market data"],
+        web_search: ["Searching the web", "Finding market insights"],
+        game_master: ["The art world unfolds", "Game master is thinking"],
+    };
+    const GENERIC_LABELS = ["Thinking", "Analyzing", "Processing", "Working on it"];
+
     let thinker = null;
     function showThinking(bubble) {
         if (!bubble) return;
         thinker = {
             started: Date.now(),
             tool: null,
+            labelIdx: 0,
             el: document.createElement("div"),
             timerId: null,
+            rotateId: null,
         };
         thinker.el.className = "thinking-indicator";
         thinker.el.innerHTML = `<span class="dot"></span><span class="label">Thinking... <span class="secs">0s</span></span>`;
@@ -136,10 +158,10 @@
     function updateThinking() {
         if (!thinker) return;
         const secs = Math.floor((Date.now() - thinker.started) / 1000);
-        const label = thinker.tool
-            ? `Thinking... <span class="secs">${secs}s</span> -- calling <code>${thinker.tool}</code>`
-            : `Thinking... <span class="secs">${secs}s</span>`;
-        thinker.el.querySelector(".label").innerHTML = label;
+        const labels = thinker.tool ? (TOOL_LABELS[thinker.tool] || GENERIC_LABELS) : GENERIC_LABELS;
+        const idx = Math.floor(secs / 3) % labels.length;
+        const text = labels[idx];
+        thinker.el.querySelector(".label").innerHTML = `${text}... <span class="secs">${secs}s</span>`;
     }
     function setThinkingTool(name) {
         if (!thinker) return;
@@ -273,8 +295,8 @@
                         bubble.innerHTML = renderMarkdownLite(accumulated);
                         scrollMessagesBottom();
                     } else if (type === "tool_start") {
+                        if (!thinker && bubble) showThinking(bubble);
                         setThinkingTool(payload.name);
-                        appendToolLog(bubble || addBubble("assistant", "", ""), payload.name, payload.args);
                     } else if (type === "tool_end") {
                         // noop
                     } else if (type === "artifact_show") {

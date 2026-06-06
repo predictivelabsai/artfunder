@@ -213,7 +213,7 @@ def register_chat_routes(rt):
                     f"\nUser language: {lang} ({lang_info['name']}). "
                     f"Respond in {lang_info['name']}."
                 )
-            lc_messages = [SystemMessage(content=f"You are a Kanvas.ai art advisor. Respond helpfully and concisely.{lang_directive}")]
+            lc_messages = [SystemMessage(content=f"You are a Kanvas.ai art advisor. Respond helpfully and concisely. Never include raw SQL, SELECT statements, or database syntax in your response — the user is a non-technical art collector.{lang_directive}")]
             for h in history[-20:]:
                 if h["role"] == "user":
                     lc_messages.append(HumanMessage(content=h["content"]))
