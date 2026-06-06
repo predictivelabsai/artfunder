@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import requests as http_requests
 
 from fasthtml.common import (
-    Html, Head, Body, Div, H2, P, A, Button, Form, Input,
+    Html, Head, Body, Div, H2, H3, P, A, Button, Form, Input, Label, Select, Option, Span, Style, Script, NotStr,
 )
 from starlette.responses import RedirectResponse, JSONResponse
 
@@ -387,3 +387,346 @@ def register_auth_routes(rt):
             db.close()
 
         return RedirectResponse("/app", status_code=303)
+
+    # --- Profile & Preferences ---
+
+    MEDIUMS = ['Oil Painting', 'Watercolour', 'Acrylic', 'Gouache', 'Pastel', 'Mixed Media', 'Tempera', 'Drawing', 'Print']
+    PERIODS = ['Contemporary (1970+)', 'Post-War (1945-1970)', 'Modern (1900-1945)', 'Classical (pre-1900)']
+    AUCTION_HOUSES = ['Haus', 'Allee', 'Vaal', 'Vernissage', 'Bukowskis', 'Auctionet',
+                      'Bruun Rasmussen', 'Stockholms Auktionsverk', 'Hagelstam']
+    ART_COUNTRIES = [('EE', 'Estonia'), ('LV', 'Latvia'), ('LT', 'Lithuania'),
+                     ('FI', 'Finland'), ('SE', 'Sweden'), ('DK', 'Denmark'),
+                     ('NO', 'Norway'), ('NL', 'Netherlands')]
+    CURRENCIES = [('EUR', '€ EUR'), ('GBP', '£ GBP'), ('USD', '$ USD'), ('SEK', 'kr SEK'), ('DKK', 'kr DKK')]
+
+    def _checkbox_group(name, options, selected):
+        items = []
+        for opt in options:
+            val = opt[0] if isinstance(opt, tuple) else opt
+            label = opt[1] if isinstance(opt, tuple) else opt
+            checked = 'checked' if val in selected else ''
+            items.append(NotStr(
+                f'<label class="cb-pill"><input type="checkbox" name="{name}" value="{val}" {checked}>'
+                f'<span>{label}</span></label>'
+            ))
+        return Div(*items, cls="cb-group")
+
+    def _select_field(name, options, selected):
+        opts = [NotStr(f'<option value="{v}"{" selected" if v == selected else ""}>{lbl}</option>')
+                for v, lbl in options]
+        return NotStr(f'<select name="{name}" class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm">{"".join(str(o) for o in opts)}</select>')
+
+    def _toggle(name, label_text, checked):
+        chk = "checked" if checked else ""
+        return Div(
+            NotStr(f'<label class="toggle-row"><input type="checkbox" name="{name}" value="1" {chk}>'
+                   f'<span class="toggle-label">{label_text}</span></label>'),
+            cls="mb-2",
+        )
+
+    @rt("/app/profile", methods=["GET"])
+    def profile_page(sess):
+        from sqlalchemy import text
+        import json as _json
+        email = get_user_email(sess)
+        if not email:
+            return RedirectResponse("/signin", status_code=303)
+
+        uid = get_user_id(sess)
+        db = _get_db()
+        try:
+            user = db.execute(
+                text(f"SELECT name, email, created_at FROM {SCHEMA}.chat_users WHERE id = :id"),
+                {"id": uid},
+            ).fetchone()
+            prefs = db.execute(
+                text(f"SELECT * FROM {SCHEMA}.user_profiles WHERE user_id = :uid"),
+                {"uid": uid},
+            ).fetchone()
+        finally:
+            db.close()
+
+        name = user.name or "" if user else ""
+        user_email = user.email if user else email
+
+        p_phone = prefs.phone if prefs else ""
+        p_country = prefs.country if prefs else ""
+        p_city = prefs.city if prefs else ""
+        p_currency = prefs.currency if prefs else "EUR"
+        p_lang = prefs.language if prefs else "en"
+        p_bmin = str(prefs.budget_min_eur or "") if prefs else ""
+        p_bmax = str(prefs.budget_max_eur or "") if prefs else ""
+        def _as_list(val):
+            if not val:
+                return []
+            if isinstance(val, list):
+                return val
+            return _json.loads(val)
+
+        p_mediums = _as_list(prefs.preferred_mediums) if prefs else []
+        p_periods = _as_list(prefs.preferred_periods) if prefs else []
+        p_houses = _as_list(prefs.preferred_auction_houses) if prefs else []
+        p_countries = _as_list(prefs.preferred_countries) if prefs else []
+        p_min_yr = str(prefs.min_year or "") if prefs else ""
+        p_max_yr = str(prefs.max_year or "") if prefs else ""
+        p_notify_results = prefs.notify_new_results if prefs else True
+        p_notify_price = prefs.notify_price_alerts if prefs else True
+        p_notify_digest = prefs.notify_weekly_digest if prefs else True
+
+        inp = "w-full px-3 py-2 border border-gray-200 rounded-md text-sm"
+        lbl = "text-xs text-gray-500 block mb-1"
+        half = "flex-1"
+
+        return Html(_head("Profile & Preferences"), Body(
+            Div(
+                A("← Back to chat", href="/app", cls="text-sm text-gray-500 mb-4 block no-underline hover:text-black"),
+
+                H2("Account", cls="text-xl font-bold mb-1"),
+                P("Your account details and password.", cls="text-xs text-gray-400 mb-4"),
+                Form(
+                    Div(
+                        Div(Label("Name", cls=lbl), Input(type="text", name="name", value=name, placeholder="Your name", cls=inp), cls=half),
+                        Div(Label("Email", cls=lbl), Input(type="email", value=user_email, disabled=True, cls=f"{inp} bg-gray-50"), cls=half),
+                        cls="flex gap-3 mb-3",
+                    ),
+                    Div(
+                        Div(Label("Phone", cls=lbl), Input(type="tel", name="phone", value=p_phone, placeholder="+372...", cls=inp), cls=half),
+                        Div(Label("Country", cls=lbl), Input(type="text", name="country", value=p_country, placeholder="e.g. EE, SE", maxlength="5", cls=inp), cls=half),
+                        Div(Label("City", cls=lbl), Input(type="text", name="city", value=p_city, placeholder="e.g. Tallinn", cls=inp), cls=half),
+                        cls="flex gap-3 mb-3",
+                    ),
+                    Div(
+                        Div(Label("Currency", cls=lbl), _select_field("currency", CURRENCIES, p_currency), cls=half),
+                        Div(Label("Language", cls=lbl),
+                            _select_field("language", [("en","English"),("et","Eesti"),("de","Deutsch"),("fr","Français"),("sv","Svenska"),("lv","Latviešu"),("lt","Lietuvių"),("no","Norsk"),("da","Dansk"),("pl","Polski"),("nl","Nederlands"),("fi","Suomi")], p_lang),
+                            cls=half),
+                        cls="flex gap-3 mb-4",
+                    ),
+                    H3("Change Password", cls="text-sm font-semibold mt-2 mb-2"),
+                    Div(
+                        Div(Input(type="password", name="current_password", placeholder="Current password", cls=inp), cls=half),
+                        Div(Input(type="password", name="new_password", placeholder="New password (min 6 chars)", cls=inp), cls=half),
+                        cls="flex gap-3 mb-4",
+                    ),
+                    Div(
+                        Button("Save Account", type="submit", cls="px-5 py-2 bg-black text-white rounded-md text-sm cursor-pointer border-none"),
+                        Span(id="profile-msg", cls="text-sm ml-3"),
+                        cls="flex items-center",
+                    ),
+                    id="profile-form",
+                    onsubmit="return submitProfile(event)",
+                ),
+
+                NotStr('<hr class="my-8 border-gray-100">'),
+                H2("Art Preferences", cls="text-xl font-bold mb-1"),
+                P("Set your collecting preferences — agents will tailor recommendations based on these.", cls="text-xs text-gray-400 mb-4"),
+                Form(
+                    H3("Budget Range (€)", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2"),
+                    Div(
+                        Div(Label("Min", cls=lbl), Input(type="number", name="budget_min", value=p_bmin, placeholder="e.g. 500", step="100", cls=inp), cls=half),
+                        Div(Label("Max", cls=lbl), Input(type="number", name="budget_max", value=p_bmax, placeholder="e.g. 50000", step="500", cls=inp), cls=half),
+                        cls="flex gap-3 mb-4",
+                    ),
+
+                    H3("Preferred Mediums", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2"),
+                    _checkbox_group("preferred_mediums", MEDIUMS, p_mediums),
+
+                    H3("Periods", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-4"),
+                    _checkbox_group("preferred_periods", PERIODS, p_periods),
+
+                    H3("Auction Houses", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-4"),
+                    _checkbox_group("preferred_auction_houses", AUCTION_HOUSES, p_houses),
+
+                    H3("Markets", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-4"),
+                    _checkbox_group("preferred_countries", ART_COUNTRIES, p_countries),
+
+                    H3("Year Range", cls="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-4"),
+                    Div(
+                        Div(Label("Min Year", cls=lbl), Input(type="number", name="min_year", value=p_min_yr, placeholder="e.g. 1900", cls=inp), cls=half),
+                        Div(Label("Max Year", cls=lbl), Input(type="number", name="max_year", value=p_max_yr, placeholder="e.g. 2026", cls=inp), cls=half),
+                        cls="flex gap-3 mb-4",
+                    ),
+                    Div(
+                        Button("Save Preferences", type="submit", cls="px-5 py-2 bg-black text-white rounded-md text-sm cursor-pointer border-none"),
+                        Span(id="prefs-msg", cls="text-sm ml-3"),
+                        cls="flex items-center",
+                    ),
+                    Input(type="hidden", name="_section", value="prefs"),
+                    id="prefs-form",
+                    onsubmit="return submitPrefs(event)",
+                ),
+
+                NotStr('<hr class="my-8 border-gray-100">'),
+                H2("Notifications", cls="text-xl font-bold mb-1"),
+                P("Choose what emails you'd like to receive.", cls="text-xs text-gray-400 mb-4"),
+                Form(
+                    Input(type="hidden", name="_section", value="notify"),
+                    _toggle("notify_new_results", "New auction results matching my preferences", p_notify_results),
+                    _toggle("notify_price_alerts", "Price alerts on artists I follow", p_notify_price),
+                    _toggle("notify_weekly_digest", "Weekly art market digest", p_notify_digest),
+                    Div(
+                        Button("Save Notifications", type="submit", cls="px-5 py-2 bg-black text-white rounded-md text-sm cursor-pointer border-none mt-2"),
+                        Span(id="notify-msg", cls="text-sm ml-3"),
+                        cls="flex items-center",
+                    ),
+                    id="notify-form",
+                    onsubmit="return submitNotify(event)",
+                ),
+
+                cls="max-w-2xl mx-auto mt-8 mb-16 px-6",
+            ),
+            Style(NotStr("""
+                .cb-group { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+                .cb-pill { display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border:1px solid #e5e7eb; border-radius:20px; font-size:13px; cursor:pointer; transition:all .15s; user-select:none; }
+                .cb-pill:has(input:checked) { background:#111; color:#fff; border-color:#111; }
+                .cb-pill input { display:none; }
+                .toggle-row { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; }
+                .toggle-row input { width:16px; height:16px; accent-color:#111; }
+                .toggle-label { color:#374151; }
+            """)),
+            Script(NotStr("""
+async function submitProfile(e) {
+    e.preventDefault();
+    var form = document.getElementById('profile-form');
+    var resp = await fetch('/app/profile', { method:'POST', body: new FormData(form) });
+    var data = await resp.json();
+    var msg = document.getElementById('profile-msg');
+    msg.style.color = data.ok ? '#16A34A' : '#DC2626';
+    msg.textContent = data.ok ? 'Saved!' : (data.error || 'Error');
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+    return false;
+}
+async function submitPrefs(e) {
+    e.preventDefault();
+    var form = document.getElementById('prefs-form');
+    var resp = await fetch('/api/user-profile', { method:'POST', body: new FormData(form) });
+    var data = await resp.json();
+    var msg = document.getElementById('prefs-msg');
+    msg.style.color = data.ok ? '#16A34A' : '#DC2626';
+    msg.textContent = data.ok ? 'Preferences saved!' : (data.error || 'Error');
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+    return false;
+}
+async function submitNotify(e) {
+    e.preventDefault();
+    var form = document.getElementById('notify-form');
+    var resp = await fetch('/api/user-profile', { method:'POST', body: new FormData(form) });
+    var data = await resp.json();
+    var msg = document.getElementById('notify-msg');
+    msg.style.color = data.ok ? '#16A34A' : '#DC2626';
+    msg.textContent = data.ok ? 'Notification settings saved!' : (data.error || 'Error');
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+    return false;
+}
+""")),
+            cls="bg-white font-sans min-h-screen",
+        ))
+
+    @rt("/app/profile", methods=["POST"])
+    async def profile_update(request, sess):
+        from sqlalchemy import text
+        uid = get_user_id(sess)
+        if not uid:
+            return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+        form = await request.form()
+        name = (form.get("name") or "").strip()
+        phone = (form.get("phone") or "").strip()
+        country = (form.get("country") or "").strip()
+        city = (form.get("city") or "").strip()
+        currency = form.get("currency") or "EUR"
+        language = form.get("language") or "en"
+        current_password = form.get("current_password") or ""
+        new_password = form.get("new_password") or ""
+
+        db = _get_db()
+        try:
+            updates = ["name = :name"]
+            params = {"name": name, "id": uid}
+
+            if new_password:
+                if len(new_password) < 6:
+                    return JSONResponse({"error": "New password must be at least 6 characters"}, status_code=400)
+                row = db.execute(
+                    text(f"SELECT password_hash FROM {SCHEMA}.chat_users WHERE id = :id"),
+                    {"id": uid},
+                ).fetchone()
+                if row and row.password_hash:
+                    if not verify_password(current_password, row.password_hash):
+                        return JSONResponse({"error": "Current password is incorrect"}, status_code=400)
+                params["pw"] = hash_password(new_password)
+                updates.append("password_hash = :pw")
+
+            db.execute(text(f"""
+                UPDATE {SCHEMA}.chat_users SET {', '.join(updates)} WHERE id = :id
+            """), params)
+
+            db.execute(text(f"""
+                INSERT INTO {SCHEMA}.user_profiles (user_id, phone, country, city, currency, language, updated_at)
+                VALUES (:uid, :phone, :country, :city, :currency, :language, NOW())
+                ON CONFLICT (user_id) DO UPDATE SET
+                    phone = :phone, country = :country, city = :city,
+                    currency = :currency, language = :language, updated_at = NOW()
+            """), {"uid": uid, "phone": phone, "country": country, "city": city,
+                   "currency": currency, "language": language})
+            db.commit()
+        finally:
+            db.close()
+
+        return JSONResponse({"ok": True})
+
+    @rt("/api/user-profile", methods=["POST"])
+    async def update_user_prefs(request, sess):
+        from sqlalchemy import text
+        import json as _json
+        uid = get_user_id(sess)
+        if not uid:
+            return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+        form = await request.form()
+        section = form.get("_section", "prefs")
+
+        db = _get_db()
+        try:
+            if section == "notify":
+                notify_results = "notify_new_results" in form
+                notify_price = "notify_price_alerts" in form
+                notify_digest = "notify_weekly_digest" in form
+                db.execute(text(f"""
+                    INSERT INTO {SCHEMA}.user_profiles (user_id, notify_new_results, notify_price_alerts, notify_weekly_digest, updated_at)
+                    VALUES (:uid, :n_results, :n_price, :n_digest, NOW())
+                    ON CONFLICT (user_id) DO UPDATE SET
+                        notify_new_results = :n_results, notify_price_alerts = :n_price,
+                        notify_weekly_digest = :n_digest, updated_at = NOW()
+                """), {"uid": uid, "n_results": notify_results, "n_price": notify_price, "n_digest": notify_digest})
+            else:
+                budget_min = form.get("budget_min") or None
+                budget_max = form.get("budget_max") or None
+                preferred_mediums = _json.dumps(form.getlist("preferred_mediums"))
+                preferred_periods = _json.dumps(form.getlist("preferred_periods"))
+                preferred_auction_houses = _json.dumps(form.getlist("preferred_auction_houses"))
+                preferred_countries = _json.dumps(form.getlist("preferred_countries"))
+                min_year = form.get("min_year") or None
+                max_year = form.get("max_year") or None
+                db.execute(text(f"""
+                    INSERT INTO {SCHEMA}.user_profiles (user_id, budget_min_eur, budget_max_eur,
+                        preferred_mediums, preferred_periods, preferred_auction_houses,
+                        preferred_countries, min_year, max_year, updated_at)
+                    VALUES (:uid, :bmin, :bmax, :mediums, :periods, :houses, :countries,
+                            :min_yr, :max_yr, NOW())
+                    ON CONFLICT (user_id) DO UPDATE SET
+                        budget_min_eur = :bmin, budget_max_eur = :bmax,
+                        preferred_mediums = :mediums, preferred_periods = :periods,
+                        preferred_auction_houses = :houses, preferred_countries = :countries,
+                        min_year = :min_yr, max_year = :max_yr, updated_at = NOW()
+                """), {
+                    "uid": uid, "bmin": budget_min, "bmax": budget_max,
+                    "mediums": preferred_mediums, "periods": preferred_periods,
+                    "houses": preferred_auction_houses, "countries": preferred_countries,
+                    "min_yr": min_year, "max_yr": max_year,
+                })
+            db.commit()
+        finally:
+            db.close()
+
+        return JSONResponse({"ok": True})

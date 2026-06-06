@@ -158,8 +158,14 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
 
     auth_section = (
         Div(
-            Span(user_email, cls="text-xs text-gray-500 truncate"),
-            Button(t("chat_sign_out", lang), onclick="signOut()", cls="text-xs text-gray-400 hover:text-black cursor-pointer bg-transparent border-none"),
+            Div(
+                Span(user_email, cls="text-xs text-gray-500 truncate"),
+                Div(
+                    A("Preferences", href="/app/profile", cls="text-xs text-gray-400 hover:text-black no-underline"),
+                    Button(t("chat_sign_out", lang), onclick="signOut()", cls="text-xs text-gray-400 hover:text-black cursor-pointer bg-transparent border-none"),
+                    cls="flex gap-3",
+                ),
+            ),
             cls="flex items-center justify-between gap-2 px-3 py-2",
         ) if user_email else
         Button(t("chat_sign_in", lang), onclick="showSignIn()",

@@ -99,6 +99,28 @@ def _init_chat_tables():
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS verify_token VARCHAR(64)",
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(64)",
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ",
+        # User profiles table
+        f"""CREATE TABLE IF NOT EXISTS {SCHEMA}.user_profiles (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES {SCHEMA}.chat_users(id) ON DELETE CASCADE UNIQUE,
+            phone VARCHAR(30),
+            country VARCHAR(5),
+            city VARCHAR(100),
+            currency VARCHAR(3) DEFAULT 'EUR',
+            language VARCHAR(5) DEFAULT 'en',
+            budget_min_eur NUMERIC(12,2),
+            budget_max_eur NUMERIC(12,2),
+            preferred_mediums JSONB DEFAULT '[]',
+            preferred_periods JSONB DEFAULT '[]',
+            preferred_auction_houses JSONB DEFAULT '[]',
+            preferred_countries JSONB DEFAULT '[]',
+            min_year INTEGER,
+            max_year INTEGER,
+            notify_new_results BOOLEAN DEFAULT TRUE,
+            notify_price_alerts BOOLEAN DEFAULT TRUE,
+            notify_weekly_digest BOOLEAN DEFAULT TRUE,
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
     ]
     with engine.connect() as conn:
         for stmt in ddl:
