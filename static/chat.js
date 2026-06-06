@@ -233,6 +233,15 @@ function scrollMessagesBottom() {
     // Init sample cards on load
     if ($("#sample-cards-row")) updateSampleCards(null);
 
+    // Handle prefill from navigation (e.g. agent click from Art Index)
+    const prefill = new URLSearchParams(window.location.search).get("prefill");
+    if (prefill) {
+        requestAnimationFrame(() => {
+            const ta = $("#chat-input");
+            if (ta) { ta.value = prefill; ta.focus(); autoResize(ta); }
+        });
+    }
+
     // ── SSE send ──────────────────────────────────────────────
     async function sendMessage(evt) {
         if (evt) evt.preventDefault();
@@ -469,6 +478,14 @@ function scrollMessagesBottom() {
         ta.value = text;
         ta.focus();
         autoResize(ta);
+    };
+    window.agentClick = (prefix) => {
+        const ta = $("#chat-input");
+        if (ta) {
+            fillChat(prefix);
+        } else {
+            window.location.href = "/app?prefill=" + encodeURIComponent(prefix);
+        }
     };
     window.newChat = () => { window.location.href = "/app"; };
     window.showSignIn = () => {

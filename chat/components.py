@@ -77,7 +77,7 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
                     Span(a.icon, cls="agent-icon"),
                     Span(a.name, cls="agent-name"),
                     cls="agent-item",
-                    onclick=f"fillChat('{a.prefix} ')",
+                    onclick=f"agentClick('{a.prefix} ')",
                 )
             )
         group_id = f"group-{cat['key']}"
