@@ -170,7 +170,7 @@ def register_game_routes(rt):
                         )),
                     ]
                     first_chunk = True
-                    for chunk in llm.stream(messages):
+                    async for chunk in llm.astream(messages):
                         if hasattr(chunk, "content") and chunk.content:
                             if first_chunk:
                                 yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
@@ -229,7 +229,7 @@ def register_game_routes(rt):
                 from utils.llm import build_llm
                 llm = build_llm()
                 first_chunk = True
-                for chunk in llm.stream(messages):
+                async for chunk in llm.astream(messages):
                     if hasattr(chunk, "content") and chunk.content:
                         if first_chunk:
                             yield sse.event(sse.TOOL_END, {"name": "game_master", "output": ""})
