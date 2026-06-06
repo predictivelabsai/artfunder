@@ -473,6 +473,40 @@ def faq(sess):
     )
 
 
+# --- Daily digest scheduler ---
+
+def _start_daily_digest():
+    """Background thread that sends the art deals digest once per day."""
+    import threading
+    import time as _time
+    from datetime import datetime, timedelta
+
+    DIGEST_HOUR = int(os.environ.get("DIGEST_HOUR", "7"))
+
+    def _run_digest():
+        try:
+            from scripts.daily_deals import main as digest_main
+            import sys
+            sys.argv = ["daily_deals", "--all"]
+            digest_main()
+        except Exception as e:
+            print(f"ERROR:    Daily digest error: {e}", flush=True)
+
+    def _loop():
+        while True:
+            now = datetime.now()
+            target = now.replace(hour=DIGEST_HOUR, minute=0, second=0, microsecond=0)
+            if target <= now:
+                target += timedelta(days=1)
+            wait = (target - now).total_seconds()
+            print(f"INFO:     Daily digest scheduled for {target.strftime('%Y-%m-%d %H:%M')} ({wait/3600:.1f}h from now)", flush=True)
+            _time.sleep(wait)
+            _run_digest()
+
+    t = threading.Thread(target=_loop, daemon=True)
+    t.start()
+
+
 # --- Initialize DB on startup ---
 
 @app.on_event("startup")
@@ -499,6 +533,9 @@ async def startup():
             db.close()
     except Exception as e:
         print(f"DB init warning: {e}")
+
+    if os.environ.get("DIGEST_ENABLED", "1") == "1":
+        _start_daily_digest()
 
 
 serve(port=int(os.environ.get('PORT', 5009)))
