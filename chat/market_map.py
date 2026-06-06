@@ -95,6 +95,22 @@ def _fetch_treemap_data(params: dict):
         db.close()
 
 
+MEDIUM_BUCKET = """
+    CASE
+        WHEN LOWER(COALESCE(tech, '')) ~ '(oil|õli|öl|olje|olja|olie)' THEN 'Oil'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(waterc|aquar|akvar|akvarel)' THEN 'Watercolor'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(pastel)' THEN 'Pastel'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(litho|lito|litogra)' THEN 'Print'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(etch|engrav|woodcut|linocut|drypoint|dry.?point|mezzotint|eau.?forte|monotype|grafiika|grafi|serigraphy|screen)' THEN 'Print'
+        WHEN LOWER(COALESCE(category, '')) = 'graphics' OR LOWER(COALESCE(tech, '')) ~ '(graphic)' THEN 'Print'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(mixed|sega|collage|install)' THEN 'Mixed Media'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(ink|tempera|gouache|guašš|pencil|charcoal|pliiats|tušš|pen )' THEN 'Works on Paper'
+        WHEN COALESCE(NULLIF(tech, ''), '') = '' THEN 'Other'
+        ELSE 'Other'
+    END
+"""
+
+
 def _fetch_trend_data(params: dict):
     from db import SessionLocal
     from sqlalchemy import text
@@ -104,13 +120,12 @@ def _fetch_trend_data(params: dict):
         where += " AND auction_date > 0"
         sql = text(f"""
             SELECT auction_date as year,
-                   COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other')) as category,
-                   AVG(end_price)::int as avg_price,
+                   {MEDIUM_BUCKET} as category,
+                   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY end_price)::int as avg_price,
                    COUNT(*) as lots
             FROM kanvas.auction_lots
             {where}
-            GROUP BY auction_date,
-                     COALESCE(NULLIF(category, ''), COALESCE(NULLIF(tech, ''), 'Other'))
+            GROUP BY auction_date, {MEDIUM_BUCKET}
             ORDER BY auction_date
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, bind)]
@@ -170,18 +185,34 @@ def _build_treemap_fig(rows, title="Top Artists — Total Sales"):
     return fig
 
 
-def _build_trend_fig(rows, title="Price Trends by Category"):
+MEDIUM_COLORS = {
+    "Oil": "#1A1A1A",
+    "Watercolor": "#3B82F6",
+    "Print": "#8B5CF6",
+    "Pastel": "#EC4899",
+    "Mixed Media": "#F59E0B",
+    "Works on Paper": "#10B981",
+    "Other": "#9CA3AF",
+}
+
+
+def _build_trend_fig(rows, title="Price Trends by Medium"):
     if not rows:
         return None
     df = pd.DataFrame(rows)
     for col in ["avg_price", "lots"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
-    fig = px.area(
+    df = df[df["lots"] >= 3]
+    fig = px.line(
         df, x="year", y="avg_price", color="category",
         title=title, markers=True,
+        color_discrete_map=MEDIUM_COLORS,
+        labels={"avg_price": "Median Price (EUR)", "year": "Year", "category": "Medium"},
     )
     fig.update_layout(**CHART_LAYOUT)
+    fig.update_traces(line=dict(width=2))
+    fig.update_xaxes(dtick=1)
     return fig
 
 
@@ -292,7 +323,7 @@ def register_market_map_routes(rt):
                     Div(id="treemap-chart", style="width:100%;min-height:500px;"),
                     Div(
                         H3("Price Trends", cls="text-lg font-display font-bold mt-8 mb-1"),
-                        P("Average end price over time by category.",
+                        P("Median end price over time by medium. Same filters apply.",
                           cls="text-sm text-gray-500 mb-4"),
                     ),
                     Div(id="trend-chart", style="width:100%;min-height:400px;"),
