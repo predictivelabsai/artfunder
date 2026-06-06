@@ -86,7 +86,7 @@ def NavBar(active='home', sess=None):
             cta = A(t('nav_login', lang), href='/login',
                     cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
     else:
-        cta = A(t('nav_open_app', lang), href='/app',
+        cta = A(t('nav_login', lang), href='/signin',
                 cls='inline-flex items-center px-4 py-2 rounded-full text-xs font-medium bg-black text-white hover:bg-gray-800 transition-colors no-underline')
 
     mobile_links = [
