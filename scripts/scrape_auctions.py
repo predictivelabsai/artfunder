@@ -30,9 +30,9 @@ PROVIDERS = [
     # Finland
     "hagelstam", "bukowskis",
     # Sweden
-    "auctionet",
+    "auctionet", "stockholms_auktionsverk",
     # Denmark
-    "bruun_rasmussen",
+    "bruun_rasmussen", "lauritz",
     # Norway
     "gwpa",
     # Netherlands
@@ -69,6 +69,10 @@ def get_scraper(provider: str):
         from scripts.scrapers.auctionet import scrape
     elif provider == "bruun_rasmussen":
         from scripts.scrapers.bruun_rasmussen import scrape
+    elif provider == "lauritz":
+        from scripts.scrapers.lauritz import scrape
+    elif provider == "stockholms_auktionsverk":
+        from scripts.scrapers.stockholms_auktionsverk import scrape
     elif provider == "gwpa":
         from scripts.scrapers.gwpa import scrape
     elif provider == "kunstveiling":

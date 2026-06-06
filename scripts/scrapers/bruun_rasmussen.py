@@ -11,7 +11,7 @@ import re
 import time
 
 from scripts.scrapers.base import (
-    parse_price, parse_dimensions, parse_year_from_text,
+    parse_price, parse_dimensions, parse_year_from_text, is_painting,
     setup_browser, dismiss_cookies, save_checkpoint, load_checkpoint,
     deduplicate, safe_navigate, _clean,
 )
@@ -25,9 +25,6 @@ CATEGORIES = [
     (55538, "Modern Paintings"),
     (55539, "Older Paintings"),
     (55540, "Contemporary Art"),
-    (55541, "Prints & Multiples"),
-    (55542, "Sculpture"),
-    (55543, "Photography"),
 ]
 
 

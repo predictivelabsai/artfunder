@@ -491,17 +491,122 @@ function scrollMessagesBottom() {
     window.showSignIn = () => {
         const o = $("#signin-overlay");
         if (o) o.classList.add("visible");
-        const e = $("#signin-email");
+        switchAuthTab('login');
+        const e = $("#login-email");
         if (e) e.focus();
     };
-    window.doSignIn = async () => {
-        const email = ($("#signin-email") || {}).value || "";
-        if (!email.trim()) return;
-        const r = await fetch("/app/auth/signin", { method: "POST", body: new URLSearchParams({ email: email.trim() }) });
-        if (r.ok) window.location.reload();
+    window.switchAuthTab = (tab) => {
+        // Hide all forms
+        const login = $("#auth-form-login");
+        const register = $("#auth-form-register");
+        const forgot = $("#auth-form-forgot");
+        if (login) login.style.display = "none";
+        if (register) register.style.display = "none";
+        if (forgot) forgot.style.display = "none";
+        // Deactivate all tabs
+        const tabLogin = $("#auth-tab-login");
+        const tabRegister = $("#auth-tab-register");
+        if (tabLogin) tabLogin.classList.remove("active");
+        if (tabRegister) tabRegister.classList.remove("active");
+        // Show selected
+        if (tab === "login" && login) {
+            login.style.display = "block";
+            if (tabLogin) tabLogin.classList.add("active");
+        } else if (tab === "register" && register) {
+            register.style.display = "block";
+            if (tabRegister) tabRegister.classList.add("active");
+        } else if (tab === "forgot" && forgot) {
+            forgot.style.display = "block";
+        }
+        // Clear errors
+        const le = $("#login-error"); if (le) le.textContent = "";
+        const re = $("#reg-error"); if (re) re.textContent = "";
+        const rs = $("#reg-success"); if (rs) rs.textContent = "";
+        const fm = $("#forgot-msg"); if (fm) fm.textContent = "";
+    };
+    window.showForgotPassword = (ev) => {
+        if (ev) ev.preventDefault();
+        switchAuthTab('forgot');
+    };
+    window.doLogin = async () => {
+        const email = ($("#login-email") || {}).value || "";
+        const password = ($("#login-password") || {}).value || "";
+        const errEl = $("#login-error");
+        if (!email.trim() || !password) {
+            if (errEl) errEl.textContent = "Email and password are required";
+            return;
+        }
+        try {
+            const r = await fetch("/auth/login", {
+                method: "POST",
+                body: new URLSearchParams({ email: email.trim(), password }),
+            });
+            const data = await r.json();
+            if (r.ok && data.ok) {
+                window.location.reload();
+            } else if (data.error === "no_password") {
+                if (errEl) errEl.textContent = "Please set a password for your account";
+            } else {
+                if (errEl) errEl.textContent = data.error || "Login failed";
+            }
+        } catch (e) {
+            if (errEl) errEl.textContent = "Network error";
+        }
+    };
+    window.doRegister = async () => {
+        const name = ($("#reg-name") || {}).value || "";
+        const email = ($("#reg-email") || {}).value || "";
+        const password = ($("#reg-password") || {}).value || "";
+        const errEl = $("#reg-error");
+        const succEl = $("#reg-success");
+        if (errEl) errEl.textContent = "";
+        if (succEl) succEl.textContent = "";
+        if (!email.trim() || !password) {
+            if (errEl) errEl.textContent = "Email and password are required";
+            return;
+        }
+        if (password.length < 6) {
+            if (errEl) errEl.textContent = "Password must be at least 6 characters";
+            return;
+        }
+        try {
+            const r = await fetch("/auth/register", {
+                method: "POST",
+                body: new URLSearchParams({ name, email: email.trim(), password }),
+            });
+            const data = await r.json();
+            if (r.ok && data.ok) {
+                if (succEl) succEl.textContent = data.message || "Check your email to verify your account";
+            } else {
+                if (errEl) errEl.textContent = data.error || "Registration failed";
+            }
+        } catch (e) {
+            if (errEl) errEl.textContent = "Network error";
+        }
+    };
+    window.doForgot = async () => {
+        const email = ($("#forgot-email") || {}).value || "";
+        const msgEl = $("#forgot-msg");
+        if (!email.trim()) {
+            if (msgEl) { msgEl.textContent = "Please enter your email"; msgEl.className = "text-red-500 text-sm mb-2"; }
+            return;
+        }
+        try {
+            const r = await fetch("/auth/forgot", {
+                method: "POST",
+                body: new URLSearchParams({ email: email.trim() }),
+            });
+            const data = await r.json();
+            if (msgEl) {
+                msgEl.textContent = data.message || "If an account exists, a reset link has been sent";
+                msgEl.className = "text-green-600 text-sm mb-2";
+            }
+        } catch (e) {
+            if (msgEl) { msgEl.textContent = "Network error"; msgEl.className = "text-red-500 text-sm mb-2"; }
+        }
     };
     window.signOut = async () => {
-        await fetch("/app/auth/signout", { method: "POST" });
+        await fetch("/auth/logout", { method: "POST" });
         window.location.reload();
     };
     window.copyChat = () => {

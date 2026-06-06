@@ -15,6 +15,34 @@ DATA_DIR = ROOT / "data" / "auctions"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
+_PAINTING_RE = re.compile(
+    r'(olja|oljemålning|olje|oil|akvarell|aquarell|waterc|gouache|tempera|'
+    r'pastell|pastel|akryl|acrylic|blandteknik|mixed media|sega.?tehnika|'
+    r'på duk|on canvas|på pannå|on panel|på papp|on cardboard|on board|'
+    r'på trä|on wood|maalning|målning|painting|maal|gemälde|maleri|'
+    r'õli|guašš|tušš)', re.IGNORECASE)
+
+_NOT_PAINTING_RE = re.compile(
+    r'\b(skulptur|sculpture|brons|bronze|keramik|ceramic|porslin|porcelain|'
+    r'glas|glass|möbel|furniture|matta|carpet|rug|silver|smycke|jewel|'
+    r'klocka|clock|watch|bok|book|fotografi|photo|vapen|weapon|textil|'
+    r'stol|chair|bord|table|skåp|cabinet|byrå|dresser|lampa|lamp|'
+    r'spegel|mirror|vas|vase|fat|plate|skål|bowl)\b', re.IGNORECASE)
+
+
+def is_painting(tech: str = "", title: str = "", author: str = "") -> bool:
+    """Return True if the lot is likely a painting (not sculpture, furniture, etc.)."""
+    combined = f"{tech} {title} {author}".strip()
+    if not combined:
+        return True  # unknown medium — keep by default
+    if _NOT_PAINTING_RE.search(combined):
+        return False
+    if _PAINTING_RE.search(combined):
+        return True
+    # If no signal either way, keep it (could be painting without explicit medium)
+    return True
+
+
 def parse_price(text: str) -> int:
     """Extract integer EUR price from text like '31 500 €' or 'AH: 350€'."""
     if not text:

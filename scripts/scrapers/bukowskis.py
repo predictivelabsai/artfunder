@@ -12,7 +12,7 @@ import re
 import time
 
 from scripts.scrapers.base import (
-    parse_price, parse_year_from_text,
+    parse_price, parse_year_from_text, is_painting,
     setup_browser, dismiss_cookies, save_checkpoint, load_checkpoint,
     deduplicate, safe_navigate, _clean,
 )
@@ -149,6 +149,9 @@ def scrape(headless: bool = True, limit: int = 0):
             for raw in raw_lots:
                 key = (raw.get("author", ""), raw.get("title", ""), auction_name)
                 if key in seen_keys:
+                    continue
+
+                if not is_painting(title=raw.get("title", ""), author=raw.get("author", "")):
                     continue
 
                 # Convert SEK to EUR

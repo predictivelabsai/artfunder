@@ -92,6 +92,13 @@ def _init_chat_tables():
         "ALTER TABLE kanvas.auction_lots ALTER COLUMN end_price SET DEFAULT 0",
         "CREATE INDEX IF NOT EXISTS idx_auction_lots_source_url ON kanvas.auction_lots(source_url)",
         "ALTER TABLE kanvas.auction_lots ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'",
+        # Auth columns on chat_users
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS name VARCHAR(255)",
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)",
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS verify_token VARCHAR(64)",
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(64)",
+        "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ",
     ]
     with engine.connect() as conn:
         for stmt in ddl:

@@ -155,6 +155,19 @@ sources:
       and Uppsala Auktionskammare. Over 4 million ended lots across
       art, design, antiques, and collectibles.
 
+  - name: Stockholms Auktionsverk
+    slug: stockholms_auktionsverk
+    country: SE
+    url: https://stockholmsauktionsverk.com
+    status: active
+    lots_estimate: 150000
+    year_range: [2002, 2026]
+    description: >
+      The world's oldest auction house, founded in 1674. Now owned by
+      Auctionet Group. Enormous online archive of past auction results
+      covering fine art, design, and antiques. Server-rendered HTML
+      archive at /arkiv/online/kategori/konst.
+
   # === DENMARK ===
   - name: Bruun Rasmussen
     slug: bruun_rasmussen
@@ -167,6 +180,19 @@ sources:
       Denmark's largest and most prestigious auction house, renowned
       for sales of fine art, design, and luxury goods. Handles over
       75,000 items per year across live and online auctions in Copenhagen.
+
+  - name: Lauritz.com
+    slug: lauritz
+    country: DK
+    url: https://www.lauritz.com
+    status: active
+    lots_estimate: 60000
+    year_range: [1999, 2026]
+    description: >
+      Northern Europe's largest online auction house, originally
+      established in 1885. Online since 1999 with ~5,000 hammer prices
+      per month. Operates 8 departments across Denmark. Protected by
+      Cloudflare, requires stealth browser for scraping.
 
   # === NORWAY ===
   - name: Grev Wedels Plass Auksjoner

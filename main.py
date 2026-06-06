@@ -47,6 +47,9 @@ register_market_map_routes(rt)
 from game.routes import register_game_routes
 register_game_routes(rt)
 
+from auth import register_auth_routes
+register_auth_routes(rt)
+
 
 # --- Auth helpers ---
 
