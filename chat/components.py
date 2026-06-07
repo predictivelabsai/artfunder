@@ -127,8 +127,16 @@ def left_pane(user_email=None, sessions=None, current_sid="", lang: str = "en"):
         title = (s.get("title") or "New chat")[:40]
         active_cls = " active" if sid == current_sid else ""
         session_items.append(
-            A(title, href=f"/app?sid={sid}",
-              cls=f"session-item{active_cls}")
+            Div(
+                A(title, href=f"/app?sid={sid}", cls="session-title"),
+                Button(
+                    NotStr('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'),
+                    cls="session-share-btn",
+                    onclick=f"shareSession('{sid}',event)",
+                    title="Copy share link",
+                ),
+                cls=f"session-item{active_cls}",
+            )
         )
 
     agent_groups = []
@@ -260,8 +268,16 @@ def center_pane(messages=None, current_agent_slug=None, lang: str = "en"):
             ),
             Div(
                 _chat_lang_dropdown(lang),
-                Button(t("chat_copy", lang), id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn copy-btn"),
-                Button("\U0001f517", id="share-btn", onclick="shareChat()", cls="header-action-btn share-btn", title="Share link"),
+                Button(
+                    NotStr('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'),
+                    Span(t("chat_copy", lang), cls="btn-label"),
+                    id="copy-chat-btn", onclick="copyChat()", cls="header-action-btn copy-btn", title="Copy chat",
+                ),
+                Button(
+                    NotStr('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'),
+                    Span("Share", cls="btn-label"),
+                    id="share-btn", onclick="shareChat()", cls="header-action-btn share-btn", title="Share link",
+                ),
                 Button(t("chat_canvas", lang), id="artifact-btn", onclick="toggleArtifactPane()", cls="header-action-btn canvas-btn"),
                 Button("\U0001f4f0", id="news-toggle-btn", onclick="toggleArtifactPane()", cls="header-action-btn news-toggle-btn",
                        title="Art News"),

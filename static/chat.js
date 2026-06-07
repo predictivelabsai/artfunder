@@ -609,6 +609,22 @@ function scrollMessagesBottom() {
         await fetch("/auth/logout", { method: "POST" });
         window.location.reload();
     };
+    const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+    const COPY_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    const LINK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+    function flashBtn(btn, origHtml) {
+        btn.classList.add("copied");
+        var label = btn.querySelector(".btn-label");
+        if (label) label.textContent = "Copied";
+        btn.querySelector("svg").outerHTML = CHECK_SVG;
+        setTimeout(function() {
+            btn.classList.remove("copied");
+            if (label) label.textContent = origHtml;
+            btn.querySelector("svg").outerHTML = origHtml === "Copy" ? COPY_SVG : LINK_SVG;
+        }, 1500);
+    }
+
     window.copyChat = () => {
         const msgs = document.querySelectorAll(".msg");
         const lines = [];
@@ -619,29 +635,42 @@ function scrollMessagesBottom() {
         });
         navigator.clipboard.writeText(lines.join("\n\n")).then(() => {
             const btn = document.getElementById("copy-chat-btn");
-            if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); }
+            if (btn) flashBtn(btn, "Copy");
         });
     };
+
+    async function _doShare(sid) {
+        const resp = await fetch("/api/chat/share", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "sid=" + encodeURIComponent(sid),
+        });
+        const data = await resp.json();
+        if (data.url) {
+            try { await navigator.clipboard.writeText(data.url); } catch (_) { window.prompt("Share link:", data.url); }
+            return true;
+        }
+        return false;
+    }
+
     window.shareChat = async () => {
         if (!currentSessionId) return;
         const btn = document.getElementById("share-btn");
-        try {
-            const resp = await fetch("/api/chat/share", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "sid=" + encodeURIComponent(currentSessionId),
-            });
-            const data = await resp.json();
-            if (data.url) {
-                try {
-                    await navigator.clipboard.writeText(data.url);
-                    if (btn) { btn.textContent = "✓ Copied"; setTimeout(() => { btn.textContent = "🔗"; }, 2000); }
-                } catch (_) {
-                    window.prompt("Share link:", data.url);
-                }
-            }
-        } catch (e) {
-            if (btn) { btn.textContent = "Error"; setTimeout(() => { btn.textContent = "🔗"; }, 2000); }
+        if (await _doShare(currentSessionId)) {
+            if (btn) flashBtn(btn, "Share");
+        }
+    };
+
+    window.shareSession = async (sid, ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const btn = ev.currentTarget;
+        if (await _doShare(sid)) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = CHECK_SVG;
+            btn.style.display = "flex";
+            btn.style.color = "#16A34A";
+            setTimeout(function() { btn.innerHTML = orig; btn.style.color = ""; btn.style.display = ""; }, 1500);
         }
     };
 
