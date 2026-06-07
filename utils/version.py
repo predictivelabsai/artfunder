@@ -1,4 +1,4 @@
 """Application version -- bumped on each release."""
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __version_date__ = "2026-06-07"

@@ -44,7 +44,7 @@ def _head(title: str = "Kanvas.ai") -> Head:
         Script(NotStr(TAILWIND_CONFIG)),
         Script(src="https://cdn.plot.ly/plotly-2.35.2.min.js"),
         Script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"),
-        Link(rel="stylesheet", href="/static/app.css"),
+        Link(rel="stylesheet", href=f"/static/app.css?v={__version__}"),
     )
 
 
