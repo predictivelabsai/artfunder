@@ -159,6 +159,68 @@ def register_chat_routes(rt):
             lang=lang,
         )
 
+    @rt("/api/chat/share", methods=["POST"])
+    async def chat_share(request: Request):
+        """Generate or return share token for a chat session."""
+        import secrets
+        from sqlalchemy import text
+        sess = request.session
+        uid, _ = _ensure_user(sess)
+        if not uid:
+            return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+        form = await request.form()
+        sid = form.get("sid") or ""
+        try:
+            sid_int = int(sid)
+        except (TypeError, ValueError):
+            return JSONResponse({"error": "Invalid session"}, status_code=400)
+
+        db = _get_db()
+        try:
+            row = db.execute(
+                text("SELECT share_token FROM kanvas.chat_sessions WHERE id = :sid AND user_id = :uid"),
+                {"sid": sid_int, "uid": uid},
+            ).fetchone()
+            if not row:
+                return JSONResponse({"error": "Session not found"}, status_code=404)
+
+            token = row.share_token
+            if not token:
+                token = secrets.token_urlsafe(16)
+                db.execute(
+                    text("UPDATE kanvas.chat_sessions SET share_token = :token WHERE id = :sid"),
+                    {"token": token, "sid": sid_int},
+                )
+                db.commit()
+        finally:
+            db.close()
+
+        import os
+        base = os.getenv("SERVICE_URL", "https://kanvas.ai")
+        return JSONResponse({"url": f"{base}/share/{token}", "token": token})
+
+    @rt("/share/{token}")
+    def shared_chat(token: str):
+        """Public read-only view of a shared chat session."""
+        from sqlalchemy import text
+        db = _get_db()
+        try:
+            row = db.execute(
+                text("SELECT id, title, agent_slug FROM kanvas.chat_sessions WHERE share_token = :token"),
+                {"token": token},
+            ).fetchone()
+            if not row:
+                from starlette.responses import RedirectResponse
+                return RedirectResponse("/app", status_code=303)
+            messages = _session_messages(row.id)
+            agent_slug = row.agent_slug
+        finally:
+            db.close()
+
+        from chat.layout import shared_chat_page
+        return shared_chat_page(messages=messages, current_agent_slug=agent_slug, title=row.title)
+
     @rt("/app/chat", methods=["POST"])
     async def chat_stream(request: Request):
         sess = request.session

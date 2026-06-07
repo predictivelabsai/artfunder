@@ -622,6 +622,28 @@ function scrollMessagesBottom() {
             if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); }
         });
     };
+    window.shareChat = async () => {
+        if (!currentSessionId) return;
+        const btn = document.getElementById("share-btn");
+        try {
+            const resp = await fetch("/api/chat/share", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "sid=" + encodeURIComponent(currentSessionId),
+            });
+            const data = await resp.json();
+            if (data.url) {
+                try {
+                    await navigator.clipboard.writeText(data.url);
+                    if (btn) { btn.textContent = "✓ Copied"; setTimeout(() => { btn.textContent = "🔗"; }, 2000); }
+                } catch (_) {
+                    window.prompt("Share link:", data.url);
+                }
+            }
+        } catch (e) {
+            if (btn) { btn.textContent = "Error"; setTimeout(() => { btn.textContent = "🔗"; }, 2000); }
+        }
+    };
 
     function parseAndRenderChoices(bubble) {
         if (!bubble || !window.location.pathname.includes("art-guru")) return;
