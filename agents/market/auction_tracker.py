@@ -7,7 +7,7 @@ from tools.charts import price_trend_chart
 from tools.sql_query import art_market_query, art_market_chart
 
 SPEC = AGENTS_BY_SLUG["auction_tracker"]
-TOOLS = [art_market_query, art_market_chart, search_auction_lots, artist_auction_history, price_trend_chart]
+TOOLS = [search_auction_lots, artist_auction_history, price_trend_chart, art_market_query, art_market_chart]
 
 
 @lru_cache(maxsize=1)

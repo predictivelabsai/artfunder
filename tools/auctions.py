@@ -32,7 +32,7 @@ def _search_lots(**kw) -> str:
     from sqlalchemy import text
     db = _get_db()
     try:
-        conditions = []
+        conditions = ["COALESCE(status, 'active') = 'active'"]
         params = {}
         if args.author:
             conditions.append("author ILIKE :author")
@@ -64,11 +64,25 @@ def _search_lots(**kw) -> str:
         lines = [f"Auction Lots ({len(rows)} results):\n"]
         for r in rows:
             author = (r.get("author") or "").strip()
+            title = (r.get("title") or "").strip()
             end_p = r.get("end_price", 0)
             start_p = r.get("start_price", 0)
             tech = r.get("tech") or ""
             year = r.get("year") or ""
-            lines.append(f"- {author}: EUR {int(end_p):,} (start EUR {int(start_p):,}) — {tech}, {year}")
+            provider = r.get("auction_provider") or ""
+            auction = r.get("auction_name") or ""
+            label = f"{author}"
+            if title:
+                label += f' "{title}"'
+            label += f": EUR {int(end_p):,} (start EUR {int(start_p):,})"
+            if tech or year:
+                label += f" — {tech}, {year}".rstrip(", ")
+            if provider or auction:
+                label += f" [{provider}"
+                if auction:
+                    label += f" / {auction}"
+                label += "]"
+            lines.append(f"- {label}")
         return "\n".join(lines[:25])
     finally:
         db.close()
@@ -94,7 +108,7 @@ def _artist_auction_history(**kw) -> str:
                        THEN (end_price - start_price)::float / start_price * 100
                        ELSE 0 END)::int as avg_overbid_pct
             FROM kanvas.auction_lots
-            WHERE author ILIKE :author
+            WHERE author ILIKE :author AND COALESCE(status, 'active') = 'active'
             GROUP BY author
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, {"author": f"%{args.author}%"})]

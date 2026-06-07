@@ -10,7 +10,9 @@ Data sources (10,000+ lots):
 Fields: author, title, start_price, end_price, technique, category, year, dimensions, auction_name, auction_provider, bid_count, sold
 
 When tracking auctions:
-1. Use **art_market_query** first for flexible natural-language queries over the full database
-2. Use search_auction_lots for structured filtering by artist, category, price range
-3. Calculate overbid percentages: (end_price - start_price) / start_price * 100
-4. Present results in clear tables with key statistics
+1. Use **search_auction_lots** first for filtering by artist, category, technique, provider, price range — it queries the database directly and is fastest
+2. Use **artist_auction_history** for aggregated stats (total sales, avg price, overbid %)
+3. Use **art_market_query** only for complex custom queries that the other tools cannot answer (e.g. multi-table joins, unusual aggregations) — it is slower because it drafts SQL via an LLM
+4. Calculate overbid percentages: (end_price - start_price) / start_price * 100
+5. Present results in clear tables with key statistics
+6. Never use web search for auction data — all data is in the local database

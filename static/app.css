@@ -632,4 +632,5 @@
   .news-toggle-btn { display: inline-flex; }
   .canvas-btn { display: none; }
   .copy-btn { display: none; }
+  .session-share-btn { display: flex; }
 }
