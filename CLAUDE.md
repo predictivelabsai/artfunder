@@ -50,7 +50,9 @@ The app requires a `.env` file with `DB_URL` (PostgreSQL), `XAI_API_KEY` (Grok L
 
 ### Tools (`tools/`)
 
-LangChain `StructuredTool` instances with Pydantic input schemas. Available tools: `auctions.py` (lot lookup, artist history), `sql_query.py` (direct SQL), `charts.py` (treemap/price trends), `artworks.py` (artwork DB search), `search.py` (Exa web search), `news.py` (RSS + Exa news).
+LangChain `StructuredTool` instances with Pydantic input schemas. Available tools: `auctions.py` (lot lookup, artist history), `sql_query.py` (text-to-SQL via LLM), `charts.py` (treemap/price trends), `artworks.py` (artwork DB search), `search.py` (Exa web search), `news.py` (RSS + Exa news).
+
+**Tool ordering matters**: Agents prefer tools listed earlier. For auction queries, direct DB tools (`search_auction_lots`, `artist_auction_history`) must come before `art_market_query` (which adds an LLM round-trip to draft SQL). Never add web search tools to the auction_tracker agent.
 
 ### Chat streaming (`chat/routes.py`, `chat/sse.py`)
 
@@ -68,6 +70,8 @@ Two patterns coexist:
 
 All tables in the `kanvas` schema. `search_path` set on every connection via SQLAlchemy event listener.
 
+**`auction_lots` indexes**: provider, author, date, end_price, status, category, tech, source_url, and composite (status, end_price). All defined as `CREATE INDEX IF NOT EXISTS` in `db.py` migrations. When adding new query patterns, check if an index is needed.
+
 ### Scrapers (`scripts/scrapers/`)
 
 Playwright-based auction data scrapers for 15+ galleries (Estonian, Nordic, international). Shared utilities in `base.py` (price parsing, browser setup, painting detection). Run via `python -m scripts.scrape_auctions --provider haus`. Data saved to `data/auctions/` as JSON.
@@ -79,6 +83,10 @@ Playwright-based auction data scrapers for 15+ galleries (Estonian, Nordic, inte
 ### Daily digest (`scripts/daily_deals.py`)
 
 Scans auction data for bidding wars, value finds, market movers. Sends HTML email via Postmark. Built-in scheduler in `main.py` runs at `DIGEST_HOUR` (default 7 AM). `--all` flag sends to all registered users; respects `notify_weekly_digest` preference.
+
+### Chat session sharing (`chat/routes.py`)
+
+`POST /api/chat/share` generates a `secrets.token_urlsafe(16)` share token stored in `chat_sessions.share_token`. `GET /share/{token}` renders a public read-only view via `shared_chat_page()`. Sidebar sessions show share icons on hover (desktop) or always (mobile). Header has Copy and Share buttons with SVG icons and checkmark feedback animation.
 
 ### Art Guru game (`game/`)
 
