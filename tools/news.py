@@ -29,6 +29,11 @@ EXA_ART_QUERIES = [
     "Estonian art auction news",
     "Baltic contemporary art exhibitions",
     "Estonian gallery openings art market",
+    "Nordic art market trends",
+    "Eesti kunstioksjon",
+    "contemporary art prices Europe",
+    "Estonian artists international exhibitions",
+    "Baltic art collecting investment",
 ]
 
 
@@ -53,13 +58,20 @@ def _fetch_rss(source: dict, max_items: int = 5) -> list[dict]:
 
 
 def _fetch_exa_news(max_items: int = 8) -> list[dict]:
-    """Fetch art news via Exa search."""
+    """Fetch art news via Exa search.
+
+    Rotates through queries daily so the digest doesn't repeat the same results.
+    """
     key = settings().exa_api_key
     if not key:
         return []
 
+    day_offset = datetime.utcnow().timetuple().tm_yday
+    n = len(EXA_ART_QUERIES)
+    queries = [EXA_ART_QUERIES[(day_offset + i) % n] for i in range(3)]
+
     items = []
-    for query in EXA_ART_QUERIES[:2]:
+    for query in queries:
         try:
             payload = {
                 "query": query,

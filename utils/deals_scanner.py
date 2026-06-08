@@ -47,23 +47,32 @@ COUNTRY_FOR_PROVIDER = {
 
 
 def scan_bidding_wars(limit: int = 10) -> list[dict]:
-    """Lots that sold furthest above estimate — shows market heat."""
+    """Lots that sold furthest above estimate — shows market heat.
+
+    Picks from the top 100 by overbid, then shuffles daily using a
+    date-based seed so each day's digest features different lots.
+    """
     from db import SessionLocal
     from sqlalchemy import text
 
     db = SessionLocal()
     try:
         sql = text("""
-            SELECT author, title, start_price, end_price,
-                   ROUND((end_price - start_price)::numeric / start_price * 100, 1) AS overbid_pct,
-                   tech, auction_provider, auction_date, image_url, source_url
-            FROM kanvas.auction_lots
-            WHERE COALESCE(status, 'active') = 'active'
-              AND end_price >= 100 AND start_price > 0
-              AND end_price > start_price
-              AND author !~ '^\\d+$'
-              AND LENGTH(TRIM(author)) > 3
-            ORDER BY (end_price - start_price)::float / start_price DESC
+            SELECT * FROM (
+                SELECT author, title, start_price, end_price,
+                       ROUND((end_price - start_price)::numeric / start_price * 100, 1) AS overbid_pct,
+                       tech, auction_provider, auction_date, image_url, source_url
+                FROM kanvas.auction_lots
+                WHERE COALESCE(status, 'active') = 'active'
+                  AND end_price >= 100 AND start_price > 0
+                  AND end_price > start_price
+                  AND author !~ '^\\d+$'
+                  AND LENGTH(TRIM(author)) > 3
+                  AND image_url IS NOT NULL AND image_url != ''
+                ORDER BY (end_price - start_price)::float / start_price DESC
+                LIMIT 100
+            ) pool
+            ORDER BY md5(author || title || CURRENT_DATE::text)
             LIMIT :lim
         """)
         return [dict(r._mapping) for r in db.execute(sql, {"lim": limit})]
@@ -72,35 +81,42 @@ def scan_bidding_wars(limit: int = 10) -> list[dict]:
 
 
 def scan_value_finds(limit: int = 10) -> list[dict]:
-    """Works by top artists that sold below their historical average — potential bargains."""
+    """Works by top artists that sold below their historical average — potential bargains.
+
+    Picks from a larger pool and rotates daily via date-based hash.
+    """
     from db import SessionLocal
     from sqlalchemy import text
 
     db = SessionLocal()
     try:
         sql = text("""
-            WITH top_artists AS (
-                SELECT author, AVG(end_price)::int AS avg_price,
-                       COUNT(*) AS total_lots, SUM(end_price) AS total_sales
-                FROM kanvas.auction_lots
-                WHERE COALESCE(status, 'active') = 'active'
-                  AND end_price >= 100
-                GROUP BY author
-                HAVING COUNT(*) >= 5 AND AVG(end_price) >= 200
-            )
-            SELECT l.author, l.title, l.start_price, l.end_price,
-                   a.avg_price AS artist_avg,
-                   ROUND((a.avg_price - l.end_price)::numeric / a.avg_price * 100, 1) AS discount_pct,
-                   l.tech, l.auction_provider, l.auction_date,
-                   l.image_url, l.source_url,
-                   a.total_lots, a.total_sales
-            FROM kanvas.auction_lots l
-            JOIN top_artists a ON l.author = a.author
-            WHERE COALESCE(l.status, 'active') = 'active'
-              AND l.end_price >= 50
-              AND l.end_price < a.avg_price * 0.5
-              AND l.end_price >= 50
-            ORDER BY a.total_sales DESC, discount_pct DESC
+            SELECT * FROM (
+                WITH top_artists AS (
+                    SELECT author, AVG(end_price)::int AS avg_price,
+                           COUNT(*) AS total_lots, SUM(end_price) AS total_sales
+                    FROM kanvas.auction_lots
+                    WHERE COALESCE(status, 'active') = 'active'
+                      AND end_price >= 100
+                    GROUP BY author
+                    HAVING COUNT(*) >= 5 AND AVG(end_price) >= 200
+                )
+                SELECT l.author, l.title, l.start_price, l.end_price,
+                       a.avg_price AS artist_avg,
+                       ROUND((a.avg_price - l.end_price)::numeric / a.avg_price * 100, 1) AS discount_pct,
+                       l.tech, l.auction_provider, l.auction_date,
+                       l.image_url, l.source_url,
+                       a.total_lots, a.total_sales
+                FROM kanvas.auction_lots l
+                JOIN top_artists a ON l.author = a.author
+                WHERE COALESCE(l.status, 'active') = 'active'
+                  AND l.end_price >= 50
+                  AND l.end_price < a.avg_price * 0.5
+                  AND l.image_url IS NOT NULL AND l.image_url != ''
+                ORDER BY a.total_sales DESC, discount_pct DESC
+                LIMIT 100
+            ) pool
+            ORDER BY md5(author || title || CURRENT_DATE::text)
             LIMIT :lim
         """)
         return [dict(r._mapping) for r in db.execute(sql, {"lim": limit})]
@@ -109,32 +125,39 @@ def scan_value_finds(limit: int = 10) -> list[dict]:
 
 
 def scan_market_movers(limit: int = 10) -> list[dict]:
-    """Artists with the highest auction activity and total sales volume."""
+    """Artists with the highest auction activity and total sales volume.
+
+    Picks from top 50 artists and rotates daily.
+    """
     from db import SessionLocal
     from sqlalchemy import text
 
     db = SessionLocal()
     try:
         sql = text("""
-            SELECT author,
-                   COUNT(*) AS lot_count,
-                   SUM(end_price) AS total_sales,
-                   AVG(end_price)::int AS avg_price,
-                   MIN(end_price) AS min_price,
-                   MAX(end_price) AS max_price,
-                   CASE WHEN SUM(CASE WHEN start_price > 0 THEN 1 ELSE 0 END) > 0
-                        THEN ROUND(AVG(CASE WHEN start_price > 0
-                             THEN (end_price - start_price)::float / start_price * 100
-                             ELSE NULL END)::numeric, 1)
-                        ELSE NULL END AS avg_overbid_pct
-            FROM kanvas.auction_lots
-            WHERE COALESCE(status, 'active') = 'active'
-              AND end_price >= 100
-              AND author !~ '^\\d+$'
-              AND LENGTH(TRIM(author)) > 3
-            GROUP BY author
-            HAVING COUNT(*) >= 5
-            ORDER BY SUM(end_price) DESC
+            SELECT * FROM (
+                SELECT author,
+                       COUNT(*) AS lot_count,
+                       SUM(end_price) AS total_sales,
+                       AVG(end_price)::int AS avg_price,
+                       MIN(end_price) AS min_price,
+                       MAX(end_price) AS max_price,
+                       CASE WHEN SUM(CASE WHEN start_price > 0 THEN 1 ELSE 0 END) > 0
+                            THEN ROUND(AVG(CASE WHEN start_price > 0
+                                 THEN (end_price - start_price)::float / start_price * 100
+                                 ELSE NULL END)::numeric, 1)
+                            ELSE NULL END AS avg_overbid_pct
+                FROM kanvas.auction_lots
+                WHERE COALESCE(status, 'active') = 'active'
+                  AND end_price >= 100
+                  AND author !~ '^\\d+$'
+                  AND LENGTH(TRIM(author)) > 3
+                GROUP BY author
+                HAVING COUNT(*) >= 5
+                ORDER BY SUM(end_price) DESC
+                LIMIT 50
+            ) pool
+            ORDER BY md5(author || CURRENT_DATE::text)
             LIMIT :lim
         """)
         return [dict(r._mapping) for r in db.execute(sql, {"lim": limit})]
@@ -143,10 +166,11 @@ def scan_market_movers(limit: int = 10) -> list[dict]:
 
 
 def fetch_news(max_items: int = 6) -> list[dict]:
-    """Fetch art news from the existing RSS + Exa pipeline."""
+    """Fetch fresh art news (bypasses the in-memory cache)."""
     try:
         from tools.news import _fetch_fresh
-        return _fetch_fresh(max_items=max_items)
+        items = _fetch_fresh(max_items=max_items)
+        return items
     except Exception as e:
         log.warning("News fetch failed: %s", e)
         return []
@@ -198,13 +222,13 @@ def build_digest_html(bidding_wars: list[dict], value_finds: list[dict],
         author = (d.get("author") or "Unknown")[:40]
         url = d.get("source_url") or f"{BASE_URL}/app/market-map?author={quote(author)}"
         img = d.get("image_url") or ""
-        img_cell = f'<img src="{img}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">' if img else '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:4px;"></div>'
+        img_td = f'''<td style="padding:10px 8px; border-bottom:1px solid #E5E7EB; width:56px;">
+                <a href="{url}" style="{link_style}" target="_blank"><img src="{img}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;"></a>
+            </td>''' if img else ""
 
         war_rows += f"""
         <tr>
-            <td style="padding:10px 8px; border-bottom:1px solid #E5E7EB; width:56px;">
-                <a href="{url}" style="{link_style}" target="_blank">{img_cell}</a>
-            </td>
+            {img_td}
             <td style="padding:10px 8px; border-bottom:1px solid #E5E7EB;">
                 <a href="{url}" style="{link_style}" target="_blank">
                     <strong style="color:#1A1A1A; font-size:13px;">{author}</strong><br>
@@ -233,13 +257,13 @@ def build_digest_html(bidding_wars: list[dict], value_finds: list[dict],
         flag = _country_flag(d.get("auction_provider"))
         url = d.get("source_url") or f"{BASE_URL}/app/market-map?author={quote(author)}"
         img = d.get("image_url") or ""
-        img_cell = f'<img src="{img}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">' if img else '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:4px;"></div>'
+        img_td = f'''<td style="padding:10px 8px; border-bottom:1px solid #E5E7EB; width:56px;">
+                <a href="{url}" style="{link_style}" target="_blank"><img src="{img}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;"></a>
+            </td>''' if img else ""
 
         value_rows += f"""
         <tr>
-            <td style="padding:10px 8px; border-bottom:1px solid #E5E7EB; width:56px;">
-                <a href="{url}" style="{link_style}" target="_blank">{img_cell}</a>
-            </td>
+            {img_td}
             <td style="padding:10px 8px; border-bottom:1px solid #E5E7EB;">
                 <a href="{url}" style="{link_style}" target="_blank">
                     <strong style="color:#1A1A1A; font-size:13px;">{author}</strong><br>
