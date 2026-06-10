@@ -164,8 +164,16 @@ def register_chat_routes(rt):
         """Generate or return share token for a chat session."""
         import secrets
         from sqlalchemy import text
-        sess = request.session
-        uid, _ = _ensure_user(sess)
+
+        # Try JWT Bearer token first (mobile), fall back to session (web)
+        uid = None
+        from api.mobile_auth import get_mobile_user
+        jwt_user = get_mobile_user(request)
+        if jwt_user:
+            uid = jwt_user["sub"]
+        else:
+            sess = request.session
+            uid, _ = _ensure_user(sess)
         if not uid:
             return JSONResponse({"error": "Not logged in"}, status_code=401)
 
@@ -231,7 +239,15 @@ def register_chat_routes(rt):
         if not user_msg:
             return JSONResponse({"error": "empty message"}, status_code=400)
 
-        uid, email = _ensure_user(sess)
+        # Try JWT Bearer token first (mobile app), fall back to session cookie (web)
+        uid, email = None, None
+        from api.mobile_auth import get_mobile_user
+        jwt_user = get_mobile_user(request)
+        if jwt_user:
+            uid, email = jwt_user["sub"], jwt_user["email"]
+        else:
+            uid, email = _ensure_user(sess)
+
         if not uid:
             from sqlalchemy import text
             db = _get_db()

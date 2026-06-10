@@ -50,6 +50,9 @@ register_game_routes(rt)
 from auth import register_auth_routes
 register_auth_routes(rt)
 
+from api.mobile_auth import register_mobile_auth_routes
+register_mobile_auth_routes(rt)
+
 
 # --- Auth helpers ---
 
