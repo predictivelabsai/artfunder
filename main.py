@@ -53,6 +53,16 @@ register_auth_routes(rt)
 from api.mobile_auth import register_mobile_auth_routes
 register_mobile_auth_routes(rt)
 
+# --- Mount FastAPI API at /api/v1 (optional) ---
+try:
+    from api.fastapi_app import api_app
+    app.mount("/api/v1", api_app)
+    print("INFO:     FastAPI API mounted at /api/v1 (docs: /api/v1/docs)")
+except ImportError as e:
+    print(f"WARNING:  FastAPI not available, /api/v1 not mounted: {e}")
+except Exception as e:
+    print(f"ERROR:    Failed to mount FastAPI API: {e}")
+
 
 # --- Auth helpers ---
 

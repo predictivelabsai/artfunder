@@ -3,6 +3,7 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 uvicorn
+fastapi
 python-multipart
 langchain-core
 langchain-openai
