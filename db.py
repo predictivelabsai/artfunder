@@ -107,12 +107,14 @@ def _init_chat_tables():
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS verify_token VARCHAR(64)",
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(64)",
         "ALTER TABLE kanvas.chat_users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ",
+        # Widen country column for full country names
+        "ALTER TABLE kanvas.user_profiles ALTER COLUMN country TYPE VARCHAR(100)",
         # User profiles table
         f"""CREATE TABLE IF NOT EXISTS {SCHEMA}.user_profiles (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL REFERENCES {SCHEMA}.chat_users(id) ON DELETE CASCADE UNIQUE,
             phone VARCHAR(30),
-            country VARCHAR(5),
+            country VARCHAR(100),
             city VARCHAR(100),
             currency VARCHAR(3) DEFAULT 'EUR',
             language VARCHAR(5) DEFAULT 'en',

@@ -32,6 +32,16 @@ log = logging.getLogger(__name__)
 SCHEMA = "kanvas"
 
 
+def _json_list(val) -> list:
+    if not val:
+        return []
+    if isinstance(val, list):
+        return val
+    if isinstance(val, str):
+        return json.loads(val)
+    return []
+
+
 def create_app(root_path: str = "") -> FastAPI:
     """Build the FastAPI app. Routes have no prefix — that comes from the mount point or reverse proxy."""
     api = FastAPI(
@@ -443,10 +453,10 @@ def create_app(root_path: str = "") -> FastAPI:
             language=p.get("language") or "en",
             budget_min_eur=float(p["budget_min_eur"]) if p.get("budget_min_eur") else None,
             budget_max_eur=float(p["budget_max_eur"]) if p.get("budget_max_eur") else None,
-            preferred_mediums=json.loads(p["preferred_mediums"]) if p.get("preferred_mediums") else [],
-            preferred_periods=json.loads(p["preferred_periods"]) if p.get("preferred_periods") else [],
-            preferred_auction_houses=json.loads(p["preferred_auction_houses"]) if p.get("preferred_auction_houses") else [],
-            preferred_countries=json.loads(p["preferred_countries"]) if p.get("preferred_countries") else [],
+            preferred_mediums=_json_list(p.get("preferred_mediums")),
+            preferred_periods=_json_list(p.get("preferred_periods")),
+            preferred_auction_houses=_json_list(p.get("preferred_auction_houses")),
+            preferred_countries=_json_list(p.get("preferred_countries")),
             min_year=p.get("min_year"),
             max_year=p.get("max_year"),
             notify_new_results=p.get("notify_new_results", True),
