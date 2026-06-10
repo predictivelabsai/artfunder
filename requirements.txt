@@ -16,3 +16,4 @@ feedparser
 playwright
 pyyaml
 bcrypt
+PyJWT
