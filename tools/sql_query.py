@@ -21,8 +21,14 @@ def _load_schema_snippet() -> str:
     if not _SCHEMA_JSON.exists():
         return "(schema.json not found — query kanvas.auction_lots and kanvas.artworks)"
     data = json.loads(_SCHEMA_JSON.read_text())
+    # schema.json wraps the tables under a "tables" key. Iterating the raw dict
+    # yielded a single bogus "tables" entry, so the LLM received an empty schema
+    # and hallucinated non-existent tables (e.g. kanvas.artists). Unwrap it.
+    tables = data.get("tables", data)
     lines = []
-    for table, info in data.items():
+    for table, info in tables.items():
+        if not isinstance(info, dict):
+            continue
         cols = info.get("columns", [])
         col_parts = []
         for c in cols:
@@ -31,7 +37,7 @@ def _load_schema_snippet() -> str:
         count = info.get("row_count", "?")
         providers = info.get("providers")
         categories = info.get("categories_sample")
-        header = f"{table} ({count} rows)"
+        header = f"kanvas.{table} ({count} rows)"
         lines.append(header)
         lines.append(f"  ({', '.join(col_parts)})")
         if providers:
