@@ -27,41 +27,9 @@ from chat.routes import _ensure_user, _list_sessions
 
 log = logging.getLogger(__name__)
 
-MIN_PRICE = 50  # filter out junk (books, porcelain, catalogs)
+from tools.art_filter import ART_ONLY_SQL, ART_ONLY_BINDS
 
-# ── Art-only filter ──────────────────────────────────────────────────
-# The `category` column is ~99% empty, so art is detected from tech/title.
-# A lot is dropped only if it matches the non-art list AND shows no fine-art
-# medium signal — so a painting titled "Table" or "Mirror" is still kept.
-# Scope (per product decision): keep paintings, works on paper, prints,
-# sculpture and art-ceramics; drop furniture, jewelry, books, glass,
-# clocks/watches, coins and carpets. Applied as Postgres POSIX regex.
-_NONART_RE = (
-    r"\y(furniture|mobel|mööbel|chair|stol|fatolj|fåtölj|tugitool|kapp|kummut|"
-    r"cabinet|skap|skåp|byra|byrå|dresser|kommode|table|laud|bord|tisch|sofa|"
-    r"soffa|sohva|diivan|desk|kirjutuslaud|shelf|riiul|bookcase|lamp|lampa|"
-    r"lambi|leuchter|mirror|spegel|peegel|jewel|jewellery|jewelry|smycke|ehted|"
-    r"sormus|sõrmus|brooch|brosch|prees|necklace|kaelakee|earring|korvarongas|"
-    r"kõrvarõngas|orhange|örhänge|clock|klocka|watch|armbandsur|uhr|book|raamat|"
-    r"bocker|böcker|bucher|bücher|coin|mynt|munt|münt|medal|medalj|munze|münze|"
-    r"carpet|matta|vaip|rug|teppich|glass|glas|klaas)\y"
-)
-_ART_MEDIUM_RE = (
-    r"(oil|õli|oli|olja|olje|öl|canvas|lõuend|louend|duk|pann|watercolo|akvarell|"
-    r"akvarel|aquarell|gouache|guašš|guass|tempera|pastel|acrylic|akr[uü]l|akryl|"
-    r"graphic|graafika|grafi|litho|lito|etch|eau.?forte|ofort|söövitus|soovitus|"
-    r"gravüür|woodcut|linocut|drypoint|mezzotint|serigraph|monotype|aquatint|"
-    r"mixed media|sega.?tehnika|segatehnika|\yink\y|tušš|tuss|pencil|pliiats|"
-    r"charcoal|s[uü]si|paber|\ypaper\y|panel|pann[oa]|papp|maal|painting|gemälde|"
-    r"maleri|drawing|joonistus|sketch|sculpt|skulptuur|bronze|pronks|marble|"
-    r"marmor|terracotta|terrakota|porcelain|portselan|ceramic|keraamika|fajanss|"
-    r"fa[iy]ence)"
-)
-# Substituted into WHERE so both the treemap and trends charts share it.
-_ART_ONLY_SQL = (
-    "(LOWER(COALESCE(tech,'') || ' ' || COALESCE(title,'')) !~* :nonart "
-    "OR LOWER(COALESCE(tech,'') || ' ' || COALESCE(title,'')) ~* :artmedium)"
-)
+MIN_PRICE = 50  # filter out junk (books, porcelain, catalogs)
 
 CHART_LAYOUT = dict(
     paper_bgcolor="#FFFFFF", plot_bgcolor="#F5F5F5",
@@ -80,9 +48,8 @@ COUNTRY_NAMES = {
 def _build_where(params: dict) -> tuple[str, dict]:
     conditions = [f"end_price >= {MIN_PRICE}", "COALESCE(status, 'active') = 'active'"]
     bind = {}
-    conditions.append(_ART_ONLY_SQL)
-    bind["nonart"] = _NONART_RE
-    bind["artmedium"] = _ART_MEDIUM_RE
+    conditions.append(ART_ONLY_SQL)
+    bind.update(ART_ONLY_BINDS)
     country = params.get("country", "").strip()
     if country and country != "ALL":
         conditions.append("COALESCE(country, 'EE') = :country")

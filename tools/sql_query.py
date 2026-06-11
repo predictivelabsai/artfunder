@@ -66,12 +66,15 @@ Rules:
 - For time series, ORDER BY the time column.
 - Use ILIKE for name matching.
 - Prices are in whole EUR (not cents).
-- ART-ONLY FILTER: kanvas.auction_lots also contains NON-ART lots (banknotes,
-  coins, watches, pianos, etc.) whose `author` is just the lot title and whose
-  `tech` and `category` are both NULL. For ANY question about artists, artworks,
-  paintings, or art-market sales/rankings/trends, you MUST restrict to real art
-  by adding: AND (tech IS NOT NULL OR category IS NOT NULL). Omit this only when
-  the user explicitly asks about non-art items.
+- ART-ONLY FILTER: kanvas.auction_lots also contains non-art lots (banknotes,
+  coins, watches, furniture, jewelry, etc.). For market-WIDE art questions
+  (top artists, rankings, totals, or trends across MANY artists), exclude them
+  by adding `AND {ART_ONLY}` to the WHERE clause. Write the token `{ART_ONLY}`
+  literally — do NOT expand or rewrite it.
+  Do NOT add the filter when the question is about a SPECIFIC named artist
+  (e.g. "Konrad Mägi", "Raoul Kurvitz"): the artist name already scopes the
+  results, and the filter could hide that artist's lots that lack a recorded
+  medium. Also omit it when the user explicitly asks about non-art items.
 
 Schema:
 {schema}"""
@@ -82,6 +85,8 @@ Schema:
     if sql.lower().startswith("sql"):
         sql = sql[3:].strip()
     sql = sql.rstrip(";")
+    from tools.art_filter import expand_art_only
+    sql = expand_art_only(sql)
     return sql
 
 
