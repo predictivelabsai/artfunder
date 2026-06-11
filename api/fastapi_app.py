@@ -360,7 +360,12 @@ def create_app(root_path: str = "") -> FastAPI:
             if body.lang != "en":
                 lang_directive = f"\nUser language: {body.lang} ({lang_info['name']}). Respond in {lang_info['name']}."
 
-            lc_messages = [SystemMessage(content=f"You are a Kanvas art advisor. Respond helpfully and concisely.{lang_directive}")]
+            lc_messages = [SystemMessage(content=(
+                "You are a Kanvas art advisor. Respond helpfully and concisely. "
+                "Never show SQL, database queries, table/column names, or code — "
+                "present only results in plain language."
+                f"{lang_directive}"
+            ))]
             for h in history[-20:]:
                 if h["role"] == "user":
                     lc_messages.append(HumanMessage(content=h["content"]))
