@@ -66,6 +66,12 @@ Rules:
 - For time series, ORDER BY the time column.
 - Use ILIKE for name matching.
 - Prices are in whole EUR (not cents).
+- ART-ONLY FILTER: kanvas.auction_lots also contains NON-ART lots (banknotes,
+  coins, watches, pianos, etc.) whose `author` is just the lot title and whose
+  `tech` and `category` are both NULL. For ANY question about artists, artworks,
+  paintings, or art-market sales/rankings/trends, you MUST restrict to real art
+  by adding: AND (tech IS NOT NULL OR category IS NOT NULL). Omit this only when
+  the user explicitly asks about non-art items.
 
 Schema:
 {schema}"""
