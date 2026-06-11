@@ -9,11 +9,12 @@ Kanvas.ai is an AI art advisory platform for the Estonian and Baltic art market.
 ## Running Locally
 
 ```bash
-python main.py          # Starts on port 5009 (or PORT env var)
-docker compose up --build  # Docker alternative
+python main.py          # Monolith (web + chat + game) on port 5009 (or PORT env var)
+python -m api.fastapi_app  # Standalone JSON API on port 5012 (for api.kanvas.ai / mobile app)
+docker compose up --build  # Docker alternative (monolith)
 ```
 
-The app requires a `.env` file with `DB_URL` (PostgreSQL), `XAI_API_KEY` (Grok LLM), `POSTMARK_API_TOKEN` (email), and optionally `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` (OAuth).
+The app requires a `.env` file with `DB_URL` (PostgreSQL), `XAI_API_KEY` (Grok LLM), `POSTMARK_API_TOKEN` (email), and optionally `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` (OAuth) and `JWT_SECRET` (mobile API tokens).
 
 ## Tech Stack
 
@@ -21,7 +22,8 @@ The app requires a `.env` file with `DB_URL` (PostgreSQL), `XAI_API_KEY` (Grok L
 - **LLM**: LangChain + LangGraph ReAct agents, xAI Grok via `utils/llm.py`
 - **Database**: PostgreSQL (`kanvas` schema), SQLAlchemy for ORM models, raw SQL via `text()` for chat/auth/auction tables
 - **CSS**: Tailwind CSS via CDN
-- **Deployment**: Docker + Coolify, push-to-main auto-deploys via webhook
+- **API**: FastAPI (`api/`) — JSON API for the mobile app, JWT auth
+- **Deployment**: Docker + Coolify. Two apps deploy from `main` (both auto-deploy on push): `kanvas-monolith` (kanvas.ai, `Dockerfile`, port 5009) and `api` (api.kanvas.ai, `Dockerfile.api`, port 5012)
 
 ## FastHTML Conventions (MUST FOLLOW)
 
@@ -61,6 +63,14 @@ POST `/app/chat` streams SSE events via `StreamingResponse`. Flow: route message
 ### Auth (`auth/`)
 
 Email/password + Google OAuth. `auth/routes.py` has register, login, verify, forgot/reset password, profile/preferences endpoints. `auth/utils.py` has bcrypt hashing and Postmark email sending. Session keys: `chat_email`, `chat_uid` via `utils/session.py`.
+
+### Standalone API (`api/`)
+
+A FastAPI app serving the mobile client at `api.kanvas.ai`, decoupled from the FastHTML monolith. `api/fastapi_app.py:create_app()` builds the app with **no route prefix** — the prefix comes from the mount point or reverse proxy. It is consumed two ways:
+1. **Standalone** (`python -m api.fastapi_app`, port 5012) — deployed via `Dockerfile.api` to `api.kanvas.ai`.
+2. **Mounted** in `main.py` at `/api/v1` (`app.mount("/api/v1", api_app)`, docs at `/api/v1/docs`) for dual deploy.
+
+Auth is **JWT** (`api/fastapi_auth.py`, HS256 signed with `JWT_SECRET` → falls back to `SECRET_KEY`, 72h expiry) — distinct from the monolith's cookie sessions. DB access via FastAPI deps (`api/fastapi_deps.py`: `get_db`, `get_current_user`, `get_optional_user`). Schemas in `api/fastapi_schemas.py`; chat reuses the same agent/streaming stack and returns SSE. `api/swagger.json` is the published OpenAPI spec. Note: `api/routes.py` (the `ar` APIRouter) and `api/mobile_auth.py` are separate FastHTML-side routes mounted in `main.py`, NOT part of the FastAPI app.
 
 ### Database (`db.py`)
 
@@ -104,4 +114,7 @@ Text RPG reusing chat streaming infrastructure. `GameState` tracks character, ro
 | `PORT` | Server port (default: 5009) |
 | `DIGEST_ENABLED` | Enable daily digest scheduler (default: "1") |
 | `DIGEST_HOUR` | Hour to send digest (default: 7) |
-| `SECRET_KEY` | HMAC secret for unsubscribe tokens |
+| `SECRET_KEY` | HMAC secret for unsubscribe tokens (JWT fallback) |
+| `JWT_SECRET` | Signing secret for mobile API tokens (`api/`) |
+| `EXA_API_KEY` | Exa web search (artist research + news fallback) |
+| `NEWS_INTERVAL_SECONDS` | News feed cache/poll interval (default 1800) |
