@@ -20,10 +20,13 @@ _cache: dict = {"items": [], "ts": 0}
 
 ART_SOURCES = [
     {"name": "Sirp", "domain": "sirp.ee", "rss_url": "https://sirp.ee/feed/", "lang": "et"},
-    {"name": "ERR Kultuur", "domain": "err.ee", "rss_url": "https://www.err.ee/rss/kultuur", "lang": "et"},
-    {"name": "Postimees Kultuur", "domain": "postimees.ee", "rss_url": "https://www.postimees.ee/rss/kultuur", "lang": "et"},
-    {"name": "Delfi Kultuur", "domain": "delfi.ee", "rss_url": "https://www.delfi.ee/rss/kultuur", "lang": "et"},
+    {"name": "ERR Kultuur", "domain": "err.ee", "rss_url": "https://kultuur.err.ee/rss", "lang": "et"},
+    {"name": "Postimees Kultuur", "domain": "postimees.ee", "rss_url": "https://kultuur.postimees.ee/rss", "lang": "et"},
+    {"name": "Eesti Muuseumid", "domain": "muuseum.ee", "rss_url": "https://www.muuseum.ee/feed/", "lang": "et"},
 ]
+
+# Some feeds reject requests without a browser-like User-Agent.
+_RSS_USER_AGENT = "Mozilla/5.0 (compatible; KanvasBot/1.0; +https://kanvas.ai)"
 
 EXA_ART_QUERIES = [
     "Estonian art auction news",
@@ -41,7 +44,7 @@ def _fetch_rss(source: dict, max_items: int = 5) -> list[dict]:
     """Fetch and parse an RSS feed."""
     try:
         import feedparser
-        feed = feedparser.parse(source["rss_url"])
+        feed = feedparser.parse(source["rss_url"], agent=_RSS_USER_AGENT)
         items = []
         for entry in feed.entries[:max_items]:
             items.append({
