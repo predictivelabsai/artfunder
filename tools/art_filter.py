@@ -57,3 +57,26 @@ ART_ONLY_TOKEN = "{ART_ONLY}"
 def expand_art_only(sql: str) -> str:
     """Replace the ART_ONLY_TOKEN placeholder with the inline art-only predicate."""
     return sql.replace(ART_ONLY_TOKEN, ART_ONLY_INLINE)
+
+
+# ── Medium classification ────────────────────────────────────────────
+# Buckets a lot's `tech`/`category` into a coarse medium label. Shared by the
+# Art Index trend chart (chat.market_map) and the performance engine
+# (tools.performance) so the segmentation is defined once.
+MEDIUM_BUCKET = """
+    CASE
+        WHEN LOWER(COALESCE(tech, '')) ~ '(oil|õli|öl|olje|olja|olie)' THEN 'Oil'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(waterc|aquar|akvar|akvarel)' THEN 'Watercolor'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(pastel)' THEN 'Pastel'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(litho|lito|litogra)' THEN 'Print'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(etch|engrav|woodcut|linocut|drypoint|dry.?point|mezzotint|eau.?forte|monotype|grafiika|grafi|serigraphy|screen)' THEN 'Print'
+        WHEN LOWER(COALESCE(category, '')) = 'graphics' OR LOWER(COALESCE(tech, '')) ~ '(graphic)' THEN 'Print'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(mixed|sega|collage|install)' THEN 'Mixed Media'
+        WHEN LOWER(COALESCE(tech, '')) ~ '(ink|tempera|gouache|guašš|pencil|charcoal|pliiats|tušš|pen )' THEN 'Works on Paper'
+        WHEN COALESCE(NULLIF(tech, ''), '') = '' THEN 'Other'
+        ELSE 'Other'
+    END
+"""
+
+# Valid bucket labels (what MEDIUM_BUCKET can return).
+MEDIUM_BUCKETS = ("Oil", "Watercolor", "Pastel", "Print", "Mixed Media", "Works on Paper", "Other")

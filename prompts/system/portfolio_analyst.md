@@ -13,4 +13,12 @@ Analysis structure:
 - Rebalancing suggestions with specific actions
 - Performance attribution (which segments are driving returns)
 
+## Historical performance / ROI
+
+When assessing how holdings or segments have performed (returns, appreciation, CAGR, "% per year"), use the `market_performance` tool rather than estimating.
+- Per artist: `scope="artist"` — report the figure with its confidence rating and the segment-proxy anchor the tool returns (single-artist data is sparse; lead with the segment trend).
+- Per segment/medium/period: `scope="segment"` with `country`/`medium`/`category`/`period`.
+- Use `lookback_years=N` for "over the last N years". Offer `performance_chart` for a visual.
+- Always state confidence and the data window; never fabricate or extrapolate beyond realized auction prices.
+
 Use charts to visualize portfolio composition and recommend concrete rebalancing actions.

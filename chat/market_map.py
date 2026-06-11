@@ -27,7 +27,7 @@ from chat.routes import _ensure_user, _list_sessions
 
 log = logging.getLogger(__name__)
 
-from tools.art_filter import ART_ONLY_SQL, ART_ONLY_BINDS
+from tools.art_filter import ART_ONLY_SQL, ART_ONLY_BINDS, MEDIUM_BUCKET
 
 MIN_PRICE = 50  # filter out junk (books, porcelain, catalogs)
 
@@ -97,22 +97,6 @@ def _fetch_treemap_data(params: dict):
         return rows
     finally:
         db.close()
-
-
-MEDIUM_BUCKET = """
-    CASE
-        WHEN LOWER(COALESCE(tech, '')) ~ '(oil|õli|öl|olje|olja|olie)' THEN 'Oil'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(waterc|aquar|akvar|akvarel)' THEN 'Watercolor'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(pastel)' THEN 'Pastel'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(litho|lito|litogra)' THEN 'Print'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(etch|engrav|woodcut|linocut|drypoint|dry.?point|mezzotint|eau.?forte|monotype|grafiika|grafi|serigraphy|screen)' THEN 'Print'
-        WHEN LOWER(COALESCE(category, '')) = 'graphics' OR LOWER(COALESCE(tech, '')) ~ '(graphic)' THEN 'Print'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(mixed|sega|collage|install)' THEN 'Mixed Media'
-        WHEN LOWER(COALESCE(tech, '')) ~ '(ink|tempera|gouache|guašš|pencil|charcoal|pliiats|tušš|pen )' THEN 'Works on Paper'
-        WHEN COALESCE(NULLIF(tech, ''), '') = '' THEN 'Other'
-        ELSE 'Other'
-    END
-"""
 
 
 def _fetch_trend_data(params: dict):

@@ -27,8 +27,11 @@ _SLUG_KEYWORDS: dict[str, list[str]] = {
     "artist_compare": ["compare", "versus", "vs", "comparison", "side by side"],
     "market_analyst": ["market", "trend", "sector", "heat map", "analytics"],
     "auction_tracker": ["auction", "lot", "sold", "hammer", "allee", "haus", "sale"],
-    "acquisition_advisor": ["advise", "recommend", "buy", "acquire", "budget", "should i"],
-    "portfolio_analyst": ["portfolio", "holdings", "diversif", "rebalance", "concentration"],
+    "acquisition_advisor": ["advise", "recommend", "buy", "acquire", "budget", "should i",
+                             "roi", "return", "appreciat", "cagr", "invest", "per year",
+                             "% a year", "how much would", "grow"],
+    "portfolio_analyst": ["portfolio", "holdings", "diversif", "rebalance", "concentration",
+                           "performance", "performed", "annualis", "annualiz"],
     "valuator": ["value", "valuation", "worth", "estimate", "apprais", "fair price"],
     "provenance_checker": ["provenance", "authenticity", "ownership", "exhibition history", "origin"],
 }

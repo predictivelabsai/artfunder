@@ -24,6 +24,7 @@ class SearchLotsArgs(BaseModel):
     provider: Optional[str] = Field(default=None, description="Auction provider: haus, allee, vaal, vernissage, or artandtonic.")
     min_price: Optional[int] = Field(default=None, description="Minimum end price in EUR.")
     max_price: Optional[int] = Field(default=None, description="Maximum end price in EUR.")
+    include_all_history: bool = Field(default=False, description="Search the entire history including 'inactive' records (older/archived lots), not just the current 'active' set. 'active'/'inactive' is a record flag, NOT a for-sale status.")
     limit: int = Field(default=20, ge=1, le=100)
 
 
@@ -32,7 +33,7 @@ def _search_lots(**kw) -> str:
     from sqlalchemy import text
     db = _get_db()
     try:
-        conditions = ["COALESCE(status, 'active') = 'active'"]
+        conditions = [] if args.include_all_history else ["COALESCE(status, 'active') = 'active'"]
         params = {}
         if args.author:
             conditions.append("author ILIKE :author")
@@ -90,6 +91,7 @@ def _search_lots(**kw) -> str:
 
 class ArtistHistoryArgs(BaseModel):
     author: str = Field(description="Artist name to look up auction history for.")
+    include_all_history: bool = Field(default=False, description="Include the entire history ('inactive'/archived records too), not just the current 'active' set. 'active'/'inactive' is a record flag, NOT a for-sale status.")
 
 
 def _artist_auction_history(**kw) -> str:
@@ -97,7 +99,8 @@ def _artist_auction_history(**kw) -> str:
     from sqlalchemy import text
     db = _get_db()
     try:
-        sql = text("""
+        status_clause = "" if args.include_all_history else "AND COALESCE(status, 'active') = 'active'"
+        sql = text(f"""
             SELECT author,
                    COUNT(*) as lots_sold,
                    SUM(end_price) as total_sales,
@@ -108,7 +111,7 @@ def _artist_auction_history(**kw) -> str:
                        THEN (end_price - start_price)::float / start_price * 100
                        ELSE 0 END)::int as avg_overbid_pct
             FROM kanvas.auction_lots
-            WHERE author ILIKE :author AND COALESCE(status, 'active') = 'active'
+            WHERE author ILIKE :author {status_clause}
             GROUP BY author
         """)
         rows = [dict(r._mapping) for r in db.execute(sql, {"author": f"%{args.author}%"})]
@@ -121,12 +124,12 @@ def _artist_auction_history(**kw) -> str:
 
 search_auction_lots = StructuredTool.from_function(
     func=_search_lots, name="search_auction_lots",
-    description="Search Estonian auction lot data by artist, category, technique, provider, and price range.",
+    description="Search Estonian auction lot data by artist, category, technique, provider, and price range. Set include_all_history=true to search the full archive, not just active records.",
     args_schema=SearchLotsArgs,
 )
 
 artist_auction_history = StructuredTool.from_function(
     func=_artist_auction_history, name="artist_auction_history",
-    description="Get aggregated auction statistics for an artist: total sales, average price, overbid percentage.",
+    description="Get aggregated auction statistics for an artist: total sales, average price, overbid percentage. Set include_all_history=true to span the full archive. For ROI/CAGR/'% per year' questions use market_performance instead.",
     args_schema=ArtistHistoryArgs,
 )
