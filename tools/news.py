@@ -7,8 +7,11 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from datetime import datetime, timedelta
+from email.utils import parsedate_to_datetime
+from html import unescape
 from typing import Optional
 
 import httpx
@@ -17,6 +20,46 @@ from utils.config import settings, get_news_interval
 log = logging.getLogger(__name__)
 
 _cache: dict = {"items": [], "ts": 0}
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_ISO_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _clean_text(raw: str, limit: int = 200) -> str:
+    """Strip HTML tags + entities from RSS/Exa summaries and collapse whitespace.
+
+    RSS summaries (e.g. Sirp) embed <p>/<br> markup that, injected via innerHTML,
+    breaks out of the styled snippet element and renders with the browser default
+    font. Returning plain text keeps every source's snippet visually consistent.
+    """
+    if not raw:
+        return ""
+    txt = _TAG_RE.sub(" ", raw)
+    txt = unescape(txt)
+    txt = re.sub(r"\s+", " ", txt).strip()
+    return txt[:limit]
+
+
+def _iso_date(date_str: str = "", struct=None) -> str:
+    """Normalise a publish date to 'YYYY-MM-DD' so all sources format consistently.
+
+    RSS gives RFC-822 ('Thu, 11 Jun 2026 04:00:00 +0000'); Exa gives ISO. Without
+    this the frontend's slice(0,10) mangles RFC-822 into 'Thu, 11 Ju'.
+    """
+    if struct:
+        try:
+            return time.strftime("%Y-%m-%d", struct)
+        except Exception:
+            pass
+    s = (date_str or "").strip()
+    if not s:
+        return ""
+    if _ISO_RE.match(s):
+        return s[:10]
+    try:
+        return parsedate_to_datetime(s).strftime("%Y-%m-%d")
+    except Exception:
+        return s[:10]
 
 ART_SOURCES = [
     {"name": "Sirp", "domain": "sirp.ee", "rss_url": "https://sirp.ee/feed/", "lang": "et"},
@@ -48,11 +91,11 @@ def _fetch_rss(source: dict, max_items: int = 5) -> list[dict]:
         items = []
         for entry in feed.entries[:max_items]:
             items.append({
-                "title": entry.get("title", ""),
+                "title": _clean_text(entry.get("title", ""), limit=300),
                 "url": entry.get("link", ""),
-                "snippet": (entry.get("summary") or entry.get("description") or "")[:200],
+                "snippet": _clean_text(entry.get("summary") or entry.get("description") or ""),
                 "source": source["name"],
-                "published": entry.get("published", ""),
+                "published": _iso_date(entry.get("published", ""), entry.get("published_parsed")),
             })
         return items
     except Exception as e:
@@ -89,11 +132,11 @@ def _fetch_exa_news(max_items: int = 8) -> list[dict]:
             data = r.json()
             for h in (data.get("results") or []):
                 items.append({
-                    "title": h.get("title", ""),
+                    "title": _clean_text(h.get("title", ""), limit=300),
                     "url": h.get("url", ""),
-                    "snippet": (h.get("text") or "")[:200],
+                    "snippet": _clean_text(h.get("text") or ""),
                     "source": "Exa",
-                    "published": h.get("publishedDate", ""),
+                    "published": _iso_date(h.get("publishedDate", "")),
                 })
         except Exception as e:
             log.debug("Exa news fetch failed: %s", e)
