@@ -300,12 +300,17 @@ def create_app(root_path: str = "") -> FastAPI:
         user: dict | None = Depends(get_optional_user),
         db: Session = Depends(get_db),
     ):
-        uid = user["sub"] if user else 0
+        # Anonymous requests (no valid token) have no chat_users row, so store
+        # their sessions with user_id = NULL — the FK to chat_users allows NULL,
+        # whereas user_id = 0 violates it and 500s. `IS NOT DISTINCT FROM` lets
+        # NULL match NULL on lookup so anonymous follow-ups reuse their session.
+        owner_id = user["sub"] if user else None
 
         if body.session_id:
             row = db.execute(
-                text(f"SELECT id FROM {SCHEMA}.chat_sessions WHERE id = :sid AND user_id = :uid"),
-                {"sid": body.session_id, "uid": uid},
+                text(f"SELECT id FROM {SCHEMA}.chat_sessions "
+                     "WHERE id = :sid AND user_id IS NOT DISTINCT FROM :uid"),
+                {"sid": body.session_id, "uid": owner_id},
             ).fetchone()
             session_id = row.id if row else None
         else:
@@ -314,7 +319,7 @@ def create_app(root_path: str = "") -> FastAPI:
         if not session_id:
             row = db.execute(
                 text(f"INSERT INTO {SCHEMA}.chat_sessions (user_id, title) VALUES (:uid, :title) RETURNING id"),
-                {"uid": uid, "title": body.message[:80]},
+                {"uid": owner_id, "title": body.message[:80]},
             ).fetchone()
             db.commit()
             session_id = row[0]
