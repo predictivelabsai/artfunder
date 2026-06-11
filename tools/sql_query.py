@@ -194,7 +194,12 @@ def _run_chart(**kw) -> str:
             break
 
     labels = df[label_col].astype(str).tolist()
-    values = df[value_col].tolist()
+    # DB numerics come back as Decimal, which json.dumps can't serialize —
+    # coerce to plain floats (and drop NaN) before building the figure.
+    values = [
+        float(v) if v is not None and not pd.isna(v) else 0
+        for v in df[value_col].tolist()
+    ]
     chart_title = args.title or f"{value_col} by {label_col}"
 
     chart_type = args.chart_type.lower()
