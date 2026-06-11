@@ -383,6 +383,18 @@ def create_app(root_path: str = "") -> FastAPI:
                             if not getattr(chunk, "tool_call_chunks", None):
                                 accumulated.append(chunk.content)
                                 yield _sse_event("token", {"text": chunk.content})
+                    elif kind == "on_chat_model_end":
+                        # If this model turn requested tool calls, any text it
+                        # streamed was intermediate reasoning (frequently raw
+                        # SQL). Drop it server-side and tell the client to clear
+                        # its streamed buffer so only the final answer remains.
+                        msg = ev["data"].get("output")
+                        tool_calls = getattr(msg, "tool_calls", None)
+                        if not tool_calls and isinstance(msg, dict):
+                            tool_calls = msg.get("tool_calls")
+                        if tool_calls:
+                            accumulated.clear()
+                            yield _sse_event("reset", {})
                     elif kind == "on_tool_start":
                         name = ev.get("name", "unknown")
                         args = ev["data"].get("input", {})
@@ -392,18 +404,26 @@ def create_app(root_path: str = "") -> FastAPI:
                         name = ev.get("name", "unknown")
                         raw = ev["data"].get("output", "")
                         output = getattr(raw, "content", None) or (raw if isinstance(raw, str) else str(raw))
-                        yield _sse_event("tool_end", {"name": name, "output": output[:2000]})
 
+                        # A tool may embed a chart payload as `...prose...__ARTIFACT__{json}`.
+                        # Emit the chart as a structured artifact_show event and strip the
+                        # raw JSON (and any leading SQL/marker) from the human-visible
+                        # tool output so it never renders as a wall of SQL/JSON in chat.
+                        clean = output
                         if isinstance(output, str) and "__ARTIFACT__" in output:
+                            marker = output.index("__ARTIFACT__")
+                            artifact_str = output[marker + len("__ARTIFACT__"):]
+                            sep = artifact_str.find("\n\n")
+                            if sep != -1:
+                                artifact_str = artifact_str[:sep]
                             try:
-                                artifact_str = output[output.index("__ARTIFACT__") + len("__ARTIFACT__"):]
-                                sep = artifact_str.find("\n\n")
-                                if sep != -1:
-                                    artifact_str = artifact_str[:sep]
                                 payload = json.loads(artifact_str)
                                 yield _sse_event("artifact_show", payload)
                             except Exception:
                                 pass
+                            clean = output[:marker].rstrip()
+
+                        yield _sse_event("tool_end", {"name": name, "output": clean[:2000]})
             except Exception as e:
                 log.exception("chat stream failed")
                 yield _sse_event("error", {"message": str(e)})
