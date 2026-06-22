@@ -6,9 +6,12 @@ Usage:
     python -m scripts.daily_deals --all                  # send to all registered users
     python -m scripts.daily_deals --dry-run              # print HTML, don't send
     python -m scripts.daily_deals --deals 10             # top N deals per section
+    python -m scripts.daily_deals --all --force          # ignore the per-period dedup lock
 
-Schedule via cron (daily at 07:00 UTC):
-    0 7 * * *  cd /path/to/kanvas && python -m scripts.daily_deals --all
+The in-app scheduler (main.py) runs this WEEKLY on Saturdays by default. The
+broadcast is de-duplicated across Coolify containers via a DB lock
+(_acquire_digest_lock), so only the first container actually sends. Cadence is
+configurable with DIGEST_FREQUENCY / DIGEST_HOUR / DIGEST_WEEKDAY.
 """
 from __future__ import annotations
 
@@ -45,6 +48,43 @@ def _unsubscribe_url(email: str) -> str:
     return f"{BASE_URL}/unsubscribe?email={email}&token={token}"
 
 
+def _current_period() -> str:
+    """Dedup key matching the configured cadence (weekly ISO year-week by default)."""
+    freq = os.getenv("DIGEST_FREQUENCY", "weekly").strip().lower()
+    now = datetime.now()
+    if freq == "daily":
+        return now.strftime("%Y-%m-%d")
+    if freq == "hourly":
+        return now.strftime("%Y-%m-%dT%H")
+    return now.strftime("%G-W%V")  # ISO year-week, e.g. 2026-W24
+
+
+def _acquire_digest_lock(period: str, recipients: int = 0) -> bool:
+    """Claim this period's digest slot atomically so concurrent Coolify
+    containers don't each send. Returns True only for the first claimant.
+
+    Fails open (returns True) if the DB is unreachable — better to risk a
+    duplicate than to silently skip the digest entirely.
+    """
+    from sqlalchemy import text
+    from db import SessionLocal
+    db = SessionLocal()
+    try:
+        row = db.execute(text("""
+            INSERT INTO kanvas.digest_log (period, recipients)
+            VALUES (:p, :r)
+            ON CONFLICT (period) DO NOTHING
+            RETURNING period
+        """), {"p": f"digest:{period}", "r": recipients}).fetchone()
+        db.commit()
+        return row is not None
+    except Exception as e:
+        log.warning("Digest lock check failed (%s); proceeding without dedup", e)
+        return True
+    finally:
+        db.close()
+
+
 def _get_newsletter_recipients() -> list[str]:
     """Return emails of all registered users who haven't unsubscribed from weekly digest."""
     from sqlalchemy import text
@@ -69,9 +109,18 @@ def main():
     parser.add_argument("--from-email", default=os.getenv("FROM_EMAIL", "info@kanvas.ai"))
     parser.add_argument("--dry-run", action="store_true", help="Print HTML without sending")
     parser.add_argument("--all", action="store_true", help="Send to all registered users")
+    parser.add_argument("--force", action="store_true", help="Bypass the per-period dedup lock")
     parser.add_argument("--deals", type=int, default=10, help="Number of items per section")
     parser.add_argument("--news", type=int, default=6, help="Number of news items")
     args = parser.parse_args()
+
+    # Cross-container dedup: only the first instance to claim this period sends
+    # the broadcast. Manual single-recipient sends and dry runs are never locked.
+    if args.all and not args.dry_run and not args.force:
+        period = _current_period()
+        if not _acquire_digest_lock(period):
+            log.info("Digest for period %s already sent by another instance — skipping.", period)
+            return
 
     log.info("Scanning bidding wars...")
     wars = scan_bidding_wars(limit=args.deals)
@@ -90,8 +139,9 @@ def main():
     log.info(f"Found {len(news)} news items")
 
     now = datetime.now()
-    period = "Morning" if now.hour < 12 else ("Afternoon" if now.hour < 17 else "Evening")
-    subject = f"Kanvas.ai {period} Art Deals -- {now.strftime('%b %d, %Y')}"
+    freq = os.getenv("DIGEST_FREQUENCY", "weekly").strip().lower()
+    cadence = {"weekly": "Weekly", "daily": "Daily", "hourly": "Hourly"}.get(freq, "")
+    subject = " ".join(f"Kanvas.ai {cadence} Art Deals".split()) + f" -- {now.strftime('%b %d, %Y')}"
 
     if args.all:
         recipients = _get_newsletter_recipients()

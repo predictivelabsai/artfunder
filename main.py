@@ -486,15 +486,30 @@ def faq(sess):
     )
 
 
-# --- Daily digest scheduler ---
+# --- Email digest scheduler ---
 
-def _start_daily_digest():
-    """Background thread that sends the art deals digest once per day."""
+def _start_digest_scheduler():
+    """Background thread that sends the art deals digest on a schedule.
+
+    Defaults to WEEKLY on Saturday. The send itself is de-duplicated at the DB
+    level (scripts.daily_deals._acquire_digest_lock), so it is safe for this
+    scheduler to run in multiple Coolify containers — only one actually sends.
+
+    Env: DIGEST_FREQUENCY = weekly (default) | daily | off
+         DIGEST_HOUR      = 7   (0-23)
+         DIGEST_WEEKDAY   = 5   (0=Mon … 6=Sun; 5 = Saturday, weekly only)
+    """
     import threading
     import time as _time
     from datetime import datetime, timedelta
 
-    DIGEST_HOUR = int(os.environ.get("DIGEST_HOUR", "7"))
+    freq = os.environ.get("DIGEST_FREQUENCY", "weekly").strip().lower()
+    hour = int(os.environ.get("DIGEST_HOUR", "7"))
+    weekday = int(os.environ.get("DIGEST_WEEKDAY", "5"))  # Saturday
+
+    if freq == "off":
+        print("INFO:     Digest scheduler disabled (DIGEST_FREQUENCY=off)", flush=True)
+        return
 
     def _run_digest():
         try:
@@ -502,18 +517,30 @@ def _start_daily_digest():
             import sys
             sys.argv = ["daily_deals", "--all"]
             digest_main()
+        except SystemExit:
+            pass  # daily_deals exits non-zero on partial send failure
         except Exception as e:
-            print(f"ERROR:    Daily digest error: {e}", flush=True)
+            print(f"ERROR:    Digest error: {e}", flush=True)
+
+    def _next_fire(now):
+        target = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+        if freq == "daily":
+            if target <= now:
+                target += timedelta(days=1)
+            return target
+        # weekly
+        target += timedelta(days=(weekday - target.weekday()) % 7)
+        if target <= now:
+            target += timedelta(weeks=1)
+        return target
 
     def _loop():
         while True:
             now = datetime.now()
-            target = now.replace(hour=DIGEST_HOUR, minute=0, second=0, microsecond=0)
-            if target <= now:
-                target += timedelta(days=1)
+            target = _next_fire(now)
             wait = (target - now).total_seconds()
-            print(f"INFO:     Daily digest scheduled for {target.strftime('%Y-%m-%d %H:%M')} ({wait/3600:.1f}h from now)", flush=True)
-            _time.sleep(wait)
+            print(f"INFO:     Digest ({freq}) scheduled for {target.strftime('%a %Y-%m-%d %H:%M')} ({wait/3600:.1f}h from now)", flush=True)
+            _time.sleep(max(wait, 1))
             _run_digest()
 
     t = threading.Thread(target=_loop, daemon=True)
@@ -548,7 +575,7 @@ async def startup():
         print(f"DB init warning: {e}")
 
     if os.environ.get("DIGEST_ENABLED", "1") == "1":
-        _start_daily_digest()
+        _start_digest_scheduler()
 
 
 serve(port=int(os.environ.get('PORT', 5009)))
