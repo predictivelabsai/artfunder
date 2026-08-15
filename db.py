@@ -64,6 +64,15 @@ def _init_chat_tables():
             tool_calls JSONB,
             created_at TIMESTAMPTZ DEFAULT NOW()
         )""",
+        """CREATE TABLE IF NOT EXISTS kanvas.ai_content_reports (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES kanvas.chat_users(id) ON DELETE SET NULL,
+            session_id INTEGER REFERENCES kanvas.chat_sessions(id) ON DELETE SET NULL,
+            reason VARCHAR(100) NOT NULL,
+            response_content TEXT NOT NULL,
+            details TEXT,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )""",
         # Cross-container dedup for the email digest: the period (e.g. ISO week)
         # is the primary key, so only the first container to INSERT it sends.
         """CREATE TABLE IF NOT EXISTS kanvas.digest_log (

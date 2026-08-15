@@ -22,7 +22,7 @@ from api.fastapi_schemas import (
     ChatRequest, SessionSummary, SessionDetail, MessageOut, ShareResponse, SharedSessionOut,
     AgentOut,
     UserProfileOut, UpdateProfileRequest,
-    ContactRequest,
+    ContactRequest, AIContentReportRequest,
 )
 from api.fastapi_deps import get_db, get_current_user, get_optional_user
 from auth.utils import hash_password, verify_password
@@ -166,6 +166,46 @@ def create_app(root_path: str = "") -> FastAPI:
         if not row:
             raise HTTPException(404, "User not found")
         return UserInfo(user_id=row.id, email=row.email, name=row.name or "")
+
+    @api.delete("/account", tags=["auth"])
+    def delete_account(
+        user: dict = Depends(get_current_user),
+        db: Session = Depends(get_db),
+    ):
+        """Permanently remove an account and its associated Kanvas data."""
+        uid = user["user_id"]
+        exists = db.execute(
+            text(f"SELECT id FROM {SCHEMA}.chat_users WHERE id = :uid"),
+            {"uid": uid},
+        ).fetchone()
+        if not exists:
+            raise HTTPException(404, "User not found")
+
+        db.execute(
+            text(f"DELETE FROM {SCHEMA}.ai_content_reports "
+                 f"WHERE user_id = :uid OR session_id IN "
+                 f"(SELECT id FROM {SCHEMA}.chat_sessions WHERE user_id = :uid)"),
+            {"uid": uid},
+        )
+        db.execute(
+            text(f"DELETE FROM {SCHEMA}.chat_messages WHERE session_id IN "
+                 f"(SELECT id FROM {SCHEMA}.chat_sessions WHERE user_id = :uid)"),
+            {"uid": uid},
+        )
+        db.execute(
+            text(f"DELETE FROM {SCHEMA}.chat_sessions WHERE user_id = :uid"),
+            {"uid": uid},
+        )
+        db.execute(
+            text(f"DELETE FROM {SCHEMA}.user_profiles WHERE user_id = :uid"),
+            {"uid": uid},
+        )
+        db.execute(
+            text(f"DELETE FROM {SCHEMA}.chat_users WHERE id = :uid"),
+            {"uid": uid},
+        )
+        db.commit()
+        return {"ok": True}
 
     # ── Agents ────────────────────────────────────────────────────────
 
@@ -536,6 +576,39 @@ def create_app(root_path: str = "") -> FastAPI:
         return {"ok": True}
 
     # ── Contact ──────────────────────────────────────────────────────
+
+    @api.post("/reports/ai-content", tags=["safety"])
+    def report_ai_content(
+        body: AIContentReportRequest,
+        user: dict | None = Depends(get_optional_user),
+        db: Session = Depends(get_db),
+    ):
+        """Record an in-app report about an AI-generated response."""
+        uid = user["sub"] if user else None
+        session_id = body.session_id
+        if session_id is not None:
+            session = db.execute(
+                text(f"SELECT id FROM {SCHEMA}.chat_sessions "
+                     "WHERE id = :sid AND user_id IS NOT DISTINCT FROM :uid"),
+                {"sid": session_id, "uid": uid},
+            ).fetchone()
+            if not session:
+                session_id = None
+
+        db.execute(
+            text(f"INSERT INTO {SCHEMA}.ai_content_reports "
+                 "(user_id, session_id, reason, response_content, details) "
+                 "VALUES (:uid, :sid, :reason, :content, :details)"),
+            {
+                "uid": uid,
+                "sid": session_id,
+                "reason": body.reason,
+                "content": body.response_content,
+                "details": body.details,
+            },
+        )
+        db.commit()
+        return {"ok": True, "message": "Report received"}
 
     @api.post("/contact", tags=["contact"])
     def submit_contact(body: ContactRequest):

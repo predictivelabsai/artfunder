@@ -178,6 +178,7 @@ def PageFooter(lang: str = "en"):
                     Ul(
                         Li(A(t('footer_terms', lang), href='/terms', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A(t('footer_privacy', lang), href='/privacy', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
+                        Li(A('Account deletion', href='/account-deletion', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         Li(A(t('footer_risk', lang), href='/risk', cls='text-gray-500 no-underline text-sm hover:text-black transition-colors'), cls='mb-2'),
                         cls='list-none'
                     )

@@ -193,6 +193,47 @@
         }
       }
     },
+    "/account": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Account",
+        "description": "Permanently remove an account and its associated Kanvas data.",
+        "operationId": "delete_account_account_delete",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/agents": {
       "get": {
         "tags": [
@@ -606,6 +647,57 @@
         }
       }
     },
+    "/reports/ai-content": {
+      "post": {
+        "tags": [
+          "safety"
+        ],
+        "summary": "Report Ai Content",
+        "description": "Record an in-app report about an AI-generated response.",
+        "operationId": "report_ai_content_reports_ai_content_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIContentReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/contact": {
       "post": {
         "tags": [
@@ -648,6 +740,51 @@
   },
   "components": {
     "schemas": {
+      "AIContentReportRequest": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "response_content": {
+            "type": "string",
+            "maxLength": 12000,
+            "minLength": 1,
+            "title": "Response Content"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason",
+          "response_content"
+        ],
+        "title": "AIContentReportRequest"
+      },
       "AgentOut": {
         "properties": {
           "slug": {

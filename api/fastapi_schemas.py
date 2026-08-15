@@ -28,6 +28,13 @@ class UserInfo(BaseModel):
     name: str = ""
 
 
+class AIContentReportRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=100)
+    response_content: str = Field(min_length=1, max_length=12000)
+    session_id: int | None = None
+    details: str | None = Field(default=None, max_length=2000)
+
+
 # ── Chat ──────────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):

@@ -13,6 +13,7 @@ from pages.artists import artists_page
 from pages.about import about_page
 from pages.contact import contact_page
 from pages.galleries import galleries_page
+from pages.legal import privacy_page, account_deletion_page
 
 # Admin & API
 from admin.views import ar as admin_router
@@ -113,6 +114,14 @@ def contact(sess):
 @rt
 def galleries(sess):
     return Page(galleries_page(sess=sess), active='galleries', title='Galleries & Auctions', sess=sess)
+
+@rt('/privacy')
+def privacy(sess):
+    return Page(privacy_page(), title='Privacy Policy', sess=sess)
+
+@rt('/account-deletion')
+def account_deletion(sess):
+    return Page(account_deletion_page(), title='Delete your account', sess=sess)
 
 
 # --- Sign-in page ---
